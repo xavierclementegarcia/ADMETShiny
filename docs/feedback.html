@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>install – admetshiny</title>
+<title>feedback – admetshiny</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -22,41 +22,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -302,7 +267,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">About ADMETShiny</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./install.html" aria-current="page"> 
+    <a class="nav-link" href="./install.html"> 
 <span class="menu-text">How to install?</span></a>
   </li>  
   <li class="nav-item">
@@ -351,18 +316,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#how-to-install" id="toc-how-to-install" class="nav-link active" data-scroll-target="#how-to-install">How to install?</a>
-  <ul class="collapse">
-  <li><a href="#the-installation-for-r-rstudio-requires-the-next-dependencies" id="toc-the-installation-for-r-rstudio-requires-the-next-dependencies" class="nav-link" data-scroll-target="#the-installation-for-r-rstudio-requires-the-next-dependencies">The installation for R &amp; RStudio requires the next dependencies</a></li>
-  <li><a href="#install-admetshiny-from-github" id="toc-install-admetshiny-from-github" class="nav-link" data-scroll-target="#install-admetshiny-from-github">Install ADMETShiny from GitHub</a></li>
-  </ul></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
@@ -371,69 +326,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="how-to-install" class="level2">
-<h2 class="anchored" data-anchor-id="how-to-install">How to install?</h2>
-<section id="the-installation-for-r-rstudio-requires-the-next-dependencies" class="level3">
-<h3 class="anchored" data-anchor-id="the-installation-for-r-rstudio-requires-the-next-dependencies">The installation for R &amp; RStudio requires the next dependencies</h3>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="images/10.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
-</figure>
-</div>
-</section>
-<section id="install-admetshiny-from-github" class="level3">
-<h3 class="anchored" data-anchor-id="install-admetshiny-from-github">Install ADMETShiny from GitHub</h3>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="images/12.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Install from GitHub" width="174"></p>
-</figure>
-</div>
-<p><strong>How to install?</strong></p>
-<p>Two different forms for install this package..</p>
-<p><strong>The next steps:</strong></p>
-<p><strong>Steps</strong></p>
-<ol type="1">
-<li>Install <a href="https://cloud.r-project.org/"><strong>R</strong></a> and <a href="https://docs.posit.co/ide/user/#rstudio-ide-oss-downloads"><strong>RStudio</strong></a>.</li>
-</ol>
-<p>You could choice your R &amp; Rstudio version f your operative system.</p>
-<p><em>I recommended install RStudio for the easyful user interface</em></p>
-<ol start="2" type="1">
-<li>Install the <a href="https://pak.r-lib.org/">pak</a> our remotes <a href="https://remotes.r-lib.org/">packages</a>.</li>
-<li>To enjoy all the features of ADMETShiny, we suggest you install all the dependencies listed below.</li>
-</ol>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#All dependencies:</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"shiny"</span>, <span class="st">"DT"</span>, <span class="st">"ggplot2"</span>, <span class="st">"dplyr"</span>, <span class="st">"magrittr"</span>, <span class="st">"rcdk"</span>, <span class="st">"webchem"</span>, <span class="st">"fmsb"</span>, <span class="st">"Rtsne"</span>, <span class="st">"ggrepel"</span>, <span class="st">"fingerprint"</span>, <span class="st">"cluster"</span>, <span class="st">"GGally"</span>, <span class="st">"openxlsx"</span>, <span class="st">"knitr"</span>, <span class="st">"rmarkdown"</span>, <span class="st">"testthat"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Note: For the user it isn’t necessary the package “testthat”. However, if you could collaborate in the debugging and review of this packages, please, don’t doubt of send me your suggestions in the section “<a href="./feedback.html"><strong>Feedback</strong></a>”.</p>
-<ol start="4" type="1">
-<li>For the “rCDK” &amp; Webchem package is necessary the follow dependence:</li>
-</ol>
-<p>Please, consider this option for the all features.</p>
-<p><a href="https://www.oracle.com/latam/java/technologies/downloads/"><u><strong>Java SE Development Kit Downloads by Oracle</strong></u></a></p>
-<ol start="5" type="1">
-<li>Installation to the package in your environment with the follow steps:</li>
-</ol>
-<p>You could consider install “pak”, follow the steps:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Write in the R &amp; RStudio console:</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"pak"</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Follow this step: </span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>pak<span class="sc">::</span><span class="fu">pkg_install</span>(<span class="st">"xavierclementegarcia/ADMETShiny"</span>, <span class="at">subdir =</span> <span class="st">"package"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>You could install the package with “remotes”:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Write in the R &amp; RStudio console:</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"remotes"</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Follow this step: </span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"xavierclementegarcia/ADMETShiny"</span>, <span class="at">subdir =</span> <span class="st">"package"</span>, <span class="at">subdir =</span> <span class="st">"package"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Remember that the correct proficiency of the Shiny app is required <strong>JDK &amp; the others dependencies listing above.</strong></p>
-<ol start="6" type="1">
-<li>Launch ADMETShiny.</li>
-</ol>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Call to the package</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"admetshiny"</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#For run the Shiny app</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>admetshiny<span class="sc">::</span><span class="fu">run_app</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
-</section>
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

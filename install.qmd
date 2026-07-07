@@ -10,16 +10,61 @@
 
 **How to install?**
 
-``` r
-install.packages("remotes")
-remotes::install_github("xavierclementegarcia/admetshiny")
-library(admetshiny)
-run_app()
-```
+Two different forms for install this package..
+
+**The next steps:**
 
 **Steps**
 
-1.  Install **R** and **RStudio**.
-2.  Install the **remotes** package.
-3.  Run `install_github()`.
-4.  Launch ADMETShiny.
+1.  Install [**R**](https://cloud.r-project.org/) and [**RStudio**](https://docs.posit.co/ide/user/#rstudio-ide-oss-downloads).
+
+You could choice your R & Rstudio version f your operative system.
+
+*I recommended install RStudio for the easyful user interface*
+
+2.  Install the [pak](https://pak.r-lib.org/) our remotes [packages](https://remotes.r-lib.org/).
+3.  To enjoy all the features of ADMETShiny, we suggest you install all the dependencies listed below.
+
+``` r
+#All dependencies:
+install.packages(c("shiny", "DT", "ggplot2", "dplyr", "magrittr", "rcdk", "webchem", "fmsb", "Rtsne", "ggrepel", "fingerprint", "cluster", "GGally", "openxlsx", "knitr", "rmarkdown", "testthat"))
+```
+
+Note: For the user it isn't necessary the package "testthat". However, if you could collaborate in the debugging and review of this packages, please, don't doubt of send me your suggestions in the section "[**Feedback**](feedback.qmd)".
+
+4.  For the "rCDK" & Webchem package is necessary the follow dependence:
+
+Please, consider this option for the all features.
+
+[[**Java SE Development Kit Downloads by Oracle**]{.underline}](https://www.oracle.com/latam/java/technologies/downloads/)
+
+5.  Installation to the package in your environment with the follow steps:
+
+You could consider install "pak", follow the steps:
+
+``` r
+#Write in the R & RStudio console:
+install.packages("pak")
+#Follow this step: 
+pak::pkg_install("xavierclementegarcia/ADMETShiny", subdir = "package")
+```
+
+You could install the package with "remotes":
+
+``` r
+#Write in the R & RStudio console:
+install.packages("remotes")
+#Follow this step: 
+remotes::install_github("xavierclementegarcia/ADMETShiny", subdir = "package", subdir = "package")
+```
+
+Remember that the correct proficiency of the Shiny app is required **JDK & the others dependencies listing above.**
+
+6.  Launch ADMETShiny.
+
+``` r
+#Call to the package
+library("admetshiny")
+#For run the Shiny app
+admetshiny::run_app()
+```

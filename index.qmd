@@ -18,7 +18,6 @@ about:
       href: https://github.com/xavierclementegarcia/ADMETShiny
 
     - icon: file-text
-      text: Documentation
       href: tutorials.qmd
 ---
 
