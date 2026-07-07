@@ -6,7 +6,7 @@
 
 ### Install ADMETShiny from GitHub
 
-![](images/12.png){fig-alt="Install from GitHub" fig-align="center" width="174"}
+![](icon/hexicon.png){fig-alt="Install from GitHub" fig-align="center" width="169"}
 
 **How to install?**
 

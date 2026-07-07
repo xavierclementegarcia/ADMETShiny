@@ -10,7 +10,7 @@ keywords:
 
 about:
   template: trestles
-  image: image/12.png
+  image: icon/hexicon.png
   image-shape: round
   links:
     - icon: github

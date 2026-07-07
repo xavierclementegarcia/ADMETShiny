@@ -1,18 +1,18 @@
 ---
-website: 
-  sidebar: 
-    - contents:
-      - section: "Tutorials"
-        contents:
-          - text: "The firts steps"
-            href: tutorials.qmd
+title: "Documentation"
 ---
 
 ### Documentation
 
 ### The first steps with ADMETShiny 
 
+#### The user interface
+
+![](images/20.png){fig-align="center"}
+
 ### The datasets example
+
+![](images/21.png){fig-align="center"}
 
 ### Your first analysis with ADMETShiny
 

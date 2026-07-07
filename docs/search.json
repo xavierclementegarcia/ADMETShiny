@@ -4,7 +4,7 @@
     "href": "workflow.html",
     "title": "Workflows & demostrations",
     "section": "",
-    "text": "Workflows & demonstrations\n\n\nCoconut: A Medicinal Latino-american plants dataset\n\n\nHow do you get a BOILED-egg with ADMETShiny\n\n\nChoosing the best secundaries metabolites\n\n\nThe hard mission to the validations\n\n\n\n\n Back to top"
+    "text": "Workflows & demonstrations\nBelow, we’ll work through a simple example to help you easily filter, analyze, and report your molecular data. Remember that you must have all the necessary dependencies installed if you intend to follow this workflow exactly.\nWe’ll begin with an example, which we’ll call a “case study,” using the crinamidine molecule and glyphosate.\n\nWhy are these two molecules so different?\nIn this case, it will simply be done in this way to evaluate the behavior and show the specific variations between the ADMET calculations reported in the datasets of SwissADME, ADMETLab 3.0, Deep pK learning and CDK & Webchem.\nWe suggest considering taking it directly from PubChem the canonical smiles of crinamidine y glyphosate.\n\n\n\nCoconut: A Medicinal Latino-american plants dataset\nAntes que nada, sería importante comentar que en próximas versiones se adicionará este soporte con “Coconut” debido a su exclusiva dedicación con moléculas de plantas de origen sudamericano.\n\n\nHow do you get a BOILED-egg with ADMETShiny\n\n\n\n\n\n\n\nChoosing the best secundaries metabolites\n\n\nThe hard mission to the validations\n\n\n\n\n Back to top"
   },
   {
     "objectID": "publication.html",
@@ -163,8 +163,8 @@
   {
     "objectID": "tutorials.html",
     "href": "tutorials.html",
-    "title": "admetshiny",
+    "title": "Documentation",
     "section": "",
-    "text": "Documentation\n\n\nThe first steps with ADMETShiny\n\n\nThe datasets example\n\n\nYour first analysis with ADMETShiny\n\n\nYou probably need a report\n\n\nThe conclusions\n\n\n\n\n\n\n\n Back to top"
+    "text": "Documentation\n\n\nThe first steps with ADMETShiny\n\nThe user interface\n\n\n\n\n\n\n\n\nThe datasets example\n\n\n\n\n\n\n\nYour first analysis with ADMETShiny\n\n\nYou probably need a report\n\n\nThe conclusions\n\n\n\n\n\n\n\n Back to top"
   }
 ]

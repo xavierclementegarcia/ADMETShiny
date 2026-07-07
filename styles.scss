@@ -1,53 +1,65 @@
 /*-- scss:defaults --*/
 
-$brand-bg: #F5F3FF;
-$brand-primary: #6C63FF;
-$brand-secondary: #8B7CFF;
+$brand-primary: #5B63FF;
+$brand-secondary: #7C6CFF;
 $brand-accent: #F04D9B;
-$brand-text: #23243A;
+$brand-info: #34C3FF;
+$brand-bg: #F7F8FC;
+$brand-text: #2E3155;
 
-/*-- scss:rules --*/
+/*==================================
+ Quartz (Light)
+===================================*/
 
-/* ===========================
-   Light Theme (Vapor Inspired)
-   =========================== */
+[data-bs-theme="light"] .navbar{
 
-[data-bs-theme="light"] .navbar {
-  background: linear-gradient(
-    90deg,
-    #F7F5FF 0%,
-    #ECE8FF 100%
-  );
-  border-bottom: 1px solid rgba(108, 99, 255, .15);
+  background: rgba(255,255,255,.78);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border-bottom: 1px solid rgba(91,99,255,.15);
 }
 
-[data-bs-theme="light"] .navbar .navbar-brand {
-  color: $brand-primary;
-  font-weight: 700;
+[data-bs-theme="light"] .navbar-brand{
+  color:$brand-primary;
+  font-weight:700;
 }
 
-[data-bs-theme="light"] .navbar .nav-link {
-  color: $brand-text;
-  transition: .2s;
+[data-bs-theme="light"] .nav-link{
+  color:$brand-text;
+  transition:.2s ease;
 }
 
-[data-bs-theme="light"] .navbar .nav-link:hover {
-  color: $brand-accent;
+[data-bs-theme="light"] .nav-link:hover{
+
+  color:$brand-accent;
+
 }
 
-/* ===========================
-   Dark Theme (Vapor)
-   =========================== */
+/*==================================
+ Vapor (Dark)
+===================================*/
 
-[data-bs-theme="dark"] .navbar {
-  background: #1b1f3b;
+[data-bs-theme="dark"] .navbar{
+
+  background:#1b1f3b;
+
 }
 
-[data-bs-theme="dark"] .navbar .navbar-brand,
-[data-bs-theme="dark"] .navbar .nav-link {
-  color: white;
+[data-bs-theme="dark"] .navbar-brand{
+
+  color:white;
+
 }
 
-[data-bs-theme="dark"] .navbar .nav-link:hover {
-  color: #79c7ff;
+[data-bs-theme="dark"] .nav-link{
+
+  color:#ECECFF;
+
+}
+
+[data-bs-theme="dark"] .nav-link:hover{
+
+  color:#59D6FF;
+
 }
