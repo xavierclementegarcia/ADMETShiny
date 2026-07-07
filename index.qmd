@@ -15,7 +15,7 @@ about:
   links:
     - icon: github
       text: GitHub
-      href: https://github.com/USUARIO/REPOSITORIO
+      href: https://xavierclementegarcia.github.io/ADMETShiny/
 
     - icon: file-text
       text: Documentation
