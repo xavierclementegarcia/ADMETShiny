@@ -1,6 +1,23 @@
+/*-- scss:defaults --*/
 $brand-mint: #E0EFDE;
 $brand-charcoal: #162627;
+/*-- scss:rules --*/
+/* Light (Morph) */
+[data-bs-theme="light"] .navbar {
+  background-color: #E0EFDE;
+}
 
-/*-- scss:defaults --*/
-$navbar-bg: $brand-mint;
-$navbar-fg: $brand-charcoal;
+[data-bs-theme="light"] .navbar .navbar-brand,
+[data-bs-theme="light"] .navbar .nav-link {
+  color: #162627;
+}
+
+/* Dark (Vapor) */
+[data-bs-theme="dark"] .navbar {
+  background-color: #1b1f3b;
+}
+
+[data-bs-theme="dark"] .navbar .navbar-brand,
+[data-bs-theme="dark"] .navbar .nav-link {
+  color: #ffffff;
+}

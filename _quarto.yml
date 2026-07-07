@@ -11,6 +11,17 @@ website:
     ADMETShiny is an open-source R/Shiny platform for ADMET prediction,
     cheminformatics, molecular descriptor calculation, QSAR analysis,
     and computational drug discovery.
+  reader-mode: true
+  back-to-top-navigation: true
+  page-footer: 
+    left: 
+      "MIT license, 2026 - ADMETShiny"
+    right: 
+      - href: https://github.com/xavierclementegarcia
+      - icon: github
+    center: |
+      Made with <a href="https://www.r-project.org/"><img src="https://www.r-project.org/Rlogo.png" alt="R" width="25px"></a> 
+      and <a href="https://quarto.org/"><img src="https://quarto.org/quarto.png" alt="Quarto" width="65px"></a>.
   navbar:
     left:
       - href: index.qmd
@@ -39,7 +50,7 @@ format:
   html:
     theme:
       light: 
-        - vapor 
+        - morph 
         - styles.scss
       dark: 
         - vapor

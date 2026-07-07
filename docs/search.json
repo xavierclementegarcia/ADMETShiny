@@ -1,17 +1,24 @@
 [
   {
+    "objectID": "workflow.html",
+    "href": "workflow.html",
+    "title": "Workflows & demostrations",
+    "section": "",
+    "text": "Back to top"
+  },
+  {
     "objectID": "publication.html",
     "href": "publication.html",
     "title": "Publications",
     "section": "",
-    "text": "About works"
+    "text": "About works\n\n\n\n\n Back to top"
   },
   {
     "objectID": "package/NEWS.html",
     "href": "package/NEWS.html",
     "title": "admetshiny 1.0.0",
     "section": "",
-    "text": "admetshiny 1.0.0\n\nInitial CRAN release.\nInteractive Shiny application with four data-source modules: SwissADME, CDK & webchem, ADMETlab 3.0 and Deep-PK.\nDrug-likeness filters: Lipinski, Veber, Ghose, Egan, Muegge.\nBOILED-Egg model, PCA, t-SNE, parallel coordinates, violin, radar and correlation heatmap visualizations.\nTanimoto / AGNES structural-similarity clustering.\nDark mode, custom colour palettes and high-resolution figure export.\nCodename: Espeletia hartwegiana."
+    "text": "admetshiny 1.0.0\n\nInitial CRAN release.\nInteractive Shiny application with four data-source modules: SwissADME, CDK & webchem, ADMETlab 3.0 and Deep-PK.\nDrug-likeness filters: Lipinski, Veber, Ghose, Egan, Muegge.\nBOILED-Egg model, PCA, t-SNE, parallel coordinates, violin, radar and correlation heatmap visualizations.\nTanimoto / AGNES structural-similarity clustering.\nDark mode, custom colour palettes and high-resolution figure export.\nCodename: Espeletia hartwegiana.\n\n\n\n\n\n Back to top"
   },
   {
     "objectID": "index.html",
@@ -26,6 +33,20 @@
     "title": "admetshiny",
     "section": "",
     "text": "Provides an interactive shiny application and a toolbox of R functions for the management, calculation, filtering, visualization and exploratory analysis of molecular descriptors and ADMET (Absorption, Distribution, Metabolism, Excretion and Toxicity) properties of small molecules. It integrates workflows from SwissADME, ADMETlab 3.0 and Deep-PK, computes descriptors locally via the Chemistry Development Kit (CDK), and offers drug-likeness filters (Lipinski, Veber, Ghose, Egan, Muegge), the BOILED-Egg model, PCA, t-SNE, radar plots and Tanimoto/AGNES clustering to support compound prioritization in early-stage drug discovery."
+  },
+  {
+    "objectID": "features.html",
+    "href": "features.html",
+    "title": "admetshiny",
+    "section": "",
+    "text": "Back to top"
+  },
+  {
+    "objectID": "book.html",
+    "href": "book.html",
+    "title": "The Book",
+    "section": "",
+    "text": "Back to top"
   },
   {
     "objectID": "about.html",
@@ -63,25 +84,39 @@
     "text": "Knowledge structure analysis\nADMETShiny provides a comprehensive collection of interactive modules designed to streamline the early stages of drug discovery by integrating molecular retrieval, descriptor calculation, ADMET prediction, chemical space exploration, structural similarity analysis, and automated reporting into a single user-friendly environment.\n\n\n\n\n\nOverall, ADMETShiny combines data retrieval, descriptor calculation, predictive modeling, interactive visualization, molecular prioritization, and automated reporting into a unified open-source platform specifically designed to accelerate computational drug discovery and medicinal chemistry research."
   },
   {
+    "objectID": "author.html",
+    "href": "author.html",
+    "title": "About to the author",
+    "section": "",
+    "text": "Back to top"
+  },
+  {
     "objectID": "espeletia.html",
     "href": "espeletia.html",
     "title": "admetshiny",
     "section": "",
-    "text": "title: “Espeletia hartwegiana”\n\n\nWhy Espeletia hartwegiana?"
+    "text": "title: “Espeletia hartwegiana”\n\n\nWhy Espeletia hartwegiana?\n\n\n\n\n Back to top"
+  },
+  {
+    "objectID": "feedback.html",
+    "href": "feedback.html",
+    "title": "admetshiny",
+    "section": "",
+    "text": "Back to top"
   },
   {
     "objectID": "install.html",
     "href": "install.html",
     "title": "admetshiny",
     "section": "",
-    "text": "How to install?\nTwo different forms for install this package..\nThe next steps:\nSteps\n\nInstall R and RStudio.\n\nYou could choice your R & Rstudio version f your operative system.\nI recommended install RStudio for the easyful user interface\n\nInstall the pak our remotes packages.\nTo enjoy all the features of ADMETShiny, we suggest you install all the dependencies listed below.\n\n#All dependencies:\ninstall.packages(c(\"shiny\", \"DT\", \"ggplot2\", \"dplyr\", \"magrittr\", \"rcdk\", \"webchem\", \"fmsb\", \"Rtsne\", \"ggrepel\", \"fingerprint\", \"cluster\", \"GGally\", \"openxlsx\", \"knitr\", \"rmarkdown\", \"testthat\"))\nNote: For the user it isn’t necessary the package “testthat”. However, if you could collaborate in the debugging and review of this packages, please, don’t doubt of send me your suggestions in the section “Feedback”.\n\nFor the “rCDK” & Webchem package is necessary the follow dependence:\n\nPlease, consider this option for the all features.\nJava SE Development Kit Downloads by Oracle\n\nInstallation to the package in your environment with the follow steps:\n\nYou could consider install “pak”, follow the steps:\n#Write in the R & RStudio console:\ninstall.packages(\"pak\")\n#Follow this step: \npak::pkg_install(\"xavierclementegarcia/ADMETShiny\", subdir = \"package\")\nYou could install the package with “remotes”:\n#Write in the R & RStudio console:\ninstall.packages(\"remotes\")\n#Follow this step: \nremotes::install_github(\"xavierclementegarcia/ADMETShiny\", subdir = \"package\", subdir = \"package\")\nRemember that the correct proficiency of the Shiny app is required JDK & the others dependencies listing above.\n\nLaunch ADMETShiny.\n\n#Call to the package\nlibrary(\"admetshiny\")\n#For run the Shiny app\nadmetshiny::run_app()"
+    "text": "How to install?\nTwo different forms for install this package..\nThe next steps:\nSteps\n\nInstall R and RStudio.\n\nYou could choice your R & Rstudio version f your operative system.\nI recommended install RStudio for the easyful user interface\n\nInstall the pak our remotes packages.\nTo enjoy all the features of ADMETShiny, we suggest you install all the dependencies listed below.\n\n#All dependencies:\ninstall.packages(c(\"shiny\", \"DT\", \"ggplot2\", \"dplyr\", \"magrittr\", \"rcdk\", \"webchem\", \"fmsb\", \"Rtsne\", \"ggrepel\", \"fingerprint\", \"cluster\", \"GGally\", \"openxlsx\", \"knitr\", \"rmarkdown\", \"testthat\"))\nNote: For the user it isn’t necessary the package “testthat”. However, if you could collaborate in the debugging and review of this packages, please, don’t doubt of send me your suggestions in the section “Feedback”.\n\nFor the “rCDK” & Webchem package is necessary the follow dependence:\n\nPlease, consider this option for the all features.\nJava SE Development Kit Downloads by Oracle\n\nInstallation to the package in your environment with the follow steps:\n\nYou could consider install “pak”, follow the steps:\n#Write in the R & RStudio console:\ninstall.packages(\"pak\")\n#Call the package\nlibrary(pak)\n#Follow this step: \npak::pkg_install(\"xavierclementegarcia/ADMETShiny\", subdir = \"package\")\nYou could install the package with “remotes”, :\n#Write in the R & RStudio console:\ninstall.packages(\"remotes\")\n#Call the package\nlibrary(remotes)\n#Follow this step: \nremotes::install_github(\"xavierclementegarcia/ADMETShiny\", subdir = \"package\", subdir = \"package\")\nRemember that the correct proficiency of the Shiny app is required JDK & the others dependencies listing above.\n\nLaunch ADMETShiny.\n\n#Call to the package\nlibrary(\"admetshiny\")\n#For run the Shiny app\nadmetshiny::run_app()"
   },
   {
     "objectID": "install.html#how-to-install",
     "href": "install.html#how-to-install",
     "title": "admetshiny",
     "section": "",
-    "text": "How to install?\nTwo different forms for install this package..\nThe next steps:\nSteps\n\nInstall R and RStudio.\n\nYou could choice your R & Rstudio version f your operative system.\nI recommended install RStudio for the easyful user interface\n\nInstall the pak our remotes packages.\nTo enjoy all the features of ADMETShiny, we suggest you install all the dependencies listed below.\n\n#All dependencies:\ninstall.packages(c(\"shiny\", \"DT\", \"ggplot2\", \"dplyr\", \"magrittr\", \"rcdk\", \"webchem\", \"fmsb\", \"Rtsne\", \"ggrepel\", \"fingerprint\", \"cluster\", \"GGally\", \"openxlsx\", \"knitr\", \"rmarkdown\", \"testthat\"))\nNote: For the user it isn’t necessary the package “testthat”. However, if you could collaborate in the debugging and review of this packages, please, don’t doubt of send me your suggestions in the section “Feedback”.\n\nFor the “rCDK” & Webchem package is necessary the follow dependence:\n\nPlease, consider this option for the all features.\nJava SE Development Kit Downloads by Oracle\n\nInstallation to the package in your environment with the follow steps:\n\nYou could consider install “pak”, follow the steps:\n#Write in the R & RStudio console:\ninstall.packages(\"pak\")\n#Follow this step: \npak::pkg_install(\"xavierclementegarcia/ADMETShiny\", subdir = \"package\")\nYou could install the package with “remotes”:\n#Write in the R & RStudio console:\ninstall.packages(\"remotes\")\n#Follow this step: \nremotes::install_github(\"xavierclementegarcia/ADMETShiny\", subdir = \"package\", subdir = \"package\")\nRemember that the correct proficiency of the Shiny app is required JDK & the others dependencies listing above.\n\nLaunch ADMETShiny.\n\n#Call to the package\nlibrary(\"admetshiny\")\n#For run the Shiny app\nadmetshiny::run_app()"
+    "text": "How to install?\nTwo different forms for install this package..\nThe next steps:\nSteps\n\nInstall R and RStudio.\n\nYou could choice your R & Rstudio version f your operative system.\nI recommended install RStudio for the easyful user interface\n\nInstall the pak our remotes packages.\nTo enjoy all the features of ADMETShiny, we suggest you install all the dependencies listed below.\n\n#All dependencies:\ninstall.packages(c(\"shiny\", \"DT\", \"ggplot2\", \"dplyr\", \"magrittr\", \"rcdk\", \"webchem\", \"fmsb\", \"Rtsne\", \"ggrepel\", \"fingerprint\", \"cluster\", \"GGally\", \"openxlsx\", \"knitr\", \"rmarkdown\", \"testthat\"))\nNote: For the user it isn’t necessary the package “testthat”. However, if you could collaborate in the debugging and review of this packages, please, don’t doubt of send me your suggestions in the section “Feedback”.\n\nFor the “rCDK” & Webchem package is necessary the follow dependence:\n\nPlease, consider this option for the all features.\nJava SE Development Kit Downloads by Oracle\n\nInstallation to the package in your environment with the follow steps:\n\nYou could consider install “pak”, follow the steps:\n#Write in the R & RStudio console:\ninstall.packages(\"pak\")\n#Call the package\nlibrary(pak)\n#Follow this step: \npak::pkg_install(\"xavierclementegarcia/ADMETShiny\", subdir = \"package\")\nYou could install the package with “remotes”, :\n#Write in the R & RStudio console:\ninstall.packages(\"remotes\")\n#Call the package\nlibrary(remotes)\n#Follow this step: \nremotes::install_github(\"xavierclementegarcia/ADMETShiny\", subdir = \"package\", subdir = \"package\")\nRemember that the correct proficiency of the Shiny app is required JDK & the others dependencies listing above.\n\nLaunch ADMETShiny.\n\n#Call to the package\nlibrary(\"admetshiny\")\n#For run the Shiny app\nadmetshiny::run_app()"
   },
   {
     "objectID": "package/vignettes/admetshiny.html",
@@ -128,8 +163,8 @@
   {
     "objectID": "tutorials.html",
     "href": "tutorials.html",
-    "title": "Documentation",
+    "title": "admetshiny",
     "section": "",
-    "text": "The first steps with ADMETShiny"
+    "text": "The first steps with ADMETShiny\n\n\n\n\n Back to top"
   }
 ]

@@ -45,15 +45,19 @@ You could consider install "pak", follow the steps:
 ``` r
 #Write in the R & RStudio console:
 install.packages("pak")
+#Call the package
+library(pak)
 #Follow this step: 
 pak::pkg_install("xavierclementegarcia/ADMETShiny", subdir = "package")
 ```
 
-You could install the package with "remotes":
+You could install the package with "remotes", :
 
 ``` r
 #Write in the R & RStudio console:
 install.packages("remotes")
+#Call the package
+library(remotes)
 #Follow this step: 
 remotes::install_github("xavierclementegarcia/ADMETShiny", subdir = "package", subdir = "package")
 ```
