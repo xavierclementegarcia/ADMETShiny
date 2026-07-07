@@ -30,7 +30,7 @@ You could choice your R & Rstudio version f your operative system.
 install.packages(c("shiny", "DT", "ggplot2", "dplyr", "magrittr", "rcdk", "webchem", "fmsb", "Rtsne", "ggrepel", "fingerprint", "cluster", "GGally", "openxlsx", "knitr", "rmarkdown", "testthat"))
 ```
 
-Note: For the user it isn't necessary the package "testthat". However, if you could collaborate in the debugging and review of this packages, please, don't doubt of send me your suggestions in the section "[**Feedback**](feedback.qmd)".
+Note: For users, the **testthat** package is not required. However, if you would like to contribute to the debugging, testing, or improvement of **ADMETShiny**, please feel free to send your suggestions through the **[Feedback](mailto:xgarcia@unicauca.edu.co)**.
 
 4.  For the "rCDK" & Webchem package is necessary the follow dependence:
 

@@ -294,10 +294,6 @@ ul.task-list li input[type="checkbox"] {
  <span class="dropdown-text">Documentation</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./book.html">
- <span class="dropdown-text">The Book</span></a>
-  </li>  
-        <li>
     <a class="dropdown-item" href="./author.html">
  <span class="dropdown-text">About the author</span></a>
   </li>  
@@ -327,9 +323,7 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#documentation" id="toc-documentation" class="nav-link active" data-scroll-target="#documentation">Documentation</a></li>
-  <li><a href="#the-first-steps-with-admetshiny" id="toc-the-first-steps-with-admetshiny" class="nav-link" data-scroll-target="#the-first-steps-with-admetshiny">The first steps with ADMETShiny</a></li>
   <li><a href="#the-datasets-example" id="toc-the-datasets-example" class="nav-link" data-scroll-target="#the-datasets-example">The datasets example</a></li>
-  <li><a href="#your-first-analysis-with-admetshiny" id="toc-your-first-analysis-with-admetshiny" class="nav-link" data-scroll-target="#your-first-analysis-with-admetshiny">Your first analysis with ADMETShiny</a></li>
   <li><a href="#you-probably-need-a-report" id="toc-you-probably-need-a-report" class="nav-link" data-scroll-target="#you-probably-need-a-report">You probably need a report</a></li>
   <li><a href="#the-conclusions" id="toc-the-conclusions" class="nav-link" data-scroll-target="#the-conclusions">The conclusions</a></li>
   </ul>
@@ -360,31 +354,36 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="documentation" class="level3">
 <h3 class="anchored" data-anchor-id="documentation">Documentation</h3>
-</section>
-<section id="the-first-steps-with-admetshiny" class="level3">
-<h3 class="anchored" data-anchor-id="the-first-steps-with-admetshiny">The first steps with ADMETShiny</h3>
 <section id="the-user-interface" class="level4">
 <h4 class="anchored" data-anchor-id="the-user-interface">The user interface</h4>
+<p>This image displays the Navigation Guide for <strong>ADMETShiny (Version 1.0.0)</strong>, an open-source R Shiny web application designed for the management, calculation, filtering, and selection of drug-likeness potential molecules in early-stage drug discovery. The user interface features a top horizontal navigation bar split into nine numbered modules indicated by green hex icons: <strong>(1) Home</strong>, which returns to the main landing page; <strong>(2) SwissADME Manager</strong>, for calculating and analyzing molecular properties; <strong>(3) CDK &amp; webchem</strong>, providing access to cheminformatics tools for structure processing and chemical analysis.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/20.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
 </figure>
 </div>
+<p><strong>(4) ADMETlab 3.0 Manager</strong> and <strong>(5) Deep-PK Manager</strong>, which run predictive ADMET and pharmacokinetic models using third-party and deep learning architectures; <strong>(6) Report</strong>, for customizing and exporting analysis results; <strong>(7) About</strong>, detailing project and author information; <strong>(8) First Steps</strong>, offering step-by-step tutorials for new users; and <strong>(9) Documentation</strong>, which hosts technical guides and vignettes. Below this primary interface menu, the dashboard is split into two bottom sections highlighted by green pointers: a <strong>Description</strong> box on the left, summarizing the app’s integration of bioinformatics and cheminformatics workflows for molecular descriptor visualization, and a <strong>How to cite?</strong> box on the right, providing the formal 2026 academic citation and the GitHub repository link</p>
 </section>
 </section>
 <section id="the-datasets-example" class="level3">
 <h3 class="anchored" data-anchor-id="the-datasets-example">The datasets example</h3>
+<p>This image details the user interface of the <strong>SwissADME Manager</strong> module within ADMETShiny, showcasing the data uploading, filtering, and table visualization capabilities. On the left side, the dashboard features a control panel where users can upload their chemical data via the <strong>Upload SwissADME Dataset</strong> tool <strong>(3)</strong>, which currently shows a completed upload of an example CSV file (<code>dataset_swissadme_example.csv</code>). Below this, the <strong>Drug-likeness Filters</strong> section <strong>(4)</strong> allows users to apply customizable filters based on popular medicinal chemistry criteria, including Lipinski, Veber, Ghose, Egan, and Muegge rules, along with adjustable threshold inputs for maximum molecular weight, logP, hydrogen bond acceptors/donors, and maximum Lipinski violations.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/21.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
 </figure>
 </div>
-</section>
-<section id="your-first-analysis-with-admetshiny" class="level3">
-<h3 class="anchored" data-anchor-id="your-first-analysis-with-admetshiny">Your first analysis with ADMETShiny</h3>
+<p>The main central area displays the <strong>Filtered Results</strong> table under the <strong>Filtered Molecules</strong> tab <strong>(6)</strong>, which renders a structured overview of the compounds that meet the set criteria. This interactive data grid displays key molecular descriptors such as the Molecule ID, Canonical SMILES, chemical Formula, Molecular Weight (MW), number of Heavy Atoms, and number of Aromatic Heavy Atoms. Users can utilize the <strong>Search</strong> bar <strong>(8)</strong> located at the top right of the table to quickly filter molecules by name, SMILES string, or specific properties. Additionally, the interface includes top tabs for <strong>Data Preview</strong> <strong>(5)</strong> and <strong>Plots</strong> <strong>(7)</strong> to seamlessly toggle between the raw dataset, the refined subsets, and data distributions, providing an intuitive, integrated workflow for compound prioritization.</p>
 </section>
 <section id="you-probably-need-a-report" class="level3">
 <h3 class="anchored" data-anchor-id="you-probably-need-a-report">You probably need a report</h3>
+<p>The executive summary and statistical breakdown confirm that 100% of the library was successfully retained, exhibiting average baseline properties such as a Molecular Weight of 392.44, a LogP of 3.33, and a TPSA of 90.53. The library demonstrates high quality with a mean composite drug-likeness score of 85.4 out of 100, where 80.5% of the compounds achieve an “Excellent” classification.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/27.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>These metrics are supported by three robust visualizations: a BOILED-Egg plot mapping gastrointestinal absorption and blood-brain barrier permeability alongside P-glycoprotein efflux status, a stacked bar chart detailing individual rule violations across standard medicinal chemistry criteria (Lipinski, Ghose, Veber, Egan, and Muegge), and a score distribution histogram that visually confirms the sharp clustering of the vast majority of the compounds within the highest drug-likeness tier.</p>
 </section>
 <section id="the-conclusions" class="level3">
 <h3 class="anchored" data-anchor-id="the-conclusions">The conclusions</h3>

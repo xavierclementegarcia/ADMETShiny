@@ -20,8 +20,8 @@ about:
       href: https://github.com/xavierclementegarcia/ADMETShiny
 
     - icon: file-text
-      text: Tutorials
-      href: tutorials.qmd
+      text: Author
+      href: https://xavierclementegarcia.github.io/
 ---
 
 ## What's admetshiny v1.0.0 *Espeletia hartwegiana*?

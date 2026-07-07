@@ -22,6 +22,24 @@ We suggest considering taking it directly from [**PubChem**](https://pubchem.ncb
 
 ![](images/22.png){fig-align="center"}
 
-### Choosing the best secundaries metabolites
+Here's the explanation condensed into a single paragraph, ideal for a quick read or a conclusion: The results are fully consistent from a pharmacokinetic perspective, since both compounds respond to different molecular mechanisms: on the one hand, glyphosate is an extremely hydrophilic and polar molecule (log P approx -3.2) that lacks the lipophilicity necessary to cross the blood-brain barrier (BBB) ​​by passive diffusion; on the other hand, crinamidine has a favorable alkaloid structure that allows it to cross the BBB efficiently, and being negative for P-glycoprotein (PGP), it avoids being expelled by this efflux pump, successfully accumulating in the central nervous system.
 
-### The hard mission to the validations  
+![](images/23.png){fig-align="center" width="615"}
+
+The graphs visually confirm this molecular disparity through a stark bimodal profile: on one hand, glyphosate is at the lower end of the distributions with a strongly negative log P and an unfavorable TPSA, which contracts its profile on the radar plot and demonstrates its structural inability to dissolve in the lipid barrier (BBB). Conversely, crinamidine is at the opposite end with optimal lipophilicity and molecular weight values ​​that expand its radar profile toward the absorption zone; this, combined with its status as a non-substrate of the PGP pump, conclusively explains why this alkaloid manages to cross and accumulate in brain tissue, unlike the herbicide.
+
+### Choosing the best secondaries metabolites
+
+We've already seen how it works with two composites. However, some of ADMETShiny's charts require larger databases to find more complex patterns. In this case, we've used a database that the user can download as examples to upload within the program.
+
+![](images/25.png){fig-align="center"}
+
+### The hard mission to the validations
+
+![](images/24.png){fig-align="center"}
+
+Validating these ADMET results represents a complex challenge, as *in silico* prediction algorithms strictly depend on the chemical space with which they were trained. Modeling dynamic biological variables like Blood-Brain Barrier (BBB) permeability or P-glycoprotein (PGP) efflux involves simplifying intricate cellular interactions into static mathematical descriptors, which can easily lead to false positives or missed active transport effects.
+
+![](images/26.png){fig-align="center"}
+
+Therefore, the strong theoretical coherence observed in your data between fundamental physicochemical properties (logP and TPSA) and the algorithmic classifications is crucial, as it mitigates software bias and provides robust scientific grounding before moving to *in vitro* testing.

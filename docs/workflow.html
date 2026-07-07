@@ -294,10 +294,6 @@ ul.task-list li input[type="checkbox"] {
  <span class="dropdown-text">Documentation</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./book.html">
- <span class="dropdown-text">The Book</span></a>
-  </li>  
-        <li>
     <a class="dropdown-item" href="./author.html">
  <span class="dropdown-text">About the author</span></a>
   </li>  
@@ -329,7 +325,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#workflows-demonstrations" id="toc-workflows-demonstrations" class="nav-link active" data-scroll-target="#workflows-demonstrations">Workflows &amp; demonstrations</a></li>
   <li><a href="#coconut-a-medicinal-latino-american-plants-dataset" id="toc-coconut-a-medicinal-latino-american-plants-dataset" class="nav-link" data-scroll-target="#coconut-a-medicinal-latino-american-plants-dataset">Coconut: A Medicinal Latino-american plants dataset</a></li>
   <li><a href="#how-do-you-get-a-boiled-egg-with-admetshiny" id="toc-how-do-you-get-a-boiled-egg-with-admetshiny" class="nav-link" data-scroll-target="#how-do-you-get-a-boiled-egg-with-admetshiny">How do you get a BOILED-egg with ADMETShiny</a></li>
-  <li><a href="#choosing-the-best-secundaries-metabolites" id="toc-choosing-the-best-secundaries-metabolites" class="nav-link" data-scroll-target="#choosing-the-best-secundaries-metabolites">Choosing the best secundaries metabolites</a></li>
+  <li><a href="#choosing-the-best-secondaries-metabolites" id="toc-choosing-the-best-secondaries-metabolites" class="nav-link" data-scroll-target="#choosing-the-best-secondaries-metabolites">Choosing the best secondaries metabolites</a></li>
   <li><a href="#the-hard-mission-to-the-validations" id="toc-the-hard-mission-to-the-validations" class="nav-link" data-scroll-target="#the-hard-mission-to-the-validations">The hard mission to the validations</a></li>
   </ul>
 </nav>
@@ -378,12 +374,37 @@ ul.task-list li input[type="checkbox"] {
 <p><img src="images/22.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
 </figure>
 </div>
+<p>Here’s the explanation condensed into a single paragraph, ideal for a quick read or a conclusion: The results are fully consistent from a pharmacokinetic perspective, since both compounds respond to different molecular mechanisms: on the one hand, glyphosate is an extremely hydrophilic and polar molecule (log P approx -3.2) that lacks the lipophilicity necessary to cross the blood-brain barrier (BBB) ​​by passive diffusion; on the other hand, crinamidine has a favorable alkaloid structure that allows it to cross the BBB efficiently, and being negative for P-glycoprotein (PGP), it avoids being expelled by this efflux pump, successfully accumulating in the central nervous system.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/23.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="615"></p>
+</figure>
+</div>
+<p>The graphs visually confirm this molecular disparity through a stark bimodal profile: on one hand, glyphosate is at the lower end of the distributions with a strongly negative log P and an unfavorable TPSA, which contracts its profile on the radar plot and demonstrates its structural inability to dissolve in the lipid barrier (BBB). Conversely, crinamidine is at the opposite end with optimal lipophilicity and molecular weight values ​​that expand its radar profile toward the absorption zone; this, combined with its status as a non-substrate of the PGP pump, conclusively explains why this alkaloid manages to cross and accumulate in brain tissue, unlike the herbicide.</p>
 </section>
-<section id="choosing-the-best-secundaries-metabolites" class="level3">
-<h3 class="anchored" data-anchor-id="choosing-the-best-secundaries-metabolites">Choosing the best secundaries metabolites</h3>
+<section id="choosing-the-best-secondaries-metabolites" class="level3">
+<h3 class="anchored" data-anchor-id="choosing-the-best-secondaries-metabolites">Choosing the best secondaries metabolites</h3>
+<p>We’ve already seen how it works with two composites. However, some of ADMETShiny’s charts require larger databases to find more complex patterns. In this case, we’ve used a database that the user can download as examples to upload within the program.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/25.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
 </section>
 <section id="the-hard-mission-to-the-validations" class="level3">
 <h3 class="anchored" data-anchor-id="the-hard-mission-to-the-validations">The hard mission to the validations</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/24.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>Validating these ADMET results represents a complex challenge, as <em>in silico</em> prediction algorithms strictly depend on the chemical space with which they were trained. Modeling dynamic biological variables like Blood-Brain Barrier (BBB) permeability or P-glycoprotein (PGP) efflux involves simplifying intricate cellular interactions into static mathematical descriptors, which can easily lead to false positives or missed active transport effects.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/26.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>Therefore, the strong theoretical coherence observed in your data between fundamental physicochemical properties (logP and TPSA) and the algorithmic classifications is crucial, as it mitigates software bias and provides robust scientific grounding before moving to <em>in vitro</em> testing.</p>
 
 
 </section>

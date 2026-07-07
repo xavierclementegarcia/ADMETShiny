@@ -37,7 +37,7 @@ website:
       - text: Features
         menu:
           - href: tutorials.qmd
-          - href: book.qmd
+          #- href: book.qmd
           - href: author.qmd 
 
     tools:
