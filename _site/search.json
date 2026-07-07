@@ -1,0 +1,93 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "admetshiny",
+    "section": "",
+    "text": "Provides an interactive shiny application and a toolbox of R functions for the management, calculation, filtering, visualization and exploratory analysis of molecular descriptors and ADMET (Absorption, Distribution, Metabolism, Excretion and Toxicity) properties of small molecules. It integrates workflows from SwissADME, ADMETlab 3.0 and Deep-PK, computes descriptors locally via the Chemistry Development Kit (CDK), and offers drug-likeness filters (Lipinski, Veber, Ghose, Egan, Muegge), the BOILED-Egg model, PCA, t-SNE, radar plots and Tanimoto/AGNES clustering to support compound prioritization in early-stage drug discovery."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About ADMETShiny",
+    "section": "",
+    "text": "With ADMETShiny, say goodbye to manual ADMET analysis although different Web-Servers. Now, you could management your physicochemical profiles in once only spot.\n\nFinally, you could generate an once report about the principal characteristics of the each model.\nIf you’re not estimate that’s profile in external websites…, Don’t Worry!, This Shiny include a web-local-server built with rCDK R package and Java SE Development Kit (JDK)."
+  },
+  {
+    "objectID": "index.html#whats-admetshiny",
+    "href": "index.html#whats-admetshiny",
+    "title": "admetshiny",
+    "section": "",
+    "text": "Provides an interactive shiny application and a toolbox of R functions for the management, calculation, filtering, visualization and exploratory analysis of molecular descriptors and ADMET (Absorption, Distribution, Metabolism, Excretion and Toxicity) properties of small molecules. It integrates workflows from SwissADME, ADMETlab 3.0 and Deep-PK, computes descriptors locally via the Chemistry Development Kit (CDK), and offers drug-likeness filters (Lipinski, Veber, Ghose, Egan, Muegge), the BOILED-Egg model, PCA, t-SNE, radar plots and Tanimoto/AGNES clustering to support compound prioritization in early-stage drug discovery."
+  },
+  {
+    "objectID": "index.html#principal-functions-of-admetshiny-in-r",
+    "href": "index.html#principal-functions-of-admetshiny-in-r",
+    "title": "admetshiny",
+    "section": "Principal functions of ADMETShiny in R",
+    "text": "Principal functions of ADMETShiny in R"
+  },
+  {
+    "objectID": "index.html#one-for-open-source-and-open-source-for-one",
+    "href": "index.html#one-for-open-source-and-open-source-for-one",
+    "title": "admetshiny",
+    "section": "One for open source and open source for one",
+    "text": "One for open source and open source for one"
+  },
+  {
+    "objectID": "index.html#the-shiny-app-for-coders-no-coders",
+    "href": "index.html#the-shiny-app-for-coders-no-coders",
+    "title": "admetshiny",
+    "section": "The Shiny App for coders & no coders",
+    "text": "The Shiny App for coders & no coders"
+  },
+  {
+    "objectID": "index.html#knowledge-structure-analysis",
+    "href": "index.html#knowledge-structure-analysis",
+    "title": "admetshiny",
+    "section": "Knowledge structure analysis",
+    "text": "Knowledge structure analysis"
+  },
+  {
+    "objectID": "about.html#one-for-open-source-and-open-source-for-one",
+    "href": "about.html#one-for-open-source-and-open-source-for-one",
+    "title": "About ADMETShiny",
+    "section": "One for open source and open source for one",
+    "text": "One for open source and open source for one\nInput data although of different methods (datasets in “.csv”, search in PubChem with CID, common name, inchKey & CAS).\n\nNow, you can calculate drug-likeness properties with CDK & WebChem\nThe dataset & management filters could apply above to the properties (molecular descriptors) and get very easy reports.\n\n\n\n\n\n\n\nYes, you could use the console for develop a simple reproducible script\nAnd this isn’t all! You could generate your reports with the console… :)"
+  },
+  {
+    "objectID": "about.html#the-shiny-app-for-coders-no-coders",
+    "href": "about.html#the-shiny-app-for-coders-no-coders",
+    "title": "About ADMETShiny",
+    "section": "The Shiny App for coders & no coders",
+    "text": "The Shiny App for coders & no coders\nBuilt for both coders and non-coders, ADMETShiny offers an intuitive graphical interface that makes advanced cheminformatics analyses accessible without programming experience, while remaining fully integrated with the R ecosystem for users who require reproducible, customizable, and extensible workflows."
+  },
+  {
+    "objectID": "about.html#knowledge-structure-analysis",
+    "href": "about.html#knowledge-structure-analysis",
+    "title": "About ADMETShiny",
+    "section": "Knowledge structure analysis",
+    "text": "Knowledge structure analysis\nADMETShiny provides a comprehensive collection of interactive modules designed to streamline the early stages of drug discovery by integrating molecular retrieval, descriptor calculation, ADMET prediction, chemical space exploration, structural similarity analysis, and automated reporting into a single user-friendly environment.\n\n\n\n\n\nOverall, ADMETShiny combines data retrieval, descriptor calculation, predictive modeling, interactive visualization, molecular prioritization, and automated reporting into a unified open-source platform specifically designed to accelerate computational drug discovery and medicinal chemistry research."
+  },
+  {
+    "objectID": "about.html#principal-functions-of-admetshiny-in-r",
+    "href": "about.html#principal-functions-of-admetshiny-in-r",
+    "title": "About ADMETShiny",
+    "section": "",
+    "text": "With ADMETShiny, say goodbye to manual ADMET analysis although different Web-Servers. Now, you could management your physicochemical profiles in once only spot.\n\nFinally, you could generate an once report about the principal characteristics of the each model.\nIf you’re not estimate that’s profile in external websites…, Don’t Worry!, This Shiny include a web-local-server built with rCDK R package and Java SE Development Kit (JDK)."
+  },
+  {
+    "objectID": "install.html",
+    "href": "install.html",
+    "title": "admetshiny",
+    "section": "",
+    "text": "For users familiar with R.\ninstall.packages(\"remotes\")\nremotes::install_github(\"xavierclementegarcia/admetshiny\")\nlibrary(admetshiny)\nrun_app()\nSteps\n\nInstall R and RStudio.\nInstall the remotes package.\nRun install_github().\nLaunch ADMETShiny.\n\n\n\n\n\n\nFor users without programming experience. (Soon)\nSteps\n\nDownload the latest installer.\nDouble-click ADMETShiny_Setup.exe.\nFollow the installation wizard.\nLaunch ADMETShiny from the Start Menu.\n\n⬇ Download Installer"
+  },
+  {
+    "objectID": "install.html#how-to-install",
+    "href": "install.html#how-to-install",
+    "title": "admetshiny",
+    "section": "",
+    "text": "For users familiar with R.\ninstall.packages(\"remotes\")\nremotes::install_github(\"xavierclementegarcia/admetshiny\")\nlibrary(admetshiny)\nrun_app()\nSteps\n\nInstall R and RStudio.\nInstall the remotes package.\nRun install_github().\nLaunch ADMETShiny.\n\n\n\n\n\n\nFor users without programming experience. (Soon)\nSteps\n\nDownload the latest installer.\nDouble-click ADMETShiny_Setup.exe.\nFollow the installation wizard.\nLaunch ADMETShiny from the Start Menu.\n\n⬇ Download Installer"
+  }
+]

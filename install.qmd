@@ -1,0 +1,25 @@
+## How to install?
+
+### The installation for R & RStudio requires the next dependencies
+
+![](images/10.png){fig-align="center"}
+
+### Install ADMETShiny from GitHub
+
+![](images/12.png){fig-alt="Install from GitHub" fig-align="center" width="174"}
+
+**How to install?**
+
+``` r
+install.packages("remotes")
+remotes::install_github("xavierclementegarcia/admetshiny")
+library(admetshiny)
+run_app()
+```
+
+**Steps**
+
+1.  Install **R** and **RStudio**.
+2.  Install the **remotes** package.
+3.  Run `install_github()`.
+4.  Launch ADMETShiny.

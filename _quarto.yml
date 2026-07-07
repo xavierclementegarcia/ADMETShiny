@@ -1,0 +1,40 @@
+project:
+  type: website
+
+website:
+  title: "admetshiny"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: about.qmd
+      - href: install.qmd
+    right:
+      - text: Features
+        menu:
+          - href: tutorials.qmd
+          - href: book.qmd
+          - href: author.qmd 
+
+    tools:
+      - href: https://github.com
+        icon: github
+          
+
+        
+
+format:
+  html:
+    theme:
+      light: 
+        - spacelab 
+        - styles.scss
+      dark: 
+        - vapor
+        - styles.scss
+    css: styles.css
+    toc: true
+        
+
+editor: visual
+

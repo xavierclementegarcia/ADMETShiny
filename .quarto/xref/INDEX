@@ -1,0 +1,23 @@
+{
+  "index.qmd": {
+    "index.html": "9fe57d31"
+  },
+  "about.qmd": {
+    "about.html": "5e140cf2"
+  },
+  "features.qmd": {
+    "features.html": "f5df8c6e"
+  },
+  "tutorials.qmd": {
+    "tutorials.html": "4821fed4"
+  },
+  "author.qmd": {
+    "author.html": "dcd6e989"
+  },
+  "book.qmd": {
+    "book.html": "60446d0c"
+  },
+  "install.qmd": {
+    "install.html": "62813eb0"
+  }
+}
