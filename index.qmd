@@ -15,7 +15,7 @@ about:
   links:
     - icon: github
       text: GitHub
-      href: github.com/xavierclementegarcia/ADMETShiny
+      href: https://github.com/xavierclementegarcia/ADMETShiny
 
     - icon: file-text
       text: Documentation
