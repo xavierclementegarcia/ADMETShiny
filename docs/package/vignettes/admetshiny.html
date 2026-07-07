@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Xavier Clemente Garcia Cevallos">
+<meta name="dcterms.date" content="2026-07-07">
 
-<title>Tutorials – admetshiny</title>
+<title>Introduction to admetshiny – admetshiny</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -23,30 +25,65 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-0a6b7249c26820e032cb0bd839ff02b1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-3bbb641b996ae4b92bc38d7d6820cf6a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-dark-40410b8d93d9aac0a452814cdb589522.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-3bbb641b996ae4b92bc38d7d6820cf6a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="dark">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-0a6b7249c26820e032cb0bd839ff02b1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-3bbb641b996ae4b92bc38d7d6820cf6a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-dark-40410b8d93d9aac0a452814cdb589522.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-3bbb641b996ae4b92bc38d7d6820cf6a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -76,7 +113,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../../styles.css">
 </head>
 
 <body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
@@ -248,7 +285,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">admetshiny</span>
     </a>
   </div>
@@ -259,15 +296,15 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
+    <a class="nav-link" href="../../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">About ADMETShiny</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./install.html"> 
+    <a class="nav-link" href="../../install.html"> 
 <span class="menu-text">How to install?</span></a>
   </li>  
 </ul>
@@ -278,15 +315,15 @@ ul.task-list li input[type="checkbox"] {
     </a>
     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-features">    
         <li>
-    <a class="dropdown-item" href="./tutorials.html">
+    <a class="dropdown-item" href="../../tutorials.html">
  <span class="dropdown-text">Tutorials</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./book.html">
+    <a class="dropdown-item" href="../../book.html">
  <span class="dropdown-text">The Book</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./author.html">
+    <a class="dropdown-item" href="../../author.html">
  <span class="dropdown-text">About to the author</span></a>
   </li>  
     </ul>
@@ -304,8 +341,23 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#launching-the-application" id="toc-launching-the-application" class="nav-link" data-scroll-target="#launching-the-application">Launching the application</a></li>
+  <li><a href="#using-the-functions-programmatically" id="toc-using-the-functions-programmatically" class="nav-link" data-scroll-target="#using-the-functions-programmatically">Using the functions programmatically</a>
+  <ul class="collapse">
+  <li><a href="#drug-likeness-filters" id="toc-drug-likeness-filters" class="nav-link" data-scroll-target="#drug-likeness-filters">Drug-likeness filters</a></li>
+  <li><a href="#normalizing-a-swissadme-export" id="toc-normalizing-a-swissadme-export" class="nav-link" data-scroll-target="#normalizing-a-swissadme-export">Normalizing a SwissADME export</a></li>
+  <li><a href="#boiled-egg-plot" id="toc-boiled-egg-plot" class="nav-link" data-scroll-target="#boiled-egg-plot">BOILED-Egg plot</a></li>
+  </ul></li>
+  <li><a href="#optional-dependencies" id="toc-optional-dependencies" class="nav-link" data-scroll-target="#optional-dependencies">Optional dependencies</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -313,14 +365,26 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Tutorials</h1>
+<h1 class="title">Introduction to admetshiny</h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Xavier Clemente Garcia Cevallos </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 7, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -330,8 +394,117 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="the-first-steps-with-admetshiny" class="level4">
-<h4 class="anchored" data-anchor-id="the-first-steps-with-admetshiny">The first steps with ADMETShiny</h4>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p><strong>admetshiny</strong> is an R package that provides an interactive Shiny application and a toolbox of functions for the management, calculation, filtering, visualization and exploratory analysis of molecular descriptors and ADMET properties of small molecules. It integrates data exported from SwissADME, ADMETlab 3.0 and Deep-PK, and can compute descriptors locally via the Chemistry Development Kit (CDK).</p>
+</section>
+<section id="launching-the-application" class="level2">
+<h2 class="anchored" data-anchor-id="launching-the-application">Launching the application</h2>
+<p>The easiest way to use admetshiny is through its interactive application:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>admetshiny<span class="sc">::</span><span class="fu">run_app</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The application provides four modules:</p>
+<ol type="1">
+<li><strong>SwissADME Manager</strong> - upload a SwissADME CSV and apply drug-likeness filters.</li>
+<li><strong>CDK &amp; webchem</strong> - retrieve SMILES from PubChem and calculate descriptors locally.</li>
+<li><strong>ADMETlab 3.0</strong> - upload an ADMETlab CSV; properties are mapped automatically.</li>
+<li><strong>Deep-PK</strong> - upload a Deep-PK CSV; missing descriptors are calculated on-the-fly from SMILES.</li>
+</ol>
+</section>
+<section id="using-the-functions-programmatically" class="level2">
+<h2 class="anchored" data-anchor-id="using-the-functions-programmatically">Using the functions programmatically</h2>
+<p>The exported functions can also be used in plain R scripts.</p>
+<section id="drug-likeness-filters" class="level3">
+<h3 class="anchored" data-anchor-id="drug-likeness-filters">Drug-likeness filters</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(admetshiny)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Build a small toy dataset in the SwissADME schema</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">MW =</span> <span class="fu">c</span>(<span class="dv">300</span>, <span class="dv">650</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">LogP =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">7</span>),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">TPSA =</span> <span class="fu">c</span>(<span class="dv">40</span>, <span class="dv">160</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">MR =</span> <span class="fu">c</span>(<span class="dv">70</span>, <span class="dv">150</span>),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#H-bond acceptors"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">12</span>),</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#H-bond donors"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">7</span>),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#Rotatable bonds"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">14</span>),</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#Heavy atoms"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">80</span>),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#Aromatic heavy atoms"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">9</span>),</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the violation columns required by the filters</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">computeViolationColumns</span>(d)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply Lipinski + Veber</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>filtered <span class="ot">&lt;-</span> <span class="fu">applyFilters</span>(d, <span class="at">filters =</span> <span class="fu">c</span>(<span class="st">"Lipinski"</span>, <span class="st">"Veber"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="normalizing-a-swissadme-export" class="level3">
+<h3 class="anchored" data-anchor-id="normalizing-a-swissadme-export">Normalizing a SwissADME export</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"swissadme.csv"</span>, <span class="at">check.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">fixSwissADME</span>(d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="boiled-egg-plot" class="level3">
+<h3 class="anchored" data-anchor-id="boiled-egg-plot">BOILED-Egg plot</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Requires LogP and TPSA columns</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotBoiledEgg</span>(d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="optional-dependencies" class="level2">
+<h2 class="anchored" data-anchor-id="optional-dependencies">Optional dependencies</h2>
+<p>Some features rely on suggested packages that are not installed automatically:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Package</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CDK descriptors / Deep-PK processing</td>
+<td><code>rcdk</code> (requires Java JDK)</td>
+</tr>
+<tr class="even">
+<td>SMILES from PubChem</td>
+<td><code>webchem</code></td>
+</tr>
+<tr class="odd">
+<td>Radar plot</td>
+<td><code>fmsb</code></td>
+</tr>
+<tr class="even">
+<td>t-SNE</td>
+<td><code>Rtsne</code>, <code>ggrepel</code></td>
+</tr>
+<tr class="odd">
+<td>PCA labels</td>
+<td><code>ggrepel</code></td>
+</tr>
+<tr class="even">
+<td>Tanimoto / AGNES</td>
+<td><code>rcdk</code>, <code>fingerprint</code>, <code>cluster</code></td>
+</tr>
+<tr class="odd">
+<td>Parallel coordinates</td>
+<td><code>GGally</code></td>
+</tr>
+<tr class="even">
+<td>Excel export</td>
+<td><code>openxlsx</code></td>
+</tr>
+</tbody>
+</table>
+<p>Install them with:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"rcdk"</span>, <span class="st">"webchem"</span>, <span class="st">"fmsb"</span>, <span class="st">"Rtsne"</span>, <span class="st">"ggrepel"</span>,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"fingerprint"</span>, <span class="st">"cluster"</span>, <span class="st">"GGally"</span>, <span class="st">"openxlsx"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<ul>
+<li>Daina, A., Michielin, O., &amp; Zoete, V. (2017). SwissADME. <em>Scientific Reports</em>, 7(1), 42717.</li>
+<li>Daina, A., &amp; Zoete, V. (2016). A boiled egg to predict gastrointestinal absorption and brain penetration. <em>ChemMedChem</em>, 11(11), 1117-1121.</li>
+<li>Fu, L., et al.&nbsp;(2024). ADMETlab 3.0. <em>Nucleic Acids Research</em>, 52(W1), W422-W431.</li>
+<li>Myung, Y., de Sa, A. G., &amp; Ascher, D. B. (2024). Deep-PK. <em>Nucleic Acids Research</em>, 52(W1), W469-W475.</li>
+</ul>
 
 
 </section>

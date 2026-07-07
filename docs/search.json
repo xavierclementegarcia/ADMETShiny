@@ -1,5 +1,19 @@
 [
   {
+    "objectID": "tutorials.html",
+    "href": "tutorials.html",
+    "title": "Tutorials",
+    "section": "",
+    "text": "The first steps with ADMETShiny"
+  },
+  {
+    "objectID": "package/NEWS.html",
+    "href": "package/NEWS.html",
+    "title": "admetshiny 1.0.0",
+    "section": "",
+    "text": "admetshiny 1.0.0\n\nInitial CRAN release.\nInteractive Shiny application with four data-source modules: SwissADME, CDK & webchem, ADMETlab 3.0 and Deep-PK.\nDrug-likeness filters: Lipinski, Veber, Ghose, Egan, Muegge.\nBOILED-Egg model, PCA, t-SNE, parallel coordinates, violin, radar and correlation heatmap visualizations.\nTanimoto / AGNES structural-similarity clustering.\nDark mode, custom colour palettes and high-resolution figure export.\nCodename: Espeletia hartwegiana."
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "admetshiny",
@@ -61,5 +75,47 @@
     "title": "admetshiny",
     "section": "",
     "text": "How to install?\ninstall.packages(\"remotes\")\nremotes::install_github(\"xavierclementegarcia/admetshiny\")\nlibrary(admetshiny)\nrun_app()\nSteps\n\nInstall R and RStudio.\nInstall the remotes package.\nRun install_github().\nLaunch ADMETShiny."
+  },
+  {
+    "objectID": "package/vignettes/admetshiny.html",
+    "href": "package/vignettes/admetshiny.html",
+    "title": "Introduction to admetshiny",
+    "section": "",
+    "text": "admetshiny is an R package that provides an interactive Shiny application and a toolbox of functions for the management, calculation, filtering, visualization and exploratory analysis of molecular descriptors and ADMET properties of small molecules. It integrates data exported from SwissADME, ADMETlab 3.0 and Deep-PK, and can compute descriptors locally via the Chemistry Development Kit (CDK)."
+  },
+  {
+    "objectID": "package/vignettes/admetshiny.html#overview",
+    "href": "package/vignettes/admetshiny.html#overview",
+    "title": "Introduction to admetshiny",
+    "section": "",
+    "text": "admetshiny is an R package that provides an interactive Shiny application and a toolbox of functions for the management, calculation, filtering, visualization and exploratory analysis of molecular descriptors and ADMET properties of small molecules. It integrates data exported from SwissADME, ADMETlab 3.0 and Deep-PK, and can compute descriptors locally via the Chemistry Development Kit (CDK)."
+  },
+  {
+    "objectID": "package/vignettes/admetshiny.html#launching-the-application",
+    "href": "package/vignettes/admetshiny.html#launching-the-application",
+    "title": "Introduction to admetshiny",
+    "section": "Launching the application",
+    "text": "Launching the application\nThe easiest way to use admetshiny is through its interactive application:\nadmetshiny::run_app()\nThe application provides four modules:\n\nSwissADME Manager - upload a SwissADME CSV and apply drug-likeness filters.\nCDK & webchem - retrieve SMILES from PubChem and calculate descriptors locally.\nADMETlab 3.0 - upload an ADMETlab CSV; properties are mapped automatically.\nDeep-PK - upload a Deep-PK CSV; missing descriptors are calculated on-the-fly from SMILES."
+  },
+  {
+    "objectID": "package/vignettes/admetshiny.html#using-the-functions-programmatically",
+    "href": "package/vignettes/admetshiny.html#using-the-functions-programmatically",
+    "title": "Introduction to admetshiny",
+    "section": "Using the functions programmatically",
+    "text": "Using the functions programmatically\nThe exported functions can also be used in plain R scripts.\n\nDrug-likeness filters\nlibrary(admetshiny)\n\n# Build a small toy dataset in the SwissADME schema\nd &lt;- data.frame(\n  MW = c(300, 650),\n  LogP = c(2, 7),\n  TPSA = c(40, 160),\n  MR = c(70, 150),\n  \"#H-bond acceptors\" = c(4, 12),\n  \"#H-bond donors\" = c(2, 7),\n  \"#Rotatable bonds\" = c(3, 14),\n  \"#Heavy atoms\" = c(20, 80),\n  \"#Aromatic heavy atoms\" = c(6, 9),\n  check.names = FALSE\n)\n\n# Add the violation columns required by the filters\nd &lt;- computeViolationColumns(d)\n\n# Apply Lipinski + Veber\nfiltered &lt;- applyFilters(d, filters = c(\"Lipinski\", \"Veber\"))\n\n\nNormalizing a SwissADME export\nd &lt;- read.csv(\"swissadme.csv\", check.names = FALSE)\nd &lt;- fixSwissADME(d)\n\n\nBOILED-Egg plot\n# Requires LogP and TPSA columns\nplotBoiledEgg(d)"
+  },
+  {
+    "objectID": "package/vignettes/admetshiny.html#optional-dependencies",
+    "href": "package/vignettes/admetshiny.html#optional-dependencies",
+    "title": "Introduction to admetshiny",
+    "section": "Optional dependencies",
+    "text": "Optional dependencies\nSome features rely on suggested packages that are not installed automatically:\n\n\n\nFeature\nPackage\n\n\n\n\nCDK descriptors / Deep-PK processing\nrcdk (requires Java JDK)\n\n\nSMILES from PubChem\nwebchem\n\n\nRadar plot\nfmsb\n\n\nt-SNE\nRtsne, ggrepel\n\n\nPCA labels\nggrepel\n\n\nTanimoto / AGNES\nrcdk, fingerprint, cluster\n\n\nParallel coordinates\nGGally\n\n\nExcel export\nopenxlsx\n\n\n\nInstall them with:\ninstall.packages(c(\"rcdk\", \"webchem\", \"fmsb\", \"Rtsne\", \"ggrepel\",\n                   \"fingerprint\", \"cluster\", \"GGally\", \"openxlsx\"))"
+  },
+  {
+    "objectID": "package/vignettes/admetshiny.html#references",
+    "href": "package/vignettes/admetshiny.html#references",
+    "title": "Introduction to admetshiny",
+    "section": "References",
+    "text": "References\n\nDaina, A., Michielin, O., & Zoete, V. (2017). SwissADME. Scientific Reports, 7(1), 42717.\nDaina, A., & Zoete, V. (2016). A boiled egg to predict gastrointestinal absorption and brain penetration. ChemMedChem, 11(11), 1117-1121.\nFu, L., et al. (2024). ADMETlab 3.0. Nucleic Acids Research, 52(W1), W422-W431.\nMyung, Y., de Sa, A. G., & Ascher, D. B. (2024). Deep-PK. Nucleic Acids Research, 52(W1), W469-W475."
   }
 ]

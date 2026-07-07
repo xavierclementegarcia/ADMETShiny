@@ -19,5 +19,11 @@
   },
   "install.qmd": {
     "install.html": "62813eb0"
+  },
+  "package/NEWS.md": {
+    "NEWS.html": "e3b1352a"
+  },
+  "package/vignettes/admetshiny.Rmd": {
+    "admetshiny.html": "0c70b7ce"
   }
 }
