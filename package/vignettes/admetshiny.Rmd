@@ -1,0 +1,124 @@
+---
+title: "Introduction to admetshiny"
+author: "Xavier Clemente Garcia Cevallos"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to admetshiny}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 6, fig.height = 4
+)
+```
+
+## Overview
+
+**admetshiny** is an R package that provides an interactive Shiny application
+and a toolbox of functions for the management, calculation, filtering,
+visualization and exploratory analysis of molecular descriptors and ADMET
+properties of small molecules. It integrates data exported from SwissADME,
+ADMETlab 3.0 and Deep-PK, and can compute descriptors locally via the
+Chemistry Development Kit (CDK).
+
+## Launching the application
+
+The easiest way to use admetshiny is through its interactive application:
+
+```r
+admetshiny::run_app()
+```
+
+The application provides four modules:
+
+1. **SwissADME Manager** - upload a SwissADME CSV and apply drug-likeness
+   filters.
+2. **CDK & webchem** - retrieve SMILES from PubChem and calculate descriptors
+   locally.
+3. **ADMETlab 3.0** - upload an ADMETlab CSV; properties are mapped
+   automatically.
+4. **Deep-PK** - upload a Deep-PK CSV; missing descriptors are calculated
+   on-the-fly from SMILES.
+
+## Using the functions programmatically
+
+The exported functions can also be used in plain R scripts.
+
+### Drug-likeness filters
+
+```r
+library(admetshiny)
+
+# Build a small toy dataset in the SwissADME schema
+d <- data.frame(
+  MW = c(300, 650),
+  LogP = c(2, 7),
+  TPSA = c(40, 160),
+  MR = c(70, 150),
+  "#H-bond acceptors" = c(4, 12),
+  "#H-bond donors" = c(2, 7),
+  "#Rotatable bonds" = c(3, 14),
+  "#Heavy atoms" = c(20, 80),
+  "#Aromatic heavy atoms" = c(6, 9),
+  check.names = FALSE
+)
+
+# Add the violation columns required by the filters
+d <- computeViolationColumns(d)
+
+# Apply Lipinski + Veber
+filtered <- applyFilters(d, filters = c("Lipinski", "Veber"))
+```
+
+### Normalizing a SwissADME export
+
+```r
+d <- read.csv("swissadme.csv", check.names = FALSE)
+d <- fixSwissADME(d)
+```
+
+### BOILED-Egg plot
+
+```r
+# Requires LogP and TPSA columns
+plotBoiledEgg(d)
+```
+
+## Optional dependencies
+
+Some features rely on suggested packages that are not installed automatically:
+
+| Feature | Package |
+|---|---|
+| CDK descriptors / Deep-PK processing | `rcdk` (requires Java JDK) |
+| SMILES from PubChem | `webchem` |
+| Radar plot | `fmsb` |
+| t-SNE | `Rtsne`, `ggrepel` |
+| PCA labels | `ggrepel` |
+| Tanimoto / AGNES | `rcdk`, `fingerprint`, `cluster` |
+| Parallel coordinates | `GGally` |
+| Excel export | `openxlsx` |
+
+Install them with:
+
+```r
+install.packages(c("rcdk", "webchem", "fmsb", "Rtsne", "ggrepel",
+                   "fingerprint", "cluster", "GGally", "openxlsx"))
+```
+
+## References
+
+- Daina, A., Michielin, O., & Zoete, V. (2017). SwissADME. *Scientific
+  Reports*, 7(1), 42717.
+- Daina, A., & Zoete, V. (2016). A boiled egg to predict gastrointestinal
+  absorption and brain penetration. *ChemMedChem*, 11(11), 1117-1121.
+- Fu, L., et al. (2024). ADMETlab 3.0. *Nucleic Acids Research*, 52(W1),
+  W422-W431.
+- Myung, Y., de Sa, A. G., & Ascher, D. B. (2024). Deep-PK. *Nucleic Acids
+  Research*, 52(W1), W469-W475.

@@ -1,0 +1,11 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^README\.Rmd$
+^README-.*\.png$
+^LICENSE\.md$
+^cran-comments\.md$
+^\.github$
+^upload$
+^hexicon_source$
+^\.travis\.yml$
+^appveyor\.yml$
