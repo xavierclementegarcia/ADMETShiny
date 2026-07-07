@@ -7,6 +7,10 @@ resources:
 website:
   title: "admetshiny"
   site-url: https://xavierclementegarcia.github.io/ADMETShiny/
+  description: >
+    ADMETShiny is an open-source R/Shiny platform for ADMET prediction,
+    cheminformatics, molecular descriptor calculation, QSAR analysis,
+    and computational drug discovery.
   navbar:
     left:
       - href: index.qmd

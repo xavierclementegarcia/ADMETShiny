@@ -1,6 +1,12 @@
 ---
 title: "admetshiny"
 subtitle: "An R package for ADMET analysis"
+keywords:
+  - ADMET
+  - Cheminformatics
+  - Drug Discovery
+  - R package
+  - Shiny
 
 about:
   template: trestles
