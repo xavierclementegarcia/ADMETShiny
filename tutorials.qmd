@@ -1,5 +1,5 @@
 ---
-title: "Tutorials"
+title: "Documentation"
 ---
 
 #### The first steps with ADMETShiny

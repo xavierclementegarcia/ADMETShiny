@@ -1,10 +1,10 @@
 [
   {
-    "objectID": "tutorials.html",
-    "href": "tutorials.html",
-    "title": "Tutorials",
+    "objectID": "publication.html",
+    "href": "publication.html",
+    "title": "Publications",
     "section": "",
-    "text": "The first steps with ADMETShiny"
+    "text": "About works"
   },
   {
     "objectID": "package/NEWS.html",
@@ -26,6 +26,13 @@
     "title": "admetshiny",
     "section": "",
     "text": "Provides an interactive shiny application and a toolbox of R functions for the management, calculation, filtering, visualization and exploratory analysis of molecular descriptors and ADMET (Absorption, Distribution, Metabolism, Excretion and Toxicity) properties of small molecules. It integrates workflows from SwissADME, ADMETlab 3.0 and Deep-PK, computes descriptors locally via the Chemistry Development Kit (CDK), and offers drug-likeness filters (Lipinski, Veber, Ghose, Egan, Muegge), the BOILED-Egg model, PCA, t-SNE, radar plots and Tanimoto/AGNES clustering to support compound prioritization in early-stage drug discovery."
+  },
+  {
+    "objectID": "espeletia.html",
+    "href": "espeletia.html",
+    "title": "admetshiny",
+    "section": "",
+    "text": "title: “Espeletia hartwegiana”\n\n\nWhy Espeletia hartwegiana?"
   },
   {
     "objectID": "about.html",
@@ -117,5 +124,12 @@
     "title": "Introduction to admetshiny",
     "section": "References",
     "text": "References\n\nDaina, A., Michielin, O., & Zoete, V. (2017). SwissADME. Scientific Reports, 7(1), 42717.\nDaina, A., & Zoete, V. (2016). A boiled egg to predict gastrointestinal absorption and brain penetration. ChemMedChem, 11(11), 1117-1121.\nFu, L., et al. (2024). ADMETlab 3.0. Nucleic Acids Research, 52(W1), W422-W431.\nMyung, Y., de Sa, A. G., & Ascher, D. B. (2024). Deep-PK. Nucleic Acids Research, 52(W1), W469-W475."
+  },
+  {
+    "objectID": "tutorials.html",
+    "href": "tutorials.html",
+    "title": "Documentation",
+    "section": "",
+    "text": "The first steps with ADMETShiny"
   }
 ]

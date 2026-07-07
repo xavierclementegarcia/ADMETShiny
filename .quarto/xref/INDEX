@@ -25,5 +25,14 @@
   },
   "package/vignettes/admetshiny.Rmd": {
     "admetshiny.html": "0c70b7ce"
+  },
+  "espeletia.qmd": {
+    "espeletia.html": "4d91a013"
+  },
+  "publication.qmd": {
+    "publication.html": "9abbe0fe"
+  },
+  "workflow.qmd": {
+    "workflow.html": "5e7f753b"
   }
 }
