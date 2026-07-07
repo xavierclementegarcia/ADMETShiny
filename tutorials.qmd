@@ -4,7 +4,7 @@ title: "Documentation"
 
 ### Documentation
 
-### The first steps with ADMETShiny 
+### The first steps with ADMETShiny
 
 #### The user interface
 
@@ -18,6 +18,6 @@ title: "Documentation"
 
 ### You probably need a report
 
-### The conclusions 
+### The conclusions
 
 #### 

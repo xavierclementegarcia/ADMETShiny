@@ -51,7 +51,7 @@ format:
   html:
     theme:
       light: 
-        - vapor 
+        - pulse 
         - styles.scss
       dark: 
         - vapor

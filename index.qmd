@@ -1,6 +1,7 @@
 ---
 title: "admetshiny"
 subtitle: "An R package for ADMET analysis"
+
 keywords:
   - ADMET
   - Cheminformatics
@@ -10,18 +11,20 @@ keywords:
 
 about:
   template: trestles
-  image: icon/hexicon.png
+  image: images/12.png
   image-shape: round
+
   links:
     - icon: github
       text: GitHub
       href: https://github.com/xavierclementegarcia/ADMETShiny
 
     - icon: file-text
+      text: Tutorials
       href: tutorials.qmd
 ---
 
-## What's admetshiny?
+## What's admetshiny v1.0.0 *Espeletia hartwegiana*?
 
 Provides an interactive *shiny* application and a toolbox of R functions for the management, calculation, filtering, visualization and exploratory analysis of molecular descriptors and ADMET (Absorption, Distribution, Metabolism, Excretion and Toxicity) properties of small molecules. It integrates workflows from SwissADME, ADMETlab 3.0 and Deep-PK, computes descriptors locally via the Chemistry Development Kit (CDK), and offers drug-likeness filters (Lipinski, Veber, Ghose, Egan, Muegge), the BOILED-Egg model, PCA, t-SNE, radar plots and Tanimoto/AGNES clustering to support compound prioritization in early-stage drug discovery.
 
