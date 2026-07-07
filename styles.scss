@@ -1,23 +1,53 @@
 /*-- scss:defaults --*/
-$brand-mint: #E0EFDE;
-$brand-charcoal: #162627;
+
+$brand-bg: #F5F3FF;
+$brand-primary: #6C63FF;
+$brand-secondary: #8B7CFF;
+$brand-accent: #F04D9B;
+$brand-text: #23243A;
+
 /*-- scss:rules --*/
-/* Light (Morph) */
+
+/* ===========================
+   Light Theme (Vapor Inspired)
+   =========================== */
+
 [data-bs-theme="light"] .navbar {
-  background-color: #E0EFDE;
+  background: linear-gradient(
+    90deg,
+    #F7F5FF 0%,
+    #ECE8FF 100%
+  );
+  border-bottom: 1px solid rgba(108, 99, 255, .15);
 }
 
-[data-bs-theme="light"] .navbar .navbar-brand,
+[data-bs-theme="light"] .navbar .navbar-brand {
+  color: $brand-primary;
+  font-weight: 700;
+}
+
 [data-bs-theme="light"] .navbar .nav-link {
-  color: #162627;
+  color: $brand-text;
+  transition: .2s;
 }
 
-/* Dark (Vapor) */
+[data-bs-theme="light"] .navbar .nav-link:hover {
+  color: $brand-accent;
+}
+
+/* ===========================
+   Dark Theme (Vapor)
+   =========================== */
+
 [data-bs-theme="dark"] .navbar {
-  background-color: #1b1f3b;
+  background: #1b1f3b;
 }
 
 [data-bs-theme="dark"] .navbar .navbar-brand,
 [data-bs-theme="dark"] .navbar .nav-link {
-  color: #ffffff;
+  color: white;
+}
+
+[data-bs-theme="dark"] .navbar .nav-link:hover {
+  color: #79c7ff;
 }

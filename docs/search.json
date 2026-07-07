@@ -4,7 +4,7 @@
     "href": "workflow.html",
     "title": "Workflows & demostrations",
     "section": "",
-    "text": "Back to top"
+    "text": "Workflows & demonstrations\n\n\nCoconut: A Medicinal Latino-american plants dataset\n\n\nHow do you get a BOILED-egg with ADMETShiny\n\n\nChoosing the best secundaries metabolites\n\n\nThe hard mission to the validations\n\n\n\n\n Back to top"
   },
   {
     "objectID": "publication.html",
@@ -86,16 +86,16 @@
   {
     "objectID": "author.html",
     "href": "author.html",
-    "title": "About to the author",
+    "title": "About the author",
     "section": "",
-    "text": "Back to top"
+    "text": "About the author\nXavier Clemente García Cevallos is a biologist and researcher student whose work focuses on computational drug discovery, cheminformatics, bioinformatics, natural products, and neurobiology. His research integrates experimental phytochemistry with in silico approaches, including molecular docking, ADMET profiling, molecular dynamics, and software development for reproducible computational workflows. He is the developer of ADMETShiny, an open-source R package designed to facilitate the analysis and visualization of molecular descriptors and ADMET properties.\n\n\n\n Back to top"
   },
   {
-    "objectID": "espeletia.html",
-    "href": "espeletia.html",
+    "objectID": "espeletia.html#espeletia-hartwegiana",
+    "href": "espeletia.html#espeletia-hartwegiana",
     "title": "admetshiny",
-    "section": "",
-    "text": "title: “Espeletia hartwegiana”\n\n\nWhy Espeletia hartwegiana?\n\n\n\n\n Back to top"
+    "section": "Espeletia hartwegiana",
+    "text": "Espeletia hartwegiana\nThe frailejón is a caulescent rosette reaching up to 4 m in height, with slender stems, inflorescences approximately equal in length to the leaves, and yellow capitula.\nIt is one of the emblematic plants of the Colombian páramo ecosystem, playing a key ecological role in water regulation, storage, and generation.\n\n\n\n\n\nBeyond its ecological function, E. hartwegiana supports a unique assemblage of microorganisms, insects, birds, and other high-Andean organisms that depend on páramo habitats. The species also represents an important reservoir of specialized secondary metabolites with promising pharmacological and biotechnological potential.\nHowever, climate change, agricultural expansion, livestock grazing, recurrent fires, and habitat fragmentation are threatening natural populations throughout the northern Andes. Rising temperatures are expected to reduce suitable páramo habitats, forcing populations to migrate to higher elevations where available habitat becomes increasingly limited.\n\n\n\n\n\nThe conservation of Espeletia hartwegiana is therefore essential not only for preserving one of the world’s most biodiverse mountain ecosystems, but also for safeguarding water security, ecological resilience, and the chemical diversity that may support future discoveries in natural product research and drug development."
   },
   {
     "objectID": "feedback.html",
@@ -165,6 +165,6 @@
     "href": "tutorials.html",
     "title": "admetshiny",
     "section": "",
-    "text": "The first steps with ADMETShiny\n\n\n\n\n Back to top"
+    "text": "Documentation\n\n\nThe first steps with ADMETShiny\n\n\nThe datasets example\n\n\nYour first analysis with ADMETShiny\n\n\nYou probably need a report\n\n\nThe conclusions\n\n\n\n\n\n\n\n Back to top"
   }
 ]

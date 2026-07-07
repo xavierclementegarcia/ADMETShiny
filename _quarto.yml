@@ -17,8 +17,9 @@ website:
     left: 
       "MIT license, 2026 - ADMETShiny"
     right: 
-      - href: https://github.com/xavierclementegarcia
       - icon: github
+        href: https://github.com/xavierclementegarcia
+
     center: |
       Made with <a href="https://www.r-project.org/"><img src="https://www.r-project.org/Rlogo.png" alt="R" width="25px"></a> 
       and <a href="https://quarto.org/"><img src="https://quarto.org/quarto.png" alt="Quarto" width="65px"></a>.
@@ -50,7 +51,7 @@ format:
   html:
     theme:
       light: 
-        - morph 
+        - vapor 
         - styles.scss
       dark: 
         - vapor
