@@ -1,11 +1,12 @@
 project:
   type: website
   output-dir: docs 
-resource: 
+resources: 
   - google02a8a0c3d0dab92d.html
 
 website:
   title: "admetshiny"
+  site-url: https://xavierclementegarcia.github.io/ADMETShiny/
   navbar:
     left:
       - href: index.qmd
