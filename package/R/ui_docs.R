@@ -79,11 +79,11 @@ docs_tab <- function() {
                                    tags$div(class = "info-card accent-red",
                                             tags$div(class = "info-card-header", icon("egg"), " BOILED-Egg Model"),
                                             tags$div(class = "info-card-body",
-                                                     tags$p("The BOILED-Egg model (Daina & Zoete, 2016) is computed using the physicochemical properties ", tags$b("LogP"), " (x-axis) and ", tags$b("TPSA"), " (y-axis). The model was originally calibrated with WLOGP; the app uses the generic LogP column as an approximation."),
-                                                     tags$p(tags$b("GI Absorption (White Ellipse):")),
-                                                     tags$div(class = "math-block", "((LogP - 2.926) / 8.740)^2 + ((TPSA - 71.051) / 142.081)^2 <= 1"),
+                                                     tags$p("The BOILED-Egg model (Daina & Zoete, 2016) is computed using the physicochemical properties ", tags$b("TPSA"), " (x-axis) and ", tags$b("LogP"), " (y-axis). The model was originally calibrated with WLOGP; the app uses the generic LogP column as an approximation."),
+                                                     tags$p(tags$b("GI Absorption (White Region):")),
+                                                     tags$p("Classification uses the official polygon coordinates from the BOILED-Egg supplementary data (Data S3), via point-in-polygon testing. This is more accurate than the ellipse approximation."),
                                                      tags$p(tags$b("BBB Permeability (Yellow Yolk):")),
-                                                     tags$div(class = "math-block", "((LogP - 3.177) / 8.060)^2 + ((TPSA - 38.117) / 82.061)^2 <= 1")
+                                                     tags$p("Same point-in-polygon approach using the official BBB polygon coordinates.")
                                             )
                                    )
                             ),

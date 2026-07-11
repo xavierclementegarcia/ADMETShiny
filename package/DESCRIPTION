@@ -3,7 +3,7 @@ Type: Package
 Title: Interactive ADMET and Drug-Likeness Analysis of Small Molecules
 Version: 1.0.0
 Date: 2025-01-01
-Authors@R: person("Xavier Clemente", "Garcia Cevallos", email = "xgarcia@unicauca.edu.co", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-3284-2363"))
+Authors@R: person("Xavier Clemente", "Garcia Cevallos", email = "xgarcia@unicauca.edu.co", role = c("aut", "cre"), comment = c(ORCID = "0009-0009-0009-0009"))
 Maintainer: Xavier Clemente Garcia Cevallos <xgarcia@unicauca.edu.co>
 Description: Provides an interactive 'shiny' application and a toolbox of
     R functions for the management, calculation, filtering, visualization and
@@ -42,6 +42,8 @@ Suggests:
     cluster,
     GGally,
     openxlsx,
+    viridisLite,
+    sp,
     knitr,
     rmarkdown,
     testthat

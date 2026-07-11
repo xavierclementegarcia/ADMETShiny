@@ -263,8 +263,10 @@ computeViolationColumns <- function(data) {
 #' Computes the gastrointestinal absorption (\code{GI absorption}), blood-brain
 #' barrier permeability (\code{BBB permeant}) and P-glycoprotein substrate
 #' (\code{Pgp substrate}) categorical columns from the \code{LogP} and
-#' \code{TPSA} values, using the exact BOILED-Egg ellipses (Daina & Zoete,
-#' 2016) for GI/BBB and a literature heuristic (Seelig, 1998) for P-gp.
+#' \code{TPSA} values, using the official BOILED-Egg polygon coordinates
+#' (Daina & Zoete, 2016, Data S3) for GI/BBB classification via
+#' point-in-polygon testing, and a literature heuristic (Seelig, 1998) for
+#' P-gp.
 #'
 #' The BOILED-Egg model was originally calibrated with WLOGP; here the
 #' application's generic \code{LogP} column is used (which may be WLOGP,
@@ -297,25 +299,31 @@ computeADMETProperties <- function(data) {
   hbd  <- safe_get("#H-bond donors")
   hba  <- safe_get("#H-bond acceptors")
 
-  ## 1. GI absorption (BOILED-Egg white ellipse)
-  hia_ellipse <- ((logp - 2.926) / 8.740)^2 +
-    ((tpsa - 71.051) / 142.081)^2 <= 1
+  ## Classify points using official polygons (point-in-polygon)
+  ## Polygons are stored as (TPSA, LogP) = (x, y) in R/boiled_egg_data.R
+  ## point_in_polygon expects: x = TPSA, y = LogP
+  hia_inside <- ..point_in_polygon(tpsa, logp, .hia_polygon)
   data[["GI absorption"]] <- ifelse(
-    is.na(hia_ellipse), NA,
-    ifelse(hia_ellipse, "High", "Low")
+    is.na(hia_inside), NA,
+    ifelse(hia_inside, "High", "Low")
   )
 
-  ## 2. BBB permeability (BOILED-Egg yellow yolk)
-  bbb_ellipse <- ((logp - 3.177) / 8.060)^2 +
-    ((tpsa - 38.117) / 82.061)^2 <= 1
+  bbb_inside <- ..point_in_polygon(tpsa, logp, .bbb_polygon)
   data[["BBB permeant"]] <- ifelse(
-    is.na(bbb_ellipse), NA,
-    ifelse(bbb_ellipse, "Yes", "No")
+    is.na(bbb_inside), NA,
+    ifelse(bbb_inside, "Yes", "No")
   )
 
-  ## 3. P-gp substrate (literature heuristic, Seelig 1998)
+  ## 3. P-gp substrate (literature heuristic based on Seelig 1998 and
+  ##    Didziapetris et al. 2003)
+  ##    P-gp substrates tend to be larger, more polar, and moderately
+  ##    lipophilic. We require:
+  ##      MW > 400 AND TPSA > 40 AND (HBA + HBD) >= 8 AND LogP > 1
+  ##    OR
+  ##      MW > 500 AND LogP > 4 AND TPSA > 40
   pgp_condition <-
-    (mw > 400 & tpsa > 40 & (hba + hbd) >= 8) | (mw > 500 & logp > 4)
+    (mw > 400 & tpsa > 40 & (hba + hbd) >= 8 & logp > 1) |
+    (mw > 500 & logp > 4 & tpsa > 40)
   data[["Pgp substrate"]] <- ifelse(
     is.na(pgp_condition), NA,
     ifelse(pgp_condition, "Yes", "No")

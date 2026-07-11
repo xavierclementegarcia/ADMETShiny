@@ -15,14 +15,21 @@ optional and used for point colouring.}
 A \pkg{ggplot2} object.
 }
 \description{
-Produces the BOILED-Egg model plot (Daina & Zoete, 2016) in the
-LogP-TPSA space. Points are coloured by P-gp substrate status when a
+Produces the BOILED-Egg model plot (Daina & Zoete, 2016) using the
+official polygon coordinates from the supplementary data (Data S3).
+Points are coloured by P-gp substrate status when a
 \code{"Pgp substrate"} column is available.
 }
 \details{
 The BOILED-Egg model was originally calibrated with WLOGP; the application
-uses the generic \code{LogP} column (which may be WLOGP, Consensus Log P,
-ALogP, or the source platform's own LogP) as an acceptable approximation.
+uses the generic \code{LogP} column as an approximation. The axes follow
+the SwissADME convention: TPSA on the x-axis, LogP on the y-axis.
+}
+\examples{
+\dontrun{
+d <- data.frame(LogP = c(2, 5), TPSA = c(50, 150))
+plotBoiledEgg(d)
+}
 }
 \references{
 Daina, A., & Zoete, V. (2016). A boiled egg to predict

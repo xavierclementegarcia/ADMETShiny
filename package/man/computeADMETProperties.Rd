@@ -17,8 +17,10 @@ A data.frame with the added ADMET property columns.
 Computes the gastrointestinal absorption (\code{GI absorption}), blood-brain
 barrier permeability (\code{BBB permeant}) and P-glycoprotein substrate
 (\code{Pgp substrate}) categorical columns from the \code{LogP} and
-\code{TPSA} values, using the exact BOILED-Egg ellipses (Daina & Zoete,
-2016) for GI/BBB and a literature heuristic (Seelig, 1998) for P-gp.
+\code{TPSA} values, using the official BOILED-Egg polygon coordinates
+(Daina & Zoete, 2016, Data S3) for GI/BBB classification via
+point-in-polygon testing, and a literature heuristic (Seelig, 1998) for
+P-gp.
 }
 \details{
 The BOILED-Egg model was originally calibrated with WLOGP; here the

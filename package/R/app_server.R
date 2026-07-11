@@ -13,6 +13,16 @@
 #' @keywords internal
 app_server <- function(input, output, session) {
 
+  ## Helper: safely extract id_col from Shiny input, handling NULL,
+  ## character(0), NA, "None", and "" -- all of which mean "no label".
+  .safe_id_col <- function(val) {
+    if (is.null(val) || length(val) == 0 || !is.character(val) ||
+        is.na(val[1]) || val[1] == "None" || val[1] == "") {
+      return(NULL)
+    }
+    val[1]
+  }
+
   ## --------------------------- Dark mode ---------------------------------
   is_dark_mode <- reactiveVal(FALSE)
 
@@ -181,6 +191,61 @@ app_server <- function(input, output, session) {
       }
     }, error = function(e) {
       showNotification(paste("Error loading SMILES from CSV:", e$message),
+                       type = "error", duration = 10)
+    })
+  })
+
+  ## ---- Load example dataset (drugs.csv) ----
+  observeEvent(input$load_example_drugs, {
+    drugs_file <- system.file("extdata", "drugs.csv", package = "admetshiny")
+    if (drugs_file == "" || !file.exists(drugs_file)) {
+      showNotification("Example dataset not found.", type = "error", duration = 8)
+      return(NULL)
+    }
+
+    tryCatch({
+      d <- read.csv(drugs_file, check.names = FALSE, stringsAsFactors = FALSE)
+
+      ## Auto-detect the SMILES column
+      smiles_col <- NULL
+      candidate_cols <- names(d)[grepl("smiles", names(d), ignore.case = TRUE)]
+      if (length(candidate_cols) > 0) {
+        smiles_col <- candidate_cols[1]
+      } else {
+        showNotification("Error: no 'smiles' column found in example dataset.",
+                         type = "error", duration = 10)
+        return(NULL)
+      }
+
+      smiles_raw <- trimws(as.character(d[[smiles_col]]))
+      valid <- smiles_raw != "" & !is.na(smiles_raw)
+
+      if (sum(valid) == 0) {
+        showNotification("Error: no valid SMILES found in example dataset.",
+                         type = "error", duration = 10)
+        return(NULL)
+      }
+
+      d <- d[valid, , drop = FALSE]
+      d$CanonicalSMILES <- smiles_raw[valid]
+
+      ## Ensure a 'query' column (use the 'name' column if present)
+      if ("name" %in% names(d)) {
+        d$query <- as.character(d$name)
+      } else if (!"query" %in% names(d)) {
+        d$query <- paste0("Molecule_", seq_len(nrow(d)))
+      }
+      ## Ensure a 'cid' column (NA for non-PubChem sources)
+      if (!"cid" %in% names(d)) {
+        d$cid <- NA_character_
+      }
+
+      smiles_table_rv(d)
+      showNotification(sprintf("Example dataset loaded: %d drugs with SMILES.",
+                               nrow(d)),
+                       type = "message", duration = 5)
+    }, error = function(e) {
+      showNotification(paste("Error loading example dataset:", e$message),
                        type = "error", duration = 10)
     })
   })
@@ -488,6 +553,35 @@ app_server <- function(input, output, session) {
     )
   })
 
+  output$cdk_cluster_heatmap_controls <- renderUI({
+    req(cdk_resultado())
+    cols <- names(cdk_resultado())
+    numeric_cols <- cols[sapply(cdk_resultado(), is.numeric)]
+    ## Look for a suitable label column: prefer text columns that could be IDs
+    char_cols <- cols[!sapply(cdk_resultado(), is.numeric)]
+    default_id <- if (any(c("Title", "query", "Name", "name", "ID", "Compound", "Molecule") %in% cols)) {
+      intersect(c("Title", "query", "Name", "name", "ID", "Compound", "Molecule"), cols)[1]
+    } else if (length(char_cols) > 0) {
+      char_cols[1]
+    } else {
+      "None"
+    }
+    tagList(
+      selectInput("cdk_cluster_heatmap_variables", "Variables", choices = numeric_cols,
+                  selected = c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"),
+                  multiple = TRUE),
+      selectInput("cdk_cluster_heatmap_id_col", "Label column (optional)", choices = c("None", cols),
+                  selected = default_id),
+      selectInput("cdk_cluster_heatmap_method", "Clustering method",
+                  choices = c("Ward D2" = "ward.D2", "Ward D" = "ward.D",
+                              "Complete" = "complete", "Average (UPGMA)" = "average",
+                              "Single" = "single", "McQuitty" = "mcquitty",
+                              "Median" = "median", "Centroid" = "centroid"),
+                  selected = "ward.D2"),
+      checkboxInput("cdk_cluster_heatmap_scale", "Scale variables (z-score)", TRUE)
+    )
+  })
+
   output$cdk_violin_controls <- renderUI({
     req(cdk_resultado())
     cols <- names(cdk_resultado())
@@ -557,6 +651,13 @@ app_server <- function(input, output, session) {
                                           color_by = input$cdk_parallel_color,
                                           scale_data = input$cdk_parallel_scale),
                              input$cdk_palette, cdk_resultado(), input$cdk_parallel_color),
+             "Cluster Heatmap (Dendrogram)" =
+               function() plotClusterHeatmap(data = cdk_resultado(),
+                                             variables = input$cdk_cluster_heatmap_variables,
+                                             id_col = .safe_id_col(input$cdk_cluster_heatmap_id_col),
+                                             method = input$cdk_cluster_heatmap_method,
+                                             scale_data = input$cdk_cluster_heatmap_scale,
+                                             palette = input$cdk_palette),
              "Violin Plot" =
                apply_palette(plotViolin(data = cdk_resultado(),
                                          variable = input$cdk_violin_variable,
@@ -739,6 +840,35 @@ app_server <- function(input, output, session) {
     )
   })
 
+  output$cluster_heatmap_controls <- renderUI({
+    req(resultado())
+    cols <- names(resultado())
+    numeric_cols <- cols[sapply(resultado(), is.numeric)]
+    ## Look for a suitable label column: prefer text columns that could be IDs
+    char_cols <- cols[!sapply(resultado(), is.numeric)]
+    default_id <- if (any(c("Name", "name", "ID", "Compound", "Molecule") %in% cols)) {
+      intersect(c("Name", "name", "ID", "Compound", "Molecule"), cols)[1]
+    } else if (length(char_cols) > 0) {
+      char_cols[1]
+    } else {
+      "None"
+    }
+    tagList(
+      selectInput("cluster_heatmap_variables", "Variables", choices = numeric_cols,
+                  selected = c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"),
+                  multiple = TRUE),
+      selectInput("cluster_heatmap_id_col", "Label column (optional)", choices = c("None", cols),
+                  selected = default_id),
+      selectInput("cluster_heatmap_method", "Clustering method",
+                  choices = c("Ward D2" = "ward.D2", "Ward D" = "ward.D",
+                              "Complete" = "complete", "Average (UPGMA)" = "average",
+                              "Single" = "single", "McQuitty" = "mcquitty",
+                              "Median" = "median", "Centroid" = "centroid"),
+                  selected = "ward.D2"),
+      checkboxInput("cluster_heatmap_scale", "Scale variables (z-score)", TRUE)
+    )
+  })
+
   output$violin_controls <- renderUI({
     req(resultado())
     cols <- names(resultado())
@@ -797,6 +927,13 @@ app_server <- function(input, output, session) {
                apply_palette(plotParallel(data = resultado(), variables = input$parallel_variables,
                                           color_by = input$parallel_color, scale_data = input$parallel_scale),
                              input$swiss_palette, resultado(), input$parallel_color),
+             "Cluster Heatmap (Dendrogram)" =
+               function() plotClusterHeatmap(data = resultado(),
+                                             variables = input$cluster_heatmap_variables,
+                                             id_col = .safe_id_col(input$cluster_heatmap_id_col),
+                                             method = input$cluster_heatmap_method,
+                                             scale_data = input$cluster_heatmap_scale,
+                                             palette = input$swiss_palette),
              "Violin Plot" =
                apply_palette(plotViolin(data = resultado(), variable = input$violin_variable,
                                          group_by = input$violin_group, show_box = input$violin_box,
@@ -964,6 +1101,35 @@ app_server <- function(input, output, session) {
     )
   })
 
+  output$admetlab_cluster_heatmap_controls <- renderUI({
+    req(admetlab_resultado())
+    cols <- names(admetlab_resultado())
+    numeric_cols <- cols[sapply(admetlab_resultado(), is.numeric)]
+    ## Look for a suitable label column: prefer text columns that could be IDs
+    char_cols <- cols[!sapply(admetlab_resultado(), is.numeric)]
+    default_id <- if (any(c("Name", "name", "ID", "Compound", "Molecule") %in% cols)) {
+      intersect(c("Name", "name", "ID", "Compound", "Molecule"), cols)[1]
+    } else if (length(char_cols) > 0) {
+      char_cols[1]
+    } else {
+      "None"
+    }
+    tagList(
+      selectInput("admetlab_cluster_heatmap_variables", "Variables", choices = numeric_cols,
+                  selected = c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"),
+                  multiple = TRUE),
+      selectInput("admetlab_cluster_heatmap_id_col", "Label column (optional)", choices = c("None", cols),
+                  selected = default_id),
+      selectInput("admetlab_cluster_heatmap_method", "Clustering method",
+                  choices = c("Ward D2" = "ward.D2", "Ward D" = "ward.D",
+                              "Complete" = "complete", "Average (UPGMA)" = "average",
+                              "Single" = "single", "McQuitty" = "mcquitty",
+                              "Median" = "median", "Centroid" = "centroid"),
+                  selected = "ward.D2"),
+      checkboxInput("admetlab_cluster_heatmap_scale", "Scale variables (z-score)", TRUE)
+    )
+  })
+
   output$admetlab_violin_controls <- renderUI({
     req(admetlab_resultado())
     cols <- names(admetlab_resultado())
@@ -1022,6 +1188,13 @@ app_server <- function(input, output, session) {
                apply_palette(plotParallel(data = admetlab_resultado(), variables = input$admetlab_parallel_variables,
                                           color_by = input$admetlab_parallel_color, scale_data = input$admetlab_parallel_scale),
                              input$admetlab_palette, admetlab_resultado(), input$admetlab_parallel_color),
+             "Cluster Heatmap (Dendrogram)" =
+               function() plotClusterHeatmap(data = admetlab_resultado(),
+                                             variables = input$admetlab_cluster_heatmap_variables,
+                                             id_col = .safe_id_col(input$admetlab_cluster_heatmap_id_col),
+                                             method = input$admetlab_cluster_heatmap_method,
+                                             scale_data = input$admetlab_cluster_heatmap_scale,
+                                             palette = input$admetlab_palette),
              "Violin Plot" =
                apply_palette(plotViolin(data = admetlab_resultado(), variable = input$admetlab_violin_variable,
                                          group_by = input$admetlab_violin_group, show_box = input$admetlab_violin_box,
@@ -1186,6 +1359,35 @@ app_server <- function(input, output, session) {
     )
   })
 
+  output$deeppk_cluster_heatmap_controls <- renderUI({
+    req(deeppk_resultado())
+    cols <- names(deeppk_resultado())
+    numeric_cols <- cols[sapply(deeppk_resultado(), is.numeric)]
+    ## Look for a suitable label column: prefer text columns that could be IDs
+    char_cols <- cols[!sapply(deeppk_resultado(), is.numeric)]
+    default_id <- if (any(c("Name", "name", "ID", "Compound", "Molecule") %in% cols)) {
+      intersect(c("Name", "name", "ID", "Compound", "Molecule"), cols)[1]
+    } else if (length(char_cols) > 0) {
+      char_cols[1]
+    } else {
+      "None"
+    }
+    tagList(
+      selectInput("deeppk_cluster_heatmap_variables", "Variables", choices = numeric_cols,
+                  selected = c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"),
+                  multiple = TRUE),
+      selectInput("deeppk_cluster_heatmap_id_col", "Label column (optional)", choices = c("None", cols),
+                  selected = default_id),
+      selectInput("deeppk_cluster_heatmap_method", "Clustering method",
+                  choices = c("Ward D2" = "ward.D2", "Ward D" = "ward.D",
+                              "Complete" = "complete", "Average (UPGMA)" = "average",
+                              "Single" = "single", "McQuitty" = "mcquitty",
+                              "Median" = "median", "Centroid" = "centroid"),
+                  selected = "ward.D2"),
+      checkboxInput("deeppk_cluster_heatmap_scale", "Scale variables (z-score)", TRUE)
+    )
+  })
+
   output$deeppk_violin_controls <- renderUI({
     req(deeppk_resultado())
     cols <- names(deeppk_resultado())
@@ -1244,6 +1446,13 @@ app_server <- function(input, output, session) {
                apply_palette(plotParallel(data = deeppk_resultado(), variables = input$deeppk_parallel_variables,
                                           color_by = input$deeppk_parallel_color, scale_data = input$deeppk_parallel_scale),
                              input$deeppk_palette, deeppk_resultado(), input$deeppk_parallel_color),
+             "Cluster Heatmap (Dendrogram)" =
+               function() plotClusterHeatmap(data = deeppk_resultado(),
+                                             variables = input$deeppk_cluster_heatmap_variables,
+                                             id_col = .safe_id_col(input$deeppk_cluster_heatmap_id_col),
+                                             method = input$deeppk_cluster_heatmap_method,
+                                             scale_data = input$deeppk_cluster_heatmap_scale,
+                                             palette = input$deeppk_palette),
              "Violin Plot" =
                apply_palette(plotViolin(data = deeppk_resultado(), variable = input$deeppk_violin_variable,
                                          group_by = input$deeppk_violin_group, show_box = input$deeppk_violin_box,

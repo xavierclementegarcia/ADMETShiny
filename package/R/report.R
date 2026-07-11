@@ -368,7 +368,7 @@ plotViolationsSummary <- function(data) {
 
   plot_df <- .safe_rbind(lapply(existing, function(col) {
     v <- as.numeric(data[[col]])
-    ## Remove NA values before cutting — they would produce NA factors
+    ## Remove NA values before cutting -- they would produce NA factors
     v <- v[!is.na(v)]
     if (length(v) == 0) return(NULL)
     v_cat <- cut(v, breaks = c(-0.5, 0.5, 1.5, 2.5, Inf),
@@ -452,6 +452,13 @@ plotDruglikenessScore <- function(data) {
   ## Remove empty bins for cleaner rendering
   bin_counts <- bin_counts[bin_counts$Freq > 0, , drop = FALSE]
 
+  if (nrow(bin_counts) == 0) {
+    return(ggplot() + annotate("text", x = 50, y = 1,
+                               label = "No score data available") +
+             theme_void() +
+             labs(title = "Composite Drug-likeness Score Distribution"))
+  }
+
   colors <- c("Poor (<60)" = "#e74c3c",
               "Acceptable (60-79)" = "#f1c40f",
               "Excellent (>=80)" = "#2ecc71")
@@ -482,7 +489,18 @@ generateReportPlots <- function(data, prefix, plot_dir) {
   save_plot <- function(name, plot_obj, w = 7, h = 5) {
     path <- file.path(plot_dir, paste0(prefix, "_", name, ".png"))
     tryCatch({
-      ggplot2::ggsave(path, plot_obj, width = w, height = h, dpi = 150, bg = "white")
+      if (is.function(plot_obj)) {
+        ## Base R graphics plot (e.g., plotClusterHeatmap, plotRadar,
+        ## plotTanimoto) -- use grDevices::png instead of ggsave
+        grDevices::png(path, width = w, height = h, units = "in",
+                       res = 150, bg = "white")
+        tryCatch(plot_obj(), error = function(e) NULL,
+                 finally = grDevices::dev.off())
+      } else {
+        ## ggplot object
+        ggplot2::ggsave(path, plot_obj, width = w, height = h,
+                        dpi = 150, bg = "white")
+      }
       paths[[name]] <<- path
     }, error = function(e) {
       warning(sprintf("Could not save plot '%s': %s", name, e$message))
@@ -517,6 +535,11 @@ generateReportPlots <- function(data, prefix, plot_dir) {
   )
   if (length(numeric_props) >= 2) {
     save_plot("corr_heatmap", plotCorrHeatmap(data), w = 7, h = 6)
+  }
+
+  ## Cluster heatmap with dendrogram
+  if (length(numeric_props) >= 2 && nrow(data) >= 3) {
+    save_plot("cluster_heatmap", function() plotClusterHeatmap(data), w = 7, h = 7)
   }
 
   ## Violations summary
@@ -679,6 +702,8 @@ buildReportMarkdown <- function(datasets, plot_paths) {
         lines <- c(lines, paste0("![LogP Distribution (", ds$source_name, ")](", pp$logp, ")"), "")
       if (!is.null(pp$corr_heatmap))
         lines <- c(lines, paste0("![Correlation Heatmap (", ds$source_name, ")](", pp$corr_heatmap, ")"), "")
+      if (!is.null(pp$cluster_heatmap))
+        lines <- c(lines, paste0("![Cluster Heatmap with Dendrogram (", ds$source_name, ")](", pp$cluster_heatmap, ")"), "")
       if (!is.null(pp$violations))
         lines <- c(lines, paste0("![Violations Summary (", ds$source_name, ")](", pp$violations, ")"), "")
       if (!is.null(pp$score))
@@ -839,5 +864,107 @@ renderReport <- function(datasets, format = "html", output_file) {
     clean = TRUE
   )
 
+  invisible(NULL)
+}
+
+## ===================== Console-friendly report ===========================
+
+#' Generate an ADMETShiny report from the R console
+#'
+#' Generates a comprehensive ADMET and drug-likeness analysis report from one
+#' or more datasets, directly from the R console (without launching the Shiny
+#' app). The report includes per-dataset statistics, drug-likeness filter
+#' results, BOILED-Egg ADMET classification, additional literature-supported
+#' metrics, a composite drug-likeness score, cross-dataset comparison,
+#' visualizations and references.
+#'
+#' @param data A data.frame, or a named list of data.frames. If a single
+#'   data.frame is provided, it is treated as one dataset named
+#'   \code{"Dataset 1"}. If a list is provided, each element is a separate
+#'   dataset and the list names are used as dataset labels.
+#' @param filters Character vector of drug-likeness filter names applied to
+#'   the data (e.g. \code{c("Lipinski", "Veber")}). Use \code{character(0)}
+#'   if no filters were applied. Default \code{character(0)}.
+#' @param format Character; one of \code{"html"}, \code{"pdf"}, \code{"doc"}.
+#'   Default \code{"html"}.
+#' @param output_file Character; path where the output file will be written.
+#'   If \code{NULL}, a default name is used in the current working directory.
+#' @param source_name Character; human-readable name for the dataset. Only
+#'   used when \code{data} is a single data.frame. Default \code{"Dataset"}.
+#' @return Invisible \code{NULL}; called for the side-effect of writing the
+#'   rendered report to \code{output_file}.
+#' @export
+#' @examples
+#' \dontrun{
+#' ## Generate a report from a single dataset
+#' d <- read.csv("swissadme.csv", check.names = FALSE)
+#' d <- fixSwissADME(d)
+#' generateReport(d, filters = c("Lipinski", "Veber"), format = "html")
+#'
+#' ## Generate a report from multiple datasets
+#' generateReport(
+#'   data = list(SwissADME = d1, ADMETlab = d2),
+#'   filters = list(SwissADME = c("Lipinski"), ADMETlab = c("Egan")),
+#'   format = "pdf"
+#' )
+#' }
+generateReport <- function(data, filters = character(0),
+                           format = "html", output_file = NULL,
+                           source_name = "Dataset") {
+
+  ## Build the datasets list expected by renderReport
+  if (is.data.frame(data)) {
+
+    ## Single dataset
+    datasets <- list(
+      Dataset1 = list(
+        raw         = data,
+        filtered    = data,
+        filters     = filters,
+        source_name = source_name
+      )
+    )
+
+  } else if (is.list(data) && !is.null(names(data))) {
+
+    ## Named list of datasets
+    datasets <- lapply(names(data), function(nm) {
+      d <- data[[nm]]
+      if (is.null(d) || !is.data.frame(d)) return(NULL)
+      ## Get filters for this dataset if filters is a named list
+      fltrs <- if (is.list(filters) && nm %in% names(filters)) {
+        filters[[nm]]
+      } else if (is.character(filters)) {
+        filters
+      } else {
+        character(0)
+      }
+      list(
+        raw         = d,
+        filtered    = d,
+        filters     = fltrs,
+        source_name = nm
+      )
+    })
+    names(datasets) <- names(data)
+    datasets <- datasets[!sapply(datasets, is.null)]
+
+  } else {
+    stop("'data' must be a data.frame or a named list of data.frames.",
+         call. = FALSE)
+  }
+
+  ## Default output file
+  if (is.null(output_file)) {
+    ext <- switch(format, pdf = "pdf", doc = "docx", "html")
+    output_file <- file.path(getwd(),
+                             paste0("ADMETShiny_Report_",
+                                    format(Sys.Date(), "%Y%m%d"), ".", ext))
+  }
+
+  ## Render
+  renderReport(datasets, format = format, output_file = output_file)
+
+  message("Report generated: ", output_file)
   invisible(NULL)
 }

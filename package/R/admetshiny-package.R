@@ -67,6 +67,7 @@
 #'
 #' \itemize{
 #'   \item \code{\link{run_app}} - Launch the Shiny application
+#'   \item \code{\link{generateReport}} - Generate a report from the R console
 #' }
 #'
 #' @aliases admetshiny-package
@@ -77,10 +78,10 @@
 #' @importFrom dplyr filter mutate select
 #' @importFrom magrittr %>%
 #' @importFrom DT DTOutput renderDT
-#' @importFrom stats prcomp cor complete.cases as.dist median sd setNames var
+#' @importFrom stats prcomp cor complete.cases as.dist median sd setNames var dist hclust as.dendrogram heatmap
 #' @importFrom utils read.csv write.csv
-#' @importFrom grDevices rainbow
-#' @importFrom graphics legend
+#' @importFrom grDevices rainbow colorRampPalette
+#' @importFrom graphics legend par layout image axis mtext
 #' @importFrom grid unit
 "_PACKAGE"
 
@@ -102,6 +103,8 @@ utils::globalVariables(c(
   ".hb_sum",
   # ---- plots.R (ggplot2::aes bare column names) ----
   "HIA", "BBB", "PGP", "x", "y", "Var1", "Var2", "Correlation",
+  # ---- boiled_egg_data.R (internal data objects) ----
+  ".hia_polygon", ".bbb_polygon",
   # ---- pca.R (ggplot2::aes bare column names) ----
   "PC1", "PC2", "Colour", "Label", "Variable",
   # ---- t_sne.R (ggplot2::aes bare column names) ----

@@ -82,6 +82,7 @@ admetlab_tab <- function() {
                      "Correlation Heatmap",
                      "Principal Component Analysys (PCA - Chemical space)",
                      "t-SNE (Chemical space)",
+                     "Cluster Heatmap (Dendrogram)",
                      "Parallel Coordinates",
                      "Violin Plot"
                    )),
@@ -141,6 +142,14 @@ admetlab_tab <- function() {
                                              "Tight clusters represent similar molecules; the distance between groups reflects differences in their profiles."),
                                     tags$hr(),
                                     uiOutput("admetlab_tsne_controls")),
+
+                   conditionalPanel(condition = "input.admetlab_plot_type == 'Cluster Heatmap (Dendrogram)'",
+                                    tags$div(class = "alert-primary", icon("book-open"), tags$b(" Function: "),
+                                             "Combines hierarchical clustering with a heatmap to reveal groups of similar molecules."),
+                                    tags$div(class = "alert-primary", icon("book-open"), tags$b(" Analysis: "),
+                                             "Branches close together indicate similar compounds; the color scale shows z-scored property values."),
+                                    tags$hr(),
+                                    uiOutput("admetlab_cluster_heatmap_controls")),
 
                    palette_selector_ui("admetlab_palette"),
                    br(),

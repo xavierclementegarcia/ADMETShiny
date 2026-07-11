@@ -83,6 +83,7 @@ By Xavier Clemente Garcia Cevallos :3 "Hecho con amor para la ciencia"
 
 \itemize{
 \item \code{\link{run_app}} - Launch the Shiny application
+\item \code{\link{generateReport}} - Generate a report from the R console
 }
 }
 
@@ -95,11 +96,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Xavier Clemente Garcia Cevallos \email{xgarcia@unicauca.edu.co} (\href{https://orcid.org/0000-0002-3284-2363}{ORCID})
+\strong{Maintainer}: Xavier Clemente Garcia Cevallos \email{xgarcia@unicauca.edu.co} (\href{https://orcid.org/0009-0009-0009-0009}{ORCID})
 
 Authors:
 \itemize{
-  \item Xavier Clemente Garcia Cevallos \email{xgarcia@unicauca.edu.co} (\href{https://orcid.org/0000-0002-3284-2363}{ORCID})
+  \item Xavier Clemente Garcia Cevallos \email{xgarcia@unicauca.edu.co} (\href{https://orcid.org/0009-0009-0009-0009}{ORCID})
 }
 
 }

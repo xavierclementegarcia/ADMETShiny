@@ -5,28 +5,56 @@
 # and violin plot.
 # ---------------------------------------------------------------------------
 
-## --------------------------- BOILED-Egg (precise) -------------------------
-## Reproduces the original Daina & Zoete (2016) model:
-##   - X axis = LogP (lipophilicity), Y axis = TPSA (polarity)
-##   - White ellipse  = high probability of gastrointestinal absorption (HIA)
-##   - Yellow ellipse = high probability of crossing the BBB
-##   - Grey background = outside both regions
-##   - Point colour    = P-gp substrate (blue = PGP+, red = PGP-)
-## Ellipse parameters are those published in the reference reimplementation
-## of the model (Daina & Zoete, 2016, ChemMedChem 11:1117-1121). The model
-## was originally calibrated with WLOGP; the application uses the generic
-## LogP column (which may be WLOGP, Consensus Log P, ALogP, or the source
-## platform's own LogP) as an acceptable approximation.
+## --------------------------- BOILED-Egg (official polygons) ---------------
+## Uses the official polygon coordinates from the BOILED-Egg supplementary
+## data (Daina & Zoete, 2016, Data S3). The polygon coordinates are defined
+## in R/boiled_egg_data.R as internal objects (.hia_polygon, .bbb_polygon).
+##
+## Axis convention (matching SwissADME):
+##   X-axis = TPSA (0 to 200)
+##   Y-axis = LogP (-2 to 7)
+##
+## The generic "LogP" column is used as a proxy for WLOGP.
+## Point-in-polygon classification uses sp::point.in.polygon() (preferred)
+## or a ray-casting fallback.
+
+## Internal helper: point-in-polygon test
+## Uses sp::point.in.polygon if available, otherwise a ray-casting fallback
+..point_in_polygon <- function(x, y, poly) {
+  if (requireNamespace("sp", quietly = TRUE)) {
+    result <- sp::point.in.polygon(x, y, poly[, 1], poly[, 2])
+    return(result > 0)
+  }
+  ## Fallback: ray-casting algorithm
+  n <- nrow(poly)
+  inside <- rep(FALSE, length(x))
+  for (k in seq_along(x)) {
+    xi <- x[k]; yi <- y[k]
+    is_inside <- FALSE
+    j <- n
+    for (i in seq_len(n)) {
+      if (((poly[i, 2] > yi) != (poly[j, 2] > yi)) &&
+          (xi < (poly[j, 1] - poly[i, 1]) * (yi - poly[i, 2]) /
+           (poly[j, 2] - poly[i, 2]) + poly[i, 1])) {
+        is_inside <- !is_inside
+      }
+      j <- i
+    }
+    inside[k] <- is_inside
+  }
+  inside
+}
 
 #' BOILED-Egg plot
 #'
-#' Produces the BOILED-Egg model plot (Daina & Zoete, 2016) in the
-#' LogP-TPSA space. Points are coloured by P-gp substrate status when a
+#' Produces the BOILED-Egg model plot (Daina & Zoete, 2016) using the
+#' official polygon coordinates from the supplementary data (Data S3).
+#' Points are coloured by P-gp substrate status when a
 #' \code{"Pgp substrate"} column is available.
 #'
 #' The BOILED-Egg model was originally calibrated with WLOGP; the application
-#' uses the generic \code{LogP} column (which may be WLOGP, Consensus Log P,
-#' ALogP, or the source platform's own LogP) as an acceptable approximation.
+#' uses the generic \code{LogP} column as an approximation. The axes follow
+#' the SwissADME convention: TPSA on the x-axis, LogP on the y-axis.
 #'
 #' @param data A data.frame that must contain the columns \code{LogP} and
 #'   \code{TPSA}. A \code{"Pgp substrate"} column (with values "Yes"/"No") is
@@ -36,6 +64,11 @@
 #' @references Daina, A., & Zoete, V. (2016). A boiled egg to predict
 #'   gastrointestinal absorption and brain penetration of small molecules.
 #'   \emph{ChemMedChem}, 11(11), 1117-1121.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(LogP = c(2, 5), TPSA = c(50, 150))
+#' plotBoiledEgg(d)
+#' }
 plotBoiledEgg <- function(data) {
 
   req_cols <- c("LogP", "TPSA")
@@ -45,23 +78,14 @@ plotBoiledEgg <- function(data) {
          call. = FALSE)
   }
 
-  ellipse_pts <- function(xc, yc, a, b, n = 400) {
-    t <- seq(0, 2 * pi, length.out = n)
-    data.frame(x = xc + a * cos(t), y = yc + b * sin(t))
-  }
+  ## Classify points using official polygons (point-in-polygon)
+  ## Polygons are stored as (TPSA, LogP) = (x, y)
+  logp <- as.numeric(data$LogP)
+  tpsa <- as.numeric(data$TPSA)
+  data$HIA <- ..point_in_polygon(tpsa, logp, .hia_polygon)
+  data$BBB <- ..point_in_polygon(tpsa, logp, .bbb_polygon)
 
-  ## Original BOILED-Egg article parameters
-  hia <- ellipse_pts(xc = 2.926, yc = 71.051, a = 8.740, b = 142.081)
-  bbb <- ellipse_pts(xc = 3.177, yc = 38.117, a = 8.060, b = 82.061)
-
-  inEllipse <- function(x, y, xc, yc, a, b) {
-    ((x - xc) / a)^2 + ((y - yc) / b)^2 <= 1
-  }
-
-  data$HIA <- inEllipse(data$LogP, data$TPSA, 2.926, 71.051, 8.740, 142.081)
-  data$BBB <- inEllipse(data$LogP, data$TPSA, 3.177, 38.117, 8.060, 82.061)
-
-  ## SwissADME colours
+  ## P-gp substrate colours (SwissADME style)
   if ("Pgp substrate" %in% names(data)) {
     pgp_raw <- tolower(trimws(as.character(data[["Pgp substrate"]])))
     data$PGP <- ifelse(
@@ -76,27 +100,32 @@ plotBoiledEgg <- function(data) {
   }
 
   colores <- c(
-    "PGP+" = "#2C7FB8",   # blue (SwissADME)
-    "PGP-" = "#D7301F",   # red  (SwissADME)
+    "PGP+" = "#2C7FB8",
+    "PGP-" = "#D7301F",
     "NA"   = "grey40"
   )
 
-  ggplot(data, aes(LogP, TPSA)) +
-    annotate("rect", xmin = -2, xmax = 7, ymin = 0, ymax = 200,
+  ## Convert polygon matrices to data.frames for geom_polygon
+  ## Polygons are already in (TPSA, LogP) = (x, y) format
+  hia_df <- data.frame(x = .hia_polygon[, 1], y = .hia_polygon[, 2])
+  bbb_df <- data.frame(x = .bbb_polygon[, 1], y = .bbb_polygon[, 2])
+
+  ggplot(data, aes(x = TPSA, y = LogP)) +
+    annotate("rect", xmin = 0, xmax = 200, ymin = -2, ymax = 7,
              fill = "#BDBDBD") +
-    geom_polygon(data = hia, aes(x, y), inherit.aes = FALSE,
+    geom_polygon(data = hia_df, aes(x = x, y = y), inherit.aes = FALSE,
                  fill = "white", colour = NA) +
-    geom_polygon(data = bbb, aes(x, y), inherit.aes = FALSE,
+    geom_polygon(data = bbb_df, aes(x = x, y = y), inherit.aes = FALSE,
                  fill = "#F5D548", colour = NA) +
     geom_point(aes(fill = PGP), shape = 21, colour = "black",
                stroke = .25, size = 2.8) +
     scale_fill_manual(values = colores, name = "P-gp") +
-    coord_cartesian(xlim = c(-2, 7), ylim = c(0, 200), expand = FALSE) +
-    scale_x_continuous(breaks = -2:7) +
-    scale_y_continuous(breaks = seq(0, 200, 20)) +
+    coord_cartesian(xlim = c(0, 200), ylim = c(-2, 7)) +
+    scale_x_continuous(breaks = seq(0, 200, 20)) +
+    scale_y_continuous(breaks = -2:7) +
     labs(title = "BOILED-Egg",
-         x = "LogP",
-         y = expression(TPSA~(ring(A)^2))) +
+         x = expression(TPSA~(ring(A)^2)),
+         y = "LogP") +
     theme_classic(base_size = 13) +
     theme(panel.grid = element_blank(),
           legend.position = "right",
@@ -470,7 +499,7 @@ plotPCA <- function(data, variables = NULL, color_by = "None",
     stop("Too few observations to compute a PCA.", call. = FALSE)
   }
 
-  ## Remove zero-variance columns — these cause scale() to divide by 0,
+  ## Remove zero-variance columns -- these cause scale() to divide by 0,
   ## which triggers the "length of 'scale'" error in prcomp
   col_vars <- sapply(pca_data, var, na.rm = TRUE)
   zero_var_cols <- names(pca_data)[is.na(col_vars) | col_vars == 0]
@@ -486,7 +515,7 @@ plotPCA <- function(data, variables = NULL, color_by = "None",
   ## Also keep the color/label columns aligned with the filtered rows
   df_aux <- data[cc, , drop = FALSE]
 
-  ## Compute PCA — wrap in tryCatch as a safety net
+  ## Compute PCA -- wrap in tryCatch as a safety net
   pca <- tryCatch(
     prcomp(pca_data, center = TRUE, scale. = scale_data),
     error = function(e) {
@@ -568,7 +597,7 @@ plotPCA <- function(data, variables = NULL, color_by = "None",
     }
   }
 
-  ## Loading arrows — remove any rows with NA to avoid "Removed rows" warnings
+  ## Loading arrows -- remove any rows with NA to avoid "Removed rows" warnings
   loadings_clean <- loadings[complete.cases(loadings[, c("PC1", "PC2")]), ,
                              drop = FALSE]
 
@@ -642,7 +671,7 @@ plotTSNE <- function(data, variables, color_by = "None", label_by = "None",
          call. = FALSE)
   }
 
-  ## Remove zero-variance columns — scale() produces NaN for these
+  ## Remove zero-variance columns -- scale() produces NaN for these
   col_vars <- sapply(X, var, na.rm = TRUE)
   zero_var_cols <- names(X)[is.na(col_vars) | col_vars == 0]
   if (length(zero_var_cols) > 0) {

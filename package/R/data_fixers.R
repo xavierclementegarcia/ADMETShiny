@@ -351,8 +351,13 @@ fixDeepPK <- function(data) {
                         cols, ignore.case = TRUE)]
   if (length(hia_col) > 0) {
     hia <- clean_text(data[[hia_col[1]]])
+    ## Deep-PK returns "Absorbed" or "Not absorbed".
+    ## grepl("Absorbed", "Not absorbed") returns TRUE (substring match),
+    ## so we must exclude "Not" explicitly.
     data[["GI absorption"]] <- ifelse(
-      grepl("Absorbed", hia, ignore.case = TRUE), "High", "Low"
+      grepl("Absorbed", hia, ignore.case = TRUE) &
+        !grepl("Not", hia, ignore.case = TRUE),
+      "High", "Low"
     )
   }
 
@@ -360,8 +365,13 @@ fixDeepPK <- function(data) {
                         cols, ignore.case = TRUE)]
   if (length(bbb_col) > 0) {
     bbb <- clean_text(data[[bbb_col[1]]])
+    ## Deep-PK returns "Penetrable" or "Non-penetrable".
+    ## grepl("Penetrable", "Non-penetrable") returns TRUE (substring match),
+    ## so we must exclude "Non" explicitly.
     data[["BBB permeant"]] <- ifelse(
-      grepl("Penetrable", bbb, ignore.case = TRUE), "Yes", "No"
+      grepl("Penetrable", bbb, ignore.case = TRUE) &
+        !grepl("Non", bbb, ignore.case = TRUE),
+      "Yes", "No"
     )
   }
 
@@ -369,8 +379,13 @@ fixDeepPK <- function(data) {
                         cols, ignore.case = TRUE)]
   if (length(pgp_col) > 0) {
     pgp <- clean_text(data[[pgp_col[1]]])
+    ## Deep-PK returns "Substrate" or "Non-substrate".
+    ## grepl("Substrate", "Non-substrate") returns TRUE (substring match),
+    ## so we must exclude "Non" explicitly.
     data[["Pgp substrate"]] <- ifelse(
-      grepl("Substrate", pgp, ignore.case = TRUE), "Yes", "No"
+      grepl("Substrate", pgp, ignore.case = TRUE) &
+        !grepl("Non", pgp, ignore.case = TRUE),
+      "Yes", "No"
     )
   }
 

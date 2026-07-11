@@ -112,12 +112,25 @@ cdk_tab <- function() {
                                 icon = icon("file-import"), class = "btn-primary")
             )
           ),
+          tags$hr(),
+          tags$div(
+            class = "alert alert-info",
+            icon("lightbulb"),
+            tags$b(" Example dataset: "),
+            "Don't have a CSV? Click the button below to load a built-in example ",
+            "dataset of 30 common drugs with SMILES.",
+            br(), br(),
+            actionButton("load_example_drugs", "Load example dataset (drugs.csv)",
+                         icon = icon("pill"), class = "btn-info btn-sm")
+          ),
           tags$div(
             class = "alert alert-info",
             icon("circle-info"),
             tags$b(" Tip: "),
             "The CSV can have any number of columns; you will be asked to select which ",
-            "one contains the SMILES. All other columns are preserved in the dataset."
+            "one contains the SMILES. All other columns are preserved in the dataset. ",
+            "A column named ", tags$code("smiles"), " or ", tags$code("SMILES"),
+            " is auto-detected."
           )
         )
       ),
@@ -254,6 +267,7 @@ cdk_tab <- function() {
                 "Correlation Heatmap",
                 "Principal Component Analysys (PCA - Chemical space)",
                 "t-SNE (Chemical space)",
+                "Cluster Heatmap (Dendrogram)",
                 "Parallel Coordinates",
                 "Violin Plot"
               )),
@@ -326,6 +340,16 @@ cdk_tab <- function() {
                          "Tight clusters represent similar molecules; the distance between groups reflects differences in their profiles."),
                 tags$hr(),
                 uiOutput("cdk_tsne_controls")
+              ),
+
+              conditionalPanel(
+                condition = "input.cdk_plot_type == 'Cluster Heatmap (Dendrogram)'",
+                tags$div(class = "alert-primary", icon("book-open"), tags$b(" Function: "),
+                         "Combines hierarchical clustering with a heatmap to reveal groups of similar molecules."),
+                tags$div(class = "alert-primary", icon("book-open"), tags$b(" Analysis: "),
+                         "Branches close together indicate similar compounds; the color scale shows z-scored property values."),
+                tags$hr(),
+                uiOutput("cdk_cluster_heatmap_controls")
               ),
 
               palette_selector_ui("cdk_palette"),
