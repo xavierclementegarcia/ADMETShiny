@@ -18,7 +18,7 @@
     "href": "package/NEWS.html",
     "title": "admetshiny 1.0.0",
     "section": "",
-    "text": "admetshiny 1.0.0\n\nInitial CRAN release.\nInteractive Shiny application with four data-source modules: SwissADME, CDK & webchem, ADMETlab 3.0 and Deep-PK.\nDrug-likeness filters: Lipinski, Veber, Ghose, Egan, Muegge.\nBOILED-Egg model, PCA, t-SNE, parallel coordinates, violin, radar and correlation heatmap visualizations.\nTanimoto / AGNES structural-similarity clustering.\nDark mode, custom colour palettes and high-resolution figure export.\nCodename: Espeletia hartwegiana.\n\n\n\n\n\n Back to top"
+    "text": "admetshiny 1.0.0\n\nGracias por confiar en ADMETShiny\nInteractive Shiny application with four data-source modules: SwissADME, CDK & webchem, ADMETlab 3.0 and Deep-PK.\nDrug-likeness filters: Lipinski, Veber, Ghose, Egan, Muegge.\nBOILED-Egg model, PCA, t-SNE, parallel coordinates, violin, radar and correlation heatmap visualizations.\nTanimoto / AGNES structural-similarity clustering.\nDark mode, custom colour palettes and high-resolution figure export.\nCodename: Espeletia hartwegiana.\n\n\n\n\n\n Back to top"
   },
   {
     "objectID": "index.html",
