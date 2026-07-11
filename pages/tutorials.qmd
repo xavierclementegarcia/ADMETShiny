@@ -1,0 +1,70 @@
+---
+title: "Documentation"
+bibliography: references.bib
+---
+
+### Theory & Documentation
+
+#### Initial considerations
+
+The goal is for the user to find a quick design scheme for analyzing a molecule bank. This example will be performed with 200 molecules, attempting to respect the limit allowed by SwissADME. For more information on the user interface and workflow, please refer to the tutorials
+
+This ADMETShiny package contains four sections, each with its own independent workflow. The user will ultimately be able to generate a comprehensive report that includes the main characteristics of the applied filters (Executive Summary per model, Statistics of Key properties, Drug-likeness Filter Results, BOILED-Egg ADMET Classification, Additional Drug-likeness Metrics, Composite Drug-likeness Score & graphs: BOILED-Egg, Distributions to MW, TPSA, LogP histograms, correlations between physicochemical properties & cluster heatmaps per model).
+
+### Theoretical background
+
+##### ADME
+
+ADME is the four-lette acronym for absorption, distribution, metabolism and excretion. That has described pharmacokinectics for 50 years [@doogue2013]. These terms were first presented together in English by Nelson in 1961, rephrasing resorption, distribution, consumption and elimination used by Teorell in 1937 [@nelson1961]. ADME as originally used for the interpretation of behavior molecules: entering the body (A), moving about the body (D), changing within the body (M) and leaving the body (E). Currently the definition is important for the characterization of potential drugs.
+
+In the last years, a large variety of *in silico* methods share the objetive of predicting ADME parameters form molecular structure. For this reason, the cheminformaticians and bioinformaticians developed different molecular descriptors mined from chemical structures [@daina2017].
+
+##### Drug-likeness
+
+Drug development is difficult, not only because of complex process and long development cycles, but also because of the high rate of candidates at all stages [@wei2020]. That's reason, the comprehensive data on the loss of candidates from the four largest pharmaceutical companies, showed that the control of physicochemical properties during compund optimization is beneficial in improving the quality of candidates [@waring2015]. The descriptors of drug-likeness have gradually been perfected over time.
+
+##### TPSA
+
+##### LogP
+
+##### Lipophilicity
+
+##### Passive diffusion
+
+##### Blood-brain barrier
+
+##### Human intestinal absorption
+
+#### The BOILED-Egg model
+
+##### Mathematical implementation of the BOILED-Egg model
+
+##### Geometric implementation
+
+##### Physical-chemical space in the BOILED-Egg
+
+##### Validation of the approximation
+
+#### Data sources and computational backends
+
+##### SwissADME
+
+##### CDK & WebChem
+
+##### ADMETLab 3.0
+
+##### Deep-pK
+
+#### Descriptor harmonization
+
+#### Statistical analysis
+
+##### Functions defining
+
+#### Application of package validation methods
+
+#### Case study
+
+##### GUI workflow
+
+##### Console workflow

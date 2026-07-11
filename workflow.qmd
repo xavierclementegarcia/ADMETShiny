@@ -4,42 +4,30 @@ title: "Workflows & demostrations"
 
 ### Workflows & demonstrations
 
-Below, we'll work through a simple example to help you easily filter, analyze, and report your molecular data. Remember that you must have all the necessary dependencies installed if you intend to follow this workflow exactly.
+#### The user interface
 
-We'll begin with an example, which we'll call a "case study," using the crinamidine molecule and glyphosate.
+This image displays the Navigation Guide for **ADMETShiny (Version 1.0.0)**, an open-source R Shiny web application designed for the management, calculation, filtering, and selection of drug-likeness potential molecules in early-stage drug discovery. The user interface features a top horizontal navigation bar split into nine numbered modules indicated by green hex icons: **(1) Home**, which returns to the main landing page; **(2) SwissADME Manager**, for calculating and analyzing molecular properties; **(3) CDK & webchem**, providing access to cheminformatics tools for structure processing and chemical analysis.
 
-#### Why are these two molecules so different?
+![](images/20.png){fig-align="center"}
 
-In this case, it will simply be done in this way to evaluate the behavior and show the specific variations between the ADMET calculations reported in the datasets of SwissADME, ADMETLab 3.0, Deep pK learning and CDK & Webchem.
+**(4) ADMETlab 3.0 Manager** and **(5) Deep-PK Manager**, which run predictive ADMET and pharmacokinetic models using third-party and deep learning architectures; **(6) Report**, for customizing and exporting analysis results; **(7) About**, detailing project and author information; **(8) First Steps**, offering step-by-step tutorials for new users; and **(9) Documentation**, which hosts technical guides and vignettes. Below this primary interface menu, the dashboard is split into two bottom sections highlighted by green pointers: a **Description** box on the left, summarizing the app's integration of bioinformatics and cheminformatics workflows for molecular descriptor visualization, and a **How to cite?** box on the right, providing the formal 2026 academic citation and the GitHub repository link
 
-We suggest considering taking it directly from [**PubChem**](https://pubchem.ncbi.nlm.nih.gov) the canonical smiles of [**crinamidine**](https://pubchem.ncbi.nlm.nih.gov/compound/399204) y [**glyphosate**](https://pubchem.ncbi.nlm.nih.gov/compound/3496).
+### The datasets example
 
-### Coconut: A Medicinal Latino-american plants dataset
+This image details the user interface of the **SwissADME Manager** module within ADMETShiny, showcasing the data uploading, filtering, and table visualization capabilities. On the left side, the dashboard features a control panel where users can upload their chemical data via the **Upload SwissADME Dataset** tool **(3)**, which currently shows a completed upload of an example CSV file (`dataset_swissadme_example.csv`). Below this, the **Drug-likeness Filters** section **(4)** allows users to apply customizable filters based on popular medicinal chemistry criteria, including Lipinski, Veber, Ghose, Egan, and Muegge rules, along with adjustable threshold inputs for maximum molecular weight, logP, hydrogen bond acceptors/donors, and maximum Lipinski violations.
 
-*Antes que nada, sería importante comentar que en próximas versiones se adicionará este soporte con "Coconut" debido a su exclusiva dedicación con moléculas de plantas de origen sudamericano.*
+![](images/21.png){fig-align="center"}
 
-### How do you get a BOILED-egg with ADMETShiny
+The main central area displays the **Filtered Results** table under the **Filtered Molecules** tab **(6)**, which renders a structured overview of the compounds that meet the set criteria. This interactive data grid displays key molecular descriptors such as the Molecule ID, Canonical SMILES, chemical Formula, Molecular Weight (MW), number of Heavy Atoms, and number of Aromatic Heavy Atoms. Users can utilize the **Search** bar **(8)** located at the top right of the table to quickly filter molecules by name, SMILES string, or specific properties. Additionally, the interface includes top tabs for **Data Preview** **(5)** and **Plots** **(7)** to seamlessly toggle between the raw dataset, the refined subsets, and data distributions, providing an intuitive, integrated workflow for compound prioritization.
 
-![](images/22.png){fig-align="center"}
+### You probably need a report
 
-Here's the explanation condensed into a single paragraph, ideal for a quick read or a conclusion: The results are fully consistent from a pharmacokinetic perspective, since both compounds respond to different molecular mechanisms: on the one hand, glyphosate is an extremely hydrophilic and polar molecule (log P approx -3.2) that lacks the lipophilicity necessary to cross the blood-brain barrier (BBB) ​​by passive diffusion; on the other hand, crinamidine has a favorable alkaloid structure that allows it to cross the BBB efficiently, and being negative for P-glycoprotein (PGP), it avoids being expelled by this efflux pump, successfully accumulating in the central nervous system.
+The executive summary and statistical breakdown confirm that 100% of the library was successfully retained, exhibiting average baseline properties such as a Molecular Weight of 392.44, a LogP of 3.33, and a TPSA of 90.53. The library demonstrates high quality with a mean composite drug-likeness score of 85.4 out of 100, where 80.5% of the compounds achieve an "Excellent" classification.
 
-![](images/23.png){fig-align="center" width="615"}
+![](images/27.png){fig-align="center"}
 
-The graphs visually confirm this molecular disparity through a stark bimodal profile: on one hand, glyphosate is at the lower end of the distributions with a strongly negative log P and an unfavorable TPSA, which contracts its profile on the radar plot and demonstrates its structural inability to dissolve in the lipid barrier (BBB). Conversely, crinamidine is at the opposite end with optimal lipophilicity and molecular weight values ​​that expand its radar profile toward the absorption zone; this, combined with its status as a non-substrate of the PGP pump, conclusively explains why this alkaloid manages to cross and accumulate in brain tissue, unlike the herbicide.
+These metrics are supported by three robust visualizations: a BOILED-Egg plot mapping gastrointestinal absorption and blood-brain barrier permeability alongside P-glycoprotein efflux status, a stacked bar chart detailing individual rule violations across standard medicinal chemistry criteria (Lipinski, Ghose, Veber, Egan, and Muegge), and a score distribution histogram that visually confirms the sharp clustering of the vast majority of the compounds within the highest drug-likeness tier.
 
-### Choosing the best secondaries metabolites
+### The conclusions
 
-We've already seen how it works with two composites. However, some of ADMETShiny's charts require larger databases to find more complex patterns. In this case, we've used a database that the user can download as examples to upload within the program.
-
-![](images/25.png){fig-align="center"}
-
-### The hard mission to the validations
-
-![](images/24.png){fig-align="center"}
-
-Validating these ADMET results represents a complex challenge, as *in silico* prediction algorithms strictly depend on the chemical space with which they were trained. Modeling dynamic biological variables like Blood-Brain Barrier (BBB) permeability or P-glycoprotein (PGP) efflux involves simplifying intricate cellular interactions into static mathematical descriptors, which can easily lead to false positives or missed active transport effects.
-
-![](images/26.png){fig-align="center"}
-
-Therefore, the strong theoretical coherence observed in your data between fundamental physicochemical properties (logP and TPSA) and the algorithmic classifications is crucial, as it mitigates software bias and provides robust scientific grounding before moving to *in vitro* testing.
+###

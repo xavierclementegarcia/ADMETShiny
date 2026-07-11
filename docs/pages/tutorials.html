@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>The Book – admetshiny</title>
+<title>Documentation – admetshiny</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -23,30 +23,49 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-0a6b7249c26820e032cb0bd839ff02b1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-87789dfd1a51b57e76f2f03c6f70bd5e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-c65eef156a02954c7572e454c6e27155.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-87789dfd1a51b57e76f2f03c6f70bd5e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-0a6b7249c26820e032cb0bd839ff02b1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-87789dfd1a51b57e76f2f03c6f70bd5e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-c65eef156a02954c7572e454c6e27155.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-87789dfd1a51b57e76f2f03c6f70bd5e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -76,7 +95,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
@@ -248,7 +267,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">admetshiny</span>
     </a>
   </div>
@@ -259,43 +278,54 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
+    <a class="nav-link" href="../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
-<span class="menu-text">About ADMETShiny</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./install.html"> 
+    <a class="nav-link" href="../install.html"> 
 <span class="menu-text">How to install?</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./workflow.html"> 
-<span class="menu-text">Workflows &amp; demostrations</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./espeletia.html"> 
-<span class="menu-text">The flagship specie</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./publication.html"> 
+    <a class="nav-link" href="../publication.html"> 
 <span class="menu-text">Publications</span></a>
   </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-about" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">About</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-about">    
+        <li>
+    <a class="dropdown-item" href="../about.html">
+ <span class="dropdown-text">About ADMETShiny</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../espeletia.html">
+ <span class="dropdown-text">The flagship specie</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../author.html">
+ <span class="dropdown-text">About the author</span></a>
+  </li>  
+    </ul>
+  </li>
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-features" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Features</span>
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Help</span>
     </a>
-    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-features">    
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-help">    
         <li>
-    <a class="dropdown-item" href="./tutorials.html">
- <span class="dropdown-text">Documentation</span></a>
+    <a class="dropdown-item" href="../feedback.html">
+ <span class="dropdown-text">Feedback</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./author.html">
- <span class="dropdown-text">About the author</span></a>
+    <a class="dropdown-item" href="../workflow.html">
+ <span class="dropdown-text">Workflows &amp; demostrations</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../pages/tutorials.html">
+ <span class="dropdown-text">Documentation</span></a>
   </li>  
     </ul>
   </li>
@@ -317,8 +347,15 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#theory-documentation" id="toc-theory-documentation" class="nav-link active" data-scroll-target="#theory-documentation">Theory &amp; Documentation</a></li>
+  <li><a href="#theoretical-background" id="toc-theoretical-background" class="nav-link" data-scroll-target="#theoretical-background">Theoretical background</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -326,7 +363,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">The Book</h1>
+<h1 class="title">Documentation</h1>
 </div>
 
 
@@ -343,10 +380,116 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="theory-documentation" class="level3">
+<h3 class="anchored" data-anchor-id="theory-documentation">Theory &amp; Documentation</h3>
+<section id="initial-considerations" class="level4">
+<h4 class="anchored" data-anchor-id="initial-considerations">Initial considerations</h4>
+<p>The goal is for the user to find a quick design scheme for analyzing a molecule bank. This example will be performed with 200 molecules, attempting to respect the limit allowed by SwissADME. For more information on the user interface and workflow, please refer to the tutorials</p>
+<p>This ADMETShiny package contains four sections, each with its own independent workflow. The user will ultimately be able to generate a comprehensive report that includes the main characteristics of the applied filters (Executive Summary per model, Statistics of Key properties, Drug-likeness Filter Results, BOILED-Egg ADMET Classification, Additional Drug-likeness Metrics, Composite Drug-likeness Score &amp; graphs: BOILED-Egg, Distributions to MW, TPSA, LogP histograms, correlations between physicochemical properties &amp; cluster heatmaps per model).</p>
+</section>
+</section>
+<section id="theoretical-background" class="level3">
+<h3 class="anchored" data-anchor-id="theoretical-background">Theoretical background</h3>
+<section id="adme" class="level5">
+<h5 class="anchored" data-anchor-id="adme">ADME</h5>
+<p>ADME is the four-lette acronym for absorption, distribution, metabolism and excretion. That has described pharmacokinectics for 50 years <span class="citation" data-cites="doogue2013">(<a href="#ref-doogue2013" role="doc-biblioref">Doogue and Polasek 2013</a>)</span>. These terms were first presented together in English by Nelson in 1961, rephrasing resorption, distribution, consumption and elimination used by Teorell in 1937 <span class="citation" data-cites="nelson1961">(<a href="#ref-nelson1961" role="doc-biblioref">Nelson 1961</a>)</span>. ADME as originally used for the interpretation of behavior molecules: entering the body (A), moving about the body (D), changing within the body (M) and leaving the body (E). Currently the definition is important for the characterization of potential drugs.</p>
+<p>In the last years, a large variety of <em>in silico</em> methods share the objetive of predicting ADME parameters form molecular structure. For this reason, the cheminformaticians and bioinformaticians developed different molecular descriptors mined from chemical structures <span class="citation" data-cites="daina2017">(<a href="#ref-daina2017" role="doc-biblioref">Daina et al. 2017</a>)</span>.</p>
+</section>
+<section id="drug-likeness" class="level5">
+<h5 class="anchored" data-anchor-id="drug-likeness">Drug-likeness</h5>
+<p>Drug development is difficult, not only because of complex process and long development cycles, but also because of the high rate of candidates at all stages <span class="citation" data-cites="wei2020">(<a href="#ref-wei2020" role="doc-biblioref">Wei et al. 2020</a>)</span>. That’s reason, the comprehensive data on the loss of candidates from the four largest pharmaceutical companies, showed that the control of physicochemical properties during compund optimization is beneficial in improving the quality of candidates <span class="citation" data-cites="waring2015">(<a href="#ref-waring2015" role="doc-biblioref">Waring et al. 2015</a>)</span>. The descriptors of drug-likeness have gradually been perfected over time.</p>
+</section>
+<section id="tpsa" class="level5">
+<h5 class="anchored" data-anchor-id="tpsa">TPSA</h5>
+</section>
+<section id="logp" class="level5">
+<h5 class="anchored" data-anchor-id="logp">LogP</h5>
+</section>
+<section id="lipophilicity" class="level5">
+<h5 class="anchored" data-anchor-id="lipophilicity">Lipophilicity</h5>
+</section>
+<section id="passive-diffusion" class="level5">
+<h5 class="anchored" data-anchor-id="passive-diffusion">Passive diffusion</h5>
+</section>
+<section id="blood-brain-barrier" class="level5">
+<h5 class="anchored" data-anchor-id="blood-brain-barrier">Blood-brain barrier</h5>
+</section>
+<section id="human-intestinal-absorption" class="level5">
+<h5 class="anchored" data-anchor-id="human-intestinal-absorption">Human intestinal absorption</h5>
+</section>
+<section id="the-boiled-egg-model" class="level4">
+<h4 class="anchored" data-anchor-id="the-boiled-egg-model">The BOILED-Egg model</h4>
+<section id="mathematical-implementation-of-the-boiled-egg-model" class="level5">
+<h5 class="anchored" data-anchor-id="mathematical-implementation-of-the-boiled-egg-model">Mathematical implementation of the BOILED-Egg model</h5>
+</section>
+<section id="geometric-implementation" class="level5">
+<h5 class="anchored" data-anchor-id="geometric-implementation">Geometric implementation</h5>
+</section>
+<section id="physical-chemical-space-in-the-boiled-egg" class="level5">
+<h5 class="anchored" data-anchor-id="physical-chemical-space-in-the-boiled-egg">Physical-chemical space in the BOILED-Egg</h5>
+</section>
+<section id="validation-of-the-approximation" class="level5">
+<h5 class="anchored" data-anchor-id="validation-of-the-approximation">Validation of the approximation</h5>
+</section>
+</section>
+<section id="data-sources-and-computational-backends" class="level4">
+<h4 class="anchored" data-anchor-id="data-sources-and-computational-backends">Data sources and computational backends</h4>
+<section id="swissadme" class="level5">
+<h5 class="anchored" data-anchor-id="swissadme">SwissADME</h5>
+</section>
+<section id="cdk-webchem" class="level5">
+<h5 class="anchored" data-anchor-id="cdk-webchem">CDK &amp; WebChem</h5>
+</section>
+<section id="admetlab-3.0" class="level5">
+<h5 class="anchored" data-anchor-id="admetlab-3.0">ADMETLab 3.0</h5>
+</section>
+<section id="deep-pk" class="level5">
+<h5 class="anchored" data-anchor-id="deep-pk">Deep-pK</h5>
+</section>
+</section>
+<section id="descriptor-harmonization" class="level4">
+<h4 class="anchored" data-anchor-id="descriptor-harmonization">Descriptor harmonization</h4>
+</section>
+<section id="statistical-analysis" class="level4">
+<h4 class="anchored" data-anchor-id="statistical-analysis">Statistical analysis</h4>
+<section id="functions-defining" class="level5">
+<h5 class="anchored" data-anchor-id="functions-defining">Functions defining</h5>
+</section>
+</section>
+<section id="application-of-package-validation-methods" class="level4">
+<h4 class="anchored" data-anchor-id="application-of-package-validation-methods">Application of package validation methods</h4>
+</section>
+<section id="case-study" class="level4">
+<h4 class="anchored" data-anchor-id="case-study">Case study</h4>
+<section id="gui-workflow" class="level5">
+<h5 class="anchored" data-anchor-id="gui-workflow">GUI workflow</h5>
+</section>
+<section id="console-workflow" class="level5">
 
 
 
-<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+
+</section>
+</section>
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">Console workflow</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-daina2017" class="csl-entry" role="listitem">
+Daina, Antoine, Olivier Michielin, and Vincent Zoete. 2017. <span>“SwissADME: A Free Web Tool to Evaluate Pharmacokinetics, Drug-Likeness and Medicinal Chemistry Friendliness of Small Molecules.”</span> <em>Scientific Reports</em> 7 (1): 42717. <a href="https://doi.org/10.1038/srep42717">https://doi.org/10.1038/srep42717</a>.
+</div>
+<div id="ref-doogue2013" class="csl-entry" role="listitem">
+Doogue, Matthew P., and Thomas M. Polasek. 2013. <span>“The ABCD of Clinical Pharmacokinetics.”</span> <em>Therapeutic Advances in Drug Safety</em> 4 (1): 5–7. <a href="https://doi.org/10.1177/2042098612469335">https://doi.org/10.1177/2042098612469335</a>.
+</div>
+<div id="ref-nelson1961" class="csl-entry" role="listitem">
+Nelson, E. 1961. <span>“Kinetics of drug absorption, distribution, metabolism, and excretion.”</span> <em>Journal of Pharmaceutical Sciences</em> 50 (March): 181–92. <a href="https://doi.org/10.1002/jps.2600500302">https://doi.org/10.1002/jps.2600500302</a>.
+</div>
+<div id="ref-waring2015" class="csl-entry" role="listitem">
+Waring, Michael J., John Arrowsmith, Andrew R. Leach, et al. 2015. <span>“An Analysis of the Attrition of Drug Candidates from Four Major Pharmaceutical Companies.”</span> <em>Nature Reviews Drug Discovery</em> 14 (7): 475–86. <a href="https://doi.org/10.1038/nrd4609">https://doi.org/10.1038/nrd4609</a>.
+</div>
+<div id="ref-wei2020" class="csl-entry" role="listitem">
+Wei, Wenxiu, Srinivasulu Cherukupalli, Lanlan Jing, Xinyong Liu, and Peng Zhan. 2020. <span>“Fsp3: A New Parameter for Drug-Likeness.”</span> <em>Drug Discovery Today</em> 25 (10): 1839–45. <a href="https://doi.org/10.1016/j.drudis.2020.07.017">https://doi.org/10.1016/j.drudis.2020.07.017</a>.
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right

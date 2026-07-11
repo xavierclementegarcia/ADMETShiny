@@ -27,18 +27,21 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - href: about.qmd
       - href: install.qmd
-      - href: workflow.qmd
-      - href: espeletia.qmd
       - href: publication.qmd
-      
-    right:
-      - text: Features
+        
+      - text: About
         menu:
-          - href: tutorials.qmd
-          #- href: book.qmd
+          - href: about.qmd
+          - href: espeletia.qmd
           - href: author.qmd 
+    right:
+      - text: Help
+        menu:
+          - href: feedback.qmd
+          - href: workflow.qmd
+          - href: pages\tutorials.qmd
+
 
     tools:
       - href: https://github.com/xavierclementegarcia
@@ -61,4 +64,3 @@ format:
         
 
 editor: visual
-

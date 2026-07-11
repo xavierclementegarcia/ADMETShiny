@@ -298,39 +298,50 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
-<span class="menu-text">About ADMETShiny</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link active" href="./install.html" aria-current="page"> 
 <span class="menu-text">How to install?</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./workflow.html"> 
-<span class="menu-text">Workflows &amp; demostrations</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./espeletia.html"> 
-<span class="menu-text">The flagship specie</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./publication.html"> 
 <span class="menu-text">Publications</span></a>
   </li>  
-</ul>
-            <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-features" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Features</span>
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-about" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">About</span>
     </a>
-    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-features">    
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-about">    
         <li>
-    <a class="dropdown-item" href="./tutorials.html">
- <span class="dropdown-text">Documentation</span></a>
+    <a class="dropdown-item" href="./about.html">
+ <span class="dropdown-text">About ADMETShiny</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./espeletia.html">
+ <span class="dropdown-text">The flagship specie</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./author.html">
  <span class="dropdown-text">About the author</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Help</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-help">    
+        <li>
+    <a class="dropdown-item" href="./feedback.html">
+ <span class="dropdown-text">Feedback</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./workflow.html">
+ <span class="dropdown-text">Workflows &amp; demostrations</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./pages/tutorials.html">
+ <span class="dropdown-text">Documentation</span></a>
   </li>  
     </ul>
   </li>
@@ -404,7 +415,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ol>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#All dependencies:</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"shiny"</span>, <span class="st">"DT"</span>, <span class="st">"ggplot2"</span>, <span class="st">"dplyr"</span>, <span class="st">"magrittr"</span>, <span class="st">"rcdk"</span>, <span class="st">"webchem"</span>, <span class="st">"fmsb"</span>, <span class="st">"Rtsne"</span>, <span class="st">"ggrepel"</span>, <span class="st">"fingerprint"</span>, <span class="st">"cluster"</span>, <span class="st">"GGally"</span>, <span class="st">"openxlsx"</span>, <span class="st">"knitr"</span>, <span class="st">"rmarkdown"</span>, <span class="st">"testthat"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Note: For users, the <strong>testthat</strong> package is not required. However, if you would like to contribute to the debugging, testing, or improvement of <strong>ADMETShiny</strong>, please feel free to send your suggestions through the <strong><a href="mailto:xgarcia@unicauca.edu.co">Feedback</a></strong>.</p>
+<p>Note: For users, the <strong>testthat</strong> package is not required. However, if you would like to contribute to the debugging, testing, or improvement of <strong>ADMETShiny</strong>, please feel free to send your suggestions through of the <a href="mailto:xgarcia@unicauca.edu.co">e-mail</a> or <a href="https://forms.gle/83H14SnvvnrtioyE6">Feedback page</a>.</p>
 <ol start="4" type="1">
 <li>For the “rCDK” &amp; Webchem package is necessary the follow dependence:</li>
 </ol>
@@ -426,7 +437,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Call the package</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(remotes)</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#Follow this step: </span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"xavierclementegarcia/ADMETShiny"</span>, <span class="at">subdir =</span> <span class="st">"package"</span>, <span class="at">subdir =</span> <span class="st">"package"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"xavierclementegarcia/ADMETShiny"</span>, <span class="at">subdir =</span> <span class="st">"package"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Remember that the correct proficiency of the Shiny app is required <strong>JDK &amp; the others dependencies listing above.</strong></p>
 <ol start="6" type="1">
 <li>Launch ADMETShiny.</li>
