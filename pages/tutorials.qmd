@@ -15,30 +15,159 @@ This ADMETShiny package contains four sections, each with its own independent wo
 
 ##### ADME
 
-ADME is the four-lette acronym for absorption, distribution, metabolism and excretion. That has described pharmacokinectics for 50 years [@doogue2013]. These terms were first presented together in English by Nelson in 1961, rephrasing resorption, distribution, consumption and elimination used by Teorell in 1937 [@nelson1961]. ADME as originally used for the interpretation of behavior molecules: entering the body (A), moving about the body (D), changing within the body (M) and leaving the body (E). Currently the definition is important for the characterization of potential drugs.
+ADME is the four-letter acronym for absorption, distribution, metabolism and excretion. That has described pharmacokinectics for 50 years [@doogue2013]. These terms were first presented together in English by Nelson in 1961, rephrasing resorption, distribution, consumption and elimination used by Teorell in 1937 [@nelson1961]. ADME as originally used for the interpretation of behavior molecules: entering the body (A), moving about the body (D), changing within the body (M) and leaving the body (E). Currently the definition is important for the characterization of potential drugs.
 
-In the last years, a large variety of *in silico* methods share the objetive of predicting ADME parameters form molecular structure. For this reason, the cheminformaticians and bioinformaticians developed different molecular descriptors mined from chemical structures [@daina2017].
+In the last years, a large variety of *in silico* methods share the objective of predicting ADME parameters form molecular structure. For this reason, the cheminformaticians and bioinformaticians developed different molecular descriptors mined from chemical structures [@daina2017].
 
 ##### Drug-likeness
 
-Drug development is difficult, not only because of complex process and long development cycles, but also because of the high rate of candidates at all stages [@wei2020]. That's reason, the comprehensive data on the loss of candidates from the four largest pharmaceutical companies, showed that the control of physicochemical properties during compund optimization is beneficial in improving the quality of candidates [@waring2015]. The descriptors of drug-likeness have gradually been perfected over time.
+Drug development is difficult, not only because of complex process and long development cycles, but also because of the high rate of candidates at all stages [@wei2020]. That's reason, the comprehensive data on the loss of candidates from the four largest pharmaceutical companies, showed that the control of physicochemical properties during compound optimization is beneficial in improving the quality of candidates [@waring2015]. The descriptors of drug-likeness have gradually been perfected over time.
 
 ##### TPSA
 
-##### LogP
+Topological polar surface area (TPSA), which makes use of functional group contributions based on a large database of structures [@chuang2020]. This molecular descriptor (MD) calculated as the sum of surface contributions from polar atoms [@prasanna2009]. TPSA is derived directly from the molecular topology, that the case correspond to SMILES [@beck2022]. Currently this MD is expressed in square angstroms $(Å²)$ and are highly predictive of how a molecule behaves in the body.
 
 ##### Lipophilicity
 
-##### Passive diffusion
+Since experimental LogP measurements are unavailable for most virtual compounds, computational chemistry relies on predictive algorithms to estimate lipophilicity. Several approaches have been proposed, including atom-fragment methods, fragment-correction schemes [@morak-mlodawska2023]. Consequently, differents software platforms report different numerical estimations of LogP even when evaluating the same molecular structure. For example differents Web-servers for ADMET properties request several algorithms: Wildman-Crippen atom-fragment model (WLOGP), Atom-fragment model with correction factors (XLOGP), Ghose-Crippen atoms fragments (ALOGP) [@abramson2024].
 
-##### Blood-brain barrier
+The quantification lipohilicity are described with numerical estimators of the same physicochemical properties rather than interchangeable values.
 
-##### Human intestinal absorption
+$$\mathrm{LogP}_{\mathrm{WLOGP}}
+\not\equiv
+\mathrm{LogP}_{\mathrm{XLOGP}}
+\not\equiv
+\mathrm{LogP}_{\mathrm{ALOGP}}
+\not\equiv
+\mathrm{LogP}_{\mathrm{ML}}$$
 
-#### The BOILED-Egg model
+For this package, it's possible define a different representation for this equation. This equation could described with the next form:
+
+$$\mathrm{WLOGP}
+\not\equiv
+\mathrm{XLOGP}
+\not\equiv
+\mathrm{ML\text{-}LogP}
+\not\equiv
+\mathrm{DL\text{-}LogP}$$
+
+Differents model in ADMETShiny use a consensus liphophilicity. This package use a LogP as logical representation to the liphophilicity.
+
+### Descriptor harmonization
+
+The package use four prediction engines. The principal problem with them started with the several heterogeneous outputs doubt the differ in descriptor nomenclature, numerical estimators, and property availability. The first solution was resolve with [tidyverse](https://tidyverse.org/) package. However was necessary ensure a unified downstream workflow and avoid possible errors in the input datasets and input calculate with rCDK. For this, this package resolved this with a harmonization process. This is performed before any visualization, drug-likeness assessment or BOILED-Egg classification, allowing all analytical modules to operate independently of the original prediction engine.
+
+$$\mathrm{LogP}_{\mathrm{backend}}
+\longrightarrow
+\mathrm{LogP}_{\mathrm{ADMETshiny}}$$
+
+For this, the internal descriptor schema is defined as:
+
+$$\mathcal{D}
+=
+\{
+MW,\,
+LogP,\,
+TPSA,\,
+HBA,\,
+HBD,\,
+RB,\,
+MR,\,
+HeavyAtoms,\,
+AromaticHeavyAtoms,\,
+GI,\,
+BBB,\,
+Pgp
+\}$$
+
+where every backend is transformed into this common representation.
+
+In the source code for the transformation in the building BOILED-Egg graph is represent as
+
+``` r
+if ("Consensus Log P" %in% names(data)) {
+  data$LogP <- data[["Consensus Log P"]]
+} else if ("WLOGP" %in% names(data)) {
+  data$LogP <- data$WLOGP
+} else if ("MLOGP" %in% names(data)) {
+  data$LogP <- data$MLOGP
+}
+```
+
+A little example to this show in the block code above. Another example listed for ADMETLab 3.0 datasets as:
+
+``` r
+  ## 1. Remove the molstr (SVG) column if it exists
+  if ("molstr" %in% names(data)) {
+    data$molstr <- NULL
+  }
+
+  ## 2. Remove the first index column if it exists
+  first_col_name <- names(data)[1]
+  if (first_col_name == "0" || first_col_name == "") {
+    data <- data[, -1, drop = FALSE]
+  }
+
+  ## 3. Rename columns from ADMETlab names to the application's standard names
+  rename_map <- c(
+    "smiles" = "CanonicalSMILES",
+    "MW"     = "MW",
+    "TPSA"   = "TPSA",
+    "nHA"    = "#H-bond acceptors",
+    "nHD"    = "#H-bond donors",
+    "nRot"   = "#Rotatable bonds",
+    "logP"   = "LogP"
+  )
+```
+
+This package in fixADMETlab() are not only renaming columns, this too compute missing descriptors for the analysis
+
+``` r
+  ## 5. Calculate missing properties (MR, #Heavy atoms, #Aromatic heavy atoms)
+  ##    from SMILES using CDK. ADMETlab 3.0 does not provide these natively,
+  ##    but they are required by the Ghose and Muegge filters.
+  missing_props <- setdiff(
+    c("MR", "#Heavy atoms", "#Aromatic heavy atoms"),
+    names(data)
+  )
+```
+
+For this we used rCDK function:
+
+``` r
+calcCDKDescriptors()
+```
+
+The workflows is define with the next steps:
+
+![](/images/28.png)
+
+This harmonization enables identical downstream workflows for physicochemical descriptors analysis, drug-likeness filters, statistical summaries, BOILED-Egg visualization and report generation. The objective is not to force numerical equivalence among different prediction models but to provide a consistent computational interface across heterogeneous software platforms.
+
+### The BOILED-Egg model
 
 ##### Mathematical implementation of the BOILED-Egg model
 
+The original BOILED-Egg model operates in the descriptor space:
+
+$$\mathcal{D}
+=
+\{
+WLogP,\,
+TPSA\}$$
+Since WLOGP is unavailable in several supported backends, for this reason ADMETShiny introduces the practical mathematical approximation. THe approximation is list followed: 
+$$\mathcal{}
+
+\{
+WLogP,\,
+TPSA\}  \mathcal{}
+=
+\{
+LogP,\,
+TPSA\}$$
+where the generic LogP corresponds to the lipophilicity estimator returned by the selected computational engine.
+Accordingly, the only approximation introduced in the ADMETshiny implementation concerns the lipophilicity descriptor itself. 
+The geometric decision regions, polygon coordinates, and point-in-polygon classification algorithm remain identical to those defined in the original BOILED-Egg model.
 ##### Geometric implementation
 
 ##### Physical-chemical space in the BOILED-Egg
@@ -54,8 +183,6 @@ Drug development is difficult, not only because of complex process and long deve
 ##### ADMETLab 3.0
 
 ##### Deep-pK
-
-#### Descriptor harmonization
 
 #### Statistical analysis
 

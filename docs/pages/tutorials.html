@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 /* CSS for citations */
 div.csl-bib-body { }
 div.csl-entry {
@@ -94,6 +129,35 @@ div.csl-indent {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -354,6 +418,8 @@ div.csl-indent {
   <ul>
   <li><a href="#theory-documentation" id="toc-theory-documentation" class="nav-link active" data-scroll-target="#theory-documentation">Theory &amp; Documentation</a></li>
   <li><a href="#theoretical-background" id="toc-theoretical-background" class="nav-link" data-scroll-target="#theoretical-background">Theoretical background</a></li>
+  <li><a href="#descriptor-harmonization" id="toc-descriptor-harmonization" class="nav-link" data-scroll-target="#descriptor-harmonization">Descriptor harmonization</a></li>
+  <li><a href="#the-boiled-egg-model" id="toc-the-boiled-egg-model" class="nav-link" data-scroll-target="#the-boiled-egg-model">The BOILED-Egg model</a></li>
   </ul>
 </nav>
     </div>
@@ -392,45 +458,124 @@ div.csl-indent {
 <h3 class="anchored" data-anchor-id="theoretical-background">Theoretical background</h3>
 <section id="adme" class="level5">
 <h5 class="anchored" data-anchor-id="adme">ADME</h5>
-<p>ADME is the four-lette acronym for absorption, distribution, metabolism and excretion. That has described pharmacokinectics for 50 years <span class="citation" data-cites="doogue2013">(<a href="#ref-doogue2013" role="doc-biblioref">Doogue and Polasek 2013</a>)</span>. These terms were first presented together in English by Nelson in 1961, rephrasing resorption, distribution, consumption and elimination used by Teorell in 1937 <span class="citation" data-cites="nelson1961">(<a href="#ref-nelson1961" role="doc-biblioref">Nelson 1961</a>)</span>. ADME as originally used for the interpretation of behavior molecules: entering the body (A), moving about the body (D), changing within the body (M) and leaving the body (E). Currently the definition is important for the characterization of potential drugs.</p>
-<p>In the last years, a large variety of <em>in silico</em> methods share the objetive of predicting ADME parameters form molecular structure. For this reason, the cheminformaticians and bioinformaticians developed different molecular descriptors mined from chemical structures <span class="citation" data-cites="daina2017">(<a href="#ref-daina2017" role="doc-biblioref">Daina et al. 2017</a>)</span>.</p>
+<p>ADME is the four-letter acronym for absorption, distribution, metabolism and excretion. That has described pharmacokinectics for 50 years <span class="citation" data-cites="doogue2013">(<a href="#ref-doogue2013" role="doc-biblioref">Doogue and Polasek 2013</a>)</span>. These terms were first presented together in English by Nelson in 1961, rephrasing resorption, distribution, consumption and elimination used by Teorell in 1937 <span class="citation" data-cites="nelson1961">(<a href="#ref-nelson1961" role="doc-biblioref">Nelson 1961</a>)</span>. ADME as originally used for the interpretation of behavior molecules: entering the body (A), moving about the body (D), changing within the body (M) and leaving the body (E). Currently the definition is important for the characterization of potential drugs.</p>
+<p>In the last years, a large variety of <em>in silico</em> methods share the objective of predicting ADME parameters form molecular structure. For this reason, the cheminformaticians and bioinformaticians developed different molecular descriptors mined from chemical structures <span class="citation" data-cites="daina2017">(<a href="#ref-daina2017" role="doc-biblioref">Daina et al. 2017</a>)</span>.</p>
 </section>
 <section id="drug-likeness" class="level5">
 <h5 class="anchored" data-anchor-id="drug-likeness">Drug-likeness</h5>
-<p>Drug development is difficult, not only because of complex process and long development cycles, but also because of the high rate of candidates at all stages <span class="citation" data-cites="wei2020">(<a href="#ref-wei2020" role="doc-biblioref">Wei et al. 2020</a>)</span>. That’s reason, the comprehensive data on the loss of candidates from the four largest pharmaceutical companies, showed that the control of physicochemical properties during compund optimization is beneficial in improving the quality of candidates <span class="citation" data-cites="waring2015">(<a href="#ref-waring2015" role="doc-biblioref">Waring et al. 2015</a>)</span>. The descriptors of drug-likeness have gradually been perfected over time.</p>
+<p>Drug development is difficult, not only because of complex process and long development cycles, but also because of the high rate of candidates at all stages <span class="citation" data-cites="wei2020">(<a href="#ref-wei2020" role="doc-biblioref">Wei et al. 2020</a>)</span>. That’s reason, the comprehensive data on the loss of candidates from the four largest pharmaceutical companies, showed that the control of physicochemical properties during compound optimization is beneficial in improving the quality of candidates <span class="citation" data-cites="waring2015">(<a href="#ref-waring2015" role="doc-biblioref">Waring et al. 2015</a>)</span>. The descriptors of drug-likeness have gradually been perfected over time.</p>
 </section>
 <section id="tpsa" class="level5">
 <h5 class="anchored" data-anchor-id="tpsa">TPSA</h5>
-</section>
-<section id="logp" class="level5">
-<h5 class="anchored" data-anchor-id="logp">LogP</h5>
+<p>Topological polar surface area (TPSA), which makes use of functional group contributions based on a large database of structures <span class="citation" data-cites="chuang2020">(<a href="#ref-chuang2020" role="doc-biblioref">Chuang et al. 2020</a>)</span>. This molecular descriptor (MD) calculated as the sum of surface contributions from polar atoms <span class="citation" data-cites="prasanna2009">(<a href="#ref-prasanna2009" role="doc-biblioref">Prasanna and Doerksen 2009</a>)</span>. TPSA is derived directly from the molecular topology, that the case correspond to SMILES <span class="citation" data-cites="beck2022">(<a href="#ref-beck2022" role="doc-biblioref">Beck et al. 2022</a>)</span>. Currently this MD is expressed in square angstroms <span class="math inline">\((Å²)\)</span> and are highly predictive of how a molecule behaves in the body.</p>
 </section>
 <section id="lipophilicity" class="level5">
 <h5 class="anchored" data-anchor-id="lipophilicity">Lipophilicity</h5>
+<p>Since experimental LogP measurements are unavailable for most virtual compounds, computational chemistry relies on predictive algorithms to estimate lipophilicity. Several approaches have been proposed, including atom-fragment methods, fragment-correction schemes <span class="citation" data-cites="morak-mlodawska2023">(<a href="#ref-morak-mlodawska2023" role="doc-biblioref">Morak-Młodawska et al. 2023</a>)</span>. Consequently, differents software platforms report different numerical estimations of LogP even when evaluating the same molecular structure. For example differents Web-servers for ADMET properties request several algorithms: Wildman-Crippen atom-fragment model (WLOGP), Atom-fragment model with correction factors (XLOGP), Ghose-Crippen atoms fragments (ALOGP) <span class="citation" data-cites="abramson2024">(<a href="#ref-abramson2024" role="doc-biblioref">Abramson et al. 2024</a>)</span>.</p>
+<p>The quantification lipohilicity are described with numerical estimators of the same physicochemical properties rather than interchangeable values.</p>
+<p><span class="math display">\[\mathrm{LogP}_{\mathrm{WLOGP}}
+\not\equiv
+\mathrm{LogP}_{\mathrm{XLOGP}}
+\not\equiv
+\mathrm{LogP}_{\mathrm{ALOGP}}
+\not\equiv
+\mathrm{LogP}_{\mathrm{ML}}\]</span></p>
+<p>For this package, it’s possible define a different representation for this equation. This equation could described with the next form:</p>
+<p><span class="math display">\[\mathrm{WLOGP}
+\not\equiv
+\mathrm{XLOGP}
+\not\equiv
+\mathrm{ML\text{-}LogP}
+\not\equiv
+\mathrm{DL\text{-}LogP}\]</span></p>
+<p>Differents model in ADMETShiny use a consensus liphophilicity. This package use a LogP as logical representation to the liphophilicity.</p>
 </section>
-<section id="passive-diffusion" class="level5">
-<h5 class="anchored" data-anchor-id="passive-diffusion">Passive diffusion</h5>
 </section>
-<section id="blood-brain-barrier" class="level5">
-<h5 class="anchored" data-anchor-id="blood-brain-barrier">Blood-brain barrier</h5>
+<section id="descriptor-harmonization" class="level3">
+<h3 class="anchored" data-anchor-id="descriptor-harmonization">Descriptor harmonization</h3>
+<p>The package use four prediction engines. The principal problem with them started with the several heterogeneous outputs doubt the differ in descriptor nomenclature, numerical estimators, and property availability. The first solution was resolve with <a href="https://tidyverse.org/">tidyverse</a> package. However was necessary ensure a unified downstream workflow and avoid possible errors in the input datasets and input calculate with rCDK. For this, this package resolved this with a harmonization process. This is performed before any visualization, drug-likeness assessment or BOILED-Egg classification, allowing all analytical modules to operate independently of the original prediction engine.</p>
+<p><span class="math display">\[\mathrm{LogP}_{\mathrm{backend}}
+\longrightarrow
+\mathrm{LogP}_{\mathrm{ADMETshiny}}\]</span></p>
+<p>For this, the internal descriptor schema is defined as:</p>
+<p><span class="math display">\[\mathcal{D}
+=
+\{
+MW,\,
+LogP,\,
+TPSA,\,
+HBA,\,
+HBD,\,
+RB,\,
+MR,\,
+HeavyAtoms,\,
+AromaticHeavyAtoms,\,
+GI,\,
+BBB,\,
+Pgp
+\}\]</span></p>
+<p>where every backend is transformed into this common representation.</p>
+<p>In the source code for the transformation in the building BOILED-Egg graph is represent as</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="st">"Consensus Log P"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  data<span class="sc">$</span>LogP <span class="ot">&lt;-</span> data[[<span class="st">"Consensus Log P"</span>]]</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (<span class="st">"WLOGP"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  data<span class="sc">$</span>LogP <span class="ot">&lt;-</span> data<span class="sc">$</span>WLOGP</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (<span class="st">"MLOGP"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  data<span class="sc">$</span>LogP <span class="ot">&lt;-</span> data<span class="sc">$</span>MLOGP</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A little example to this show in the block code above. Another example listed for ADMETLab 3.0 datasets as:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 1. Remove the molstr (SVG) column if it exists</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="st">"molstr"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    data<span class="sc">$</span>molstr <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 2. Remove the first index column if it exists</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  first_col_name <span class="ot">&lt;-</span> <span class="fu">names</span>(data)[<span class="dv">1</span>]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (first_col_name <span class="sc">==</span> <span class="st">"0"</span> <span class="sc">||</span> first_col_name <span class="sc">==</span> <span class="st">""</span>) {</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> data[, <span class="sc">-</span><span class="dv">1</span>, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 3. Rename columns from ADMETlab names to the application's standard names</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  rename_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"smiles"</span> <span class="ot">=</span> <span class="st">"CanonicalSMILES"</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"MW"</span>     <span class="ot">=</span> <span class="st">"MW"</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"TPSA"</span>   <span class="ot">=</span> <span class="st">"TPSA"</span>,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nHA"</span>    <span class="ot">=</span> <span class="st">"#H-bond acceptors"</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nHD"</span>    <span class="ot">=</span> <span class="st">"#H-bond donors"</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nRot"</span>   <span class="ot">=</span> <span class="st">"#Rotatable bonds"</span>,</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"logP"</span>   <span class="ot">=</span> <span class="st">"LogP"</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This package in fixADMETlab() are not only renaming columns, this too compute missing descriptors for the analysis</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 5. Calculate missing properties (MR, #Heavy atoms, #Aromatic heavy atoms)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="do">##    from SMILES using CDK. ADMETlab 3.0 does not provide these natively,</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="do">##    but they are required by the Ghose and Muegge filters.</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  missing_props <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="st">"MR"</span>, <span class="st">"#Heavy atoms"</span>, <span class="st">"#Aromatic heavy atoms"</span>),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">names</span>(data)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For this we used rCDK function:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">calcCDKDescriptors</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The workflows is define with the next steps:</p>
+<p><img src="..\images/28.png" class="img-fluid"></p>
+<p>This harmonization enables identical downstream workflows for physicochemical descriptors analysis, drug-likeness filters, statistical summaries, BOILED-Egg visualization and report generation. The objective is not to force numerical equivalence among different prediction models but to provide a consistent computational interface across heterogeneous software platforms.</p>
 </section>
-<section id="human-intestinal-absorption" class="level5">
-<h5 class="anchored" data-anchor-id="human-intestinal-absorption">Human intestinal absorption</h5>
-</section>
-<section id="the-boiled-egg-model" class="level4">
-<h4 class="anchored" data-anchor-id="the-boiled-egg-model">The BOILED-Egg model</h4>
+<section id="the-boiled-egg-model" class="level3">
+<h3 class="anchored" data-anchor-id="the-boiled-egg-model">The BOILED-Egg model</h3>
 <section id="mathematical-implementation-of-the-boiled-egg-model" class="level5">
 <h5 class="anchored" data-anchor-id="mathematical-implementation-of-the-boiled-egg-model">Mathematical implementation of the BOILED-Egg model</h5>
-</section>
-<section id="geometric-implementation" class="level5">
-<h5 class="anchored" data-anchor-id="geometric-implementation">Geometric implementation</h5>
+<p>The original BOILED-Egg model operates in the descriptor space:</p>
+<p><span class="math display">\[\mathcal{D}
+=
+\{
+WLogP,\,
+TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for this reason ADMETShiny introduces the practical mathematical approximation. THe approximation is list followed: $$</p>
+<p>{ WLogP,, TPSA} = { LogP,, TPSA}$$ where the generic LogP corresponds to the lipophilicity estimator returned by the selected computational engine. Accordingly, the only approximation introduced in the ADMETshiny implementation concerns the lipophilicity descriptor itself. The geometric decision regions, polygon coordinates, and point-in-polygon classification algorithm remain identical to those defined in the original BOILED-Egg model. ##### Geometric implementation</p>
 </section>
 <section id="physical-chemical-space-in-the-boiled-egg" class="level5">
 <h5 class="anchored" data-anchor-id="physical-chemical-space-in-the-boiled-egg">Physical-chemical space in the BOILED-Egg</h5>
 </section>
 <section id="validation-of-the-approximation" class="level5">
 <h5 class="anchored" data-anchor-id="validation-of-the-approximation">Validation of the approximation</h5>
-</section>
 </section>
 <section id="data-sources-and-computational-backends" class="level4">
 <h4 class="anchored" data-anchor-id="data-sources-and-computational-backends">Data sources and computational backends</h4>
@@ -446,9 +591,6 @@ div.csl-indent {
 <section id="deep-pk" class="level5">
 <h5 class="anchored" data-anchor-id="deep-pk">Deep-pK</h5>
 </section>
-</section>
-<section id="descriptor-harmonization" class="level4">
-<h4 class="anchored" data-anchor-id="descriptor-harmonization">Descriptor harmonization</h4>
 </section>
 <section id="statistical-analysis" class="level4">
 <h4 class="anchored" data-anchor-id="statistical-analysis">Statistical analysis</h4>
@@ -474,14 +616,29 @@ div.csl-indent {
 </section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">Console workflow</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-abramson2024" class="csl-entry" role="listitem">
+Abramson, Josh, Jonas Adler, Jack Dunger, et al. 2024. <span>“Accurate Structure Prediction of Biomolecular Interactions with AlphaFold 3.”</span> <em>Nature</em> 630 (8016): 493–500. <a href="https://doi.org/10.1038/s41586-024-07487-w">https://doi.org/10.1038/s41586-024-07487-w</a>.
+</div>
+<div id="ref-beck2022" class="csl-entry" role="listitem">
+Beck, Hartmut, Michael Härter, Bastian Haß, Carsten Schmeck, and Lars Baerfacker. 2022. <span>“Small Molecules and Their Impact in Drug Discovery: A Perspective on the Occasion of the 125th Anniversary of the Bayer Chemical Research Laboratory.”</span> <em>Drug Discovery Today</em> 27 (6): 1560–74. <a href="https://doi.org/10.1016/j.drudis.2022.02.015">https://doi.org/10.1016/j.drudis.2022.02.015</a>.
+</div>
+<div id="ref-chuang2020" class="csl-entry" role="listitem">
+Chuang, Kangway V., Laura M. Gunsalus, and Michael J. Keiser. 2020. <span>“Learning Molecular Representations for Medicinal Chemistry: Miniperspective.”</span> <em>Journal of Medicinal Chemistry</em> 63 (16): 8705–22. <a href="https://doi.org/10.1021/acs.jmedchem.0c00385">https://doi.org/10.1021/acs.jmedchem.0c00385</a>.
+</div>
 <div id="ref-daina2017" class="csl-entry" role="listitem">
 Daina, Antoine, Olivier Michielin, and Vincent Zoete. 2017. <span>“SwissADME: A Free Web Tool to Evaluate Pharmacokinetics, Drug-Likeness and Medicinal Chemistry Friendliness of Small Molecules.”</span> <em>Scientific Reports</em> 7 (1): 42717. <a href="https://doi.org/10.1038/srep42717">https://doi.org/10.1038/srep42717</a>.
 </div>
 <div id="ref-doogue2013" class="csl-entry" role="listitem">
 Doogue, Matthew P., and Thomas M. Polasek. 2013. <span>“The ABCD of Clinical Pharmacokinetics.”</span> <em>Therapeutic Advances in Drug Safety</em> 4 (1): 5–7. <a href="https://doi.org/10.1177/2042098612469335">https://doi.org/10.1177/2042098612469335</a>.
 </div>
+<div id="ref-morak-mlodawska2023" class="csl-entry" role="listitem">
+Morak-Młodawska, Beata, Małgorzata Jeleń, Emilia Martula, and Rafał Korlacki. 2023. <span>“Study of Lipophilicity and ADME Properties of 1,9-Diazaphenothiazines with Anticancer Action.”</span> <em>International Journal of Molecular Sciences</em> 24 (8): 6970. <a href="https://doi.org/10.3390/ijms24086970">https://doi.org/10.3390/ijms24086970</a>.
+</div>
 <div id="ref-nelson1961" class="csl-entry" role="listitem">
 Nelson, E. 1961. <span>“Kinetics of drug absorption, distribution, metabolism, and excretion.”</span> <em>Journal of Pharmaceutical Sciences</em> 50 (March): 181–92. <a href="https://doi.org/10.1002/jps.2600500302">https://doi.org/10.1002/jps.2600500302</a>.
+</div>
+<div id="ref-prasanna2009" class="csl-entry" role="listitem">
+Prasanna, S., and R. J. Doerksen. 2009. <span>“Topological Polar Surface Area: A Useful Descriptor in 2D-QSAR.”</span> <em>Current Medicinal Chemistry</em> 16 (1): 21–41. <a href="https://doi.org/10.2174/092986709787002817">https://doi.org/10.2174/092986709787002817</a>.
 </div>
 <div id="ref-waring2015" class="csl-entry" role="listitem">
 Waring, Michael J., John Arrowsmith, Andrew R. Leach, et al. 2015. <span>“An Analysis of the Attrition of Drug Candidates from Four Major Pharmaceutical Companies.”</span> <em>Nature Reviews Drug Discovery</em> 14 (7): 475–86. <a href="https://doi.org/10.1038/nrd4609">https://doi.org/10.1038/nrd4609</a>.
