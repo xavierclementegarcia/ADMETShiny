@@ -7,9 +7,27 @@ bibliography: references.bib
 
 #### Initial considerations
 
-The goal is for the user to find a quick design scheme for analyzing a molecule bank. This example will be performed with 200 molecules, attempting to respect the limit allowed by SwissADME. For more information on the user interface and workflow, please refer to the tutorials
-
 This ADMETShiny package contains four sections, each with its own independent workflow. The user will ultimately be able to generate a comprehensive report that includes the main characteristics of the applied filters (Executive Summary per model, Statistics of Key properties, Drug-likeness Filter Results, BOILED-Egg ADMET Classification, Additional Drug-likeness Metrics, Composite Drug-likeness Score & graphs: BOILED-Egg, Distributions to MW, TPSA, LogP histograms, correlations between physicochemical properties & cluster heatmaps per model).
+
+### Introduction and Architectural Overview
+
+ADMETShiny is an R package providing an interactive Shiny application and a programmatic API for the management, calculation, filtering, visualization, and exploratory analysis of molecular descriptors and ADMET properties. It integrates four data sources with fundamentally different algorithms and data schema, standardizing them into a unified pipeline.
+
+The **Design Philosophy** of this package include an architected around three core principles. For one hand a single generic LogP column is used across all modules, with thresholds from original publications (That's include SwissADME values). This ensures that filters work identically regardless of data provenance.
+
+### ![](/images/9.png)
+
+The UI is composed of independent tab modules (SwissADME, CDK, ADMETLab, Deep-PK and report), each with its own UI builder, reactive values, and server logic, sharing a common set of computational functions.
+
+### Package Structure
+
+| Layer | Files | Purpose |
+|----|----|----|
+| Core API | `filters.R, data_fixers.R, cdk_webchem.R, plots.R, plots_cluster.R, plot_customization.R, report.R` | Exported functions for filtering normalization, visualization, reporting |
+| Shiny App | `app_ui.R, app_server.R, ui.R, dark_mode.R, run_app.R` | Interactive web application |
+| Infrastructure | `admetshiny-package.R, globals.R, utils-pipe.R, boiled_egg_data.R` | Package metadata, constants, imports, data |
+
+This separation ensures that the computational functions can be used independently of the Shiny application, either in R scripts or embedded in other packages.
 
 ### Theoretical background
 
@@ -144,6 +162,24 @@ The workflows is define with the next steps:
 
 This harmonization enables identical downstream workflows for physicochemical descriptors analysis, drug-likeness filters, statistical summaries, BOILED-Egg visualization and report generation. The objective is not to force numerical equivalence among different prediction models but to provide a consistent computational interface across heterogeneous software platforms.
 
+### Data Standardization Schema
+
+Each data source provides physicochemical descriptors and ADMET predictions computed with different algorithms and named with different conventions. ADMETShiny maps all of them to a unified internal schema.
+
+| Standar column | SwissADME | ADMETLab 3.0 | Deep-pK | CDK & Webchem |
+|:-----------:|:-----------:|:--------------:|:--------------:|:--------------:|
+| MW | MW | MW | WeightDescriptor (CDK) | WeightDescriptor |
+| LogP | WLOGP | logP | \[Log(P)\] Predictions or AlogP (CDK) | AlogP (Ghose-Crippen) |
+| TPSA | TPSA | TPSA | TPSADescriptor (CDK) | TPSADescriptor (CDK) |
+| #H Bond acceptors | #H bond acceptors | nHA | nHBAcc (CDK) | nHBAcc |
+| #H Bond donors | #H bond donors | nHD | nHBDon (CDK) | nHBDon |
+| #Rotatable bonds | #Rotatable bonds | nRot | nRotB (CDK) | nRotB |
+| #Heavy atoms | #Heavy atoms | nAtom | nAtom (CDK) | nAtom |
+| MR | MR | AMR | AMR (CDK) | AMR |
+| GI absorption | GI absorption | hia\>=0.5 (binarized) | Interpretation text (parsed) | Boiled-Egg polygon test |
+| BBB permeant | BBB permeant | BBB \>=0.5 (binarized) | Intepretation text (parsed) | Boiled-Egg polygon test |
+| Pgp substrate | Pgp substrate | pgp_sub \>=0.5 (binarized) | Interpretation text (parsed) | Heuristic |
+
 ### The BOILED-Egg model
 
 ##### Mathematical implementation of the BOILED-Egg model
@@ -170,7 +206,7 @@ The BOILED-Egg model [@daina2016] is a visual and computational model that predi
 
 - Yellow yolk (BBB): high probability of crossing the blood-brain barrier
 
-##### Validation of the approximation
+### Validation of the approximation
 
 ADMETShiny uses the official polygon coordinates published as data S3 in the supplementary material of the original articles. Each polygon is defined by 101 `(x,y)` points where `x = TPSA and y = WLOGP`.
 
@@ -208,6 +244,17 @@ This package use a BOILED-Egg approximation LogP source was that calibrated with
 
 In this SwissADME module, users can select which `LogP` variant to use for the BOILED-Egg plot (`WLOGP`, `Consensus` `LogP`, `MLOGP`, `XLOGP3`, `iLOGP` or `generic` `LogP`). For other modules, the platform's own `LogP` is used, which may introduce classification errors for compounds near the polygon boundaries.
 
+| Source | Algorithm | Method Type | Typical difference vs WLOGP |
+|----|----|----|----|
+| SwissADME WLOGP | Wildman-Crippen | Atom-based fragmentation | Without difference |
+| SwissADME Consensus LogP | Mean of iLOGP, XLOGP3, WLOGP, MLOGP | Ensemble | 0.3 - 0.8 units |
+| SwissADME MLOGP | Moriguchi | Topological indices | 0.5 -1.5 units |
+| ADMETLab LogP | Proprietary ML model | Machine Learning | 0.5 - 1-5 units |
+| Deep-pK LogP | Proprietary DL model | Deep learning | 0.5 - 2.0 units |
+| CDK AlogP | Ghose-Crippen | Atom-based fragmentation | 0.5 - 1.5 units |
+
+For SwissADME Manager, WLOGP is used as the default LogP (matching the BOILED-Egg calibration). For other sources, the platform's own LogP is used as an approximation.
+
 ##### P-glycoprotein substrate prediction
 
 #### Data sources and computational backends
@@ -227,6 +274,8 @@ In this SwissADME module, users can select which `LogP` variant to use for the B
 #### Application of package validation methods
 
 #### Case study
+
+The goal is for the user to find a quick design scheme for analyzing a molecule bank. This example will be performed with 200 molecules, attempting to respect the limit allowed by SwissADME. For more information on the user interface and workflow, please refer to the tutorials
 
 ##### GUI workflow
 

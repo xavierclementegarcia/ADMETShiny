@@ -417,9 +417,14 @@ window.Quarto = {
    
   <ul>
   <li><a href="#theory-documentation" id="toc-theory-documentation" class="nav-link active" data-scroll-target="#theory-documentation">Theory &amp; Documentation</a></li>
+  <li><a href="#introduction-and-architectural-overview" id="toc-introduction-and-architectural-overview" class="nav-link" data-scroll-target="#introduction-and-architectural-overview">Introduction and Architectural Overview</a></li>
+  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section"><img src="..\images/9.png" class="img-fluid"></a></li>
+  <li><a href="#package-structure" id="toc-package-structure" class="nav-link" data-scroll-target="#package-structure">Package Structure</a></li>
   <li><a href="#theoretical-background" id="toc-theoretical-background" class="nav-link" data-scroll-target="#theoretical-background">Theoretical background</a></li>
   <li><a href="#descriptor-harmonization" id="toc-descriptor-harmonization" class="nav-link" data-scroll-target="#descriptor-harmonization">Descriptor harmonization</a></li>
+  <li><a href="#data-standardization-schema" id="toc-data-standardization-schema" class="nav-link" data-scroll-target="#data-standardization-schema">Data Standardization Schema</a></li>
   <li><a href="#the-boiled-egg-model" id="toc-the-boiled-egg-model" class="nav-link" data-scroll-target="#the-boiled-egg-model">The BOILED-Egg model</a></li>
+  <li><a href="#validation-of-the-approximation" id="toc-validation-of-the-approximation" class="nav-link" data-scroll-target="#validation-of-the-approximation">Validation of the approximation</a></li>
   </ul>
 </nav>
     </div>
@@ -450,9 +455,52 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="theory-documentation">Theory &amp; Documentation</h3>
 <section id="initial-considerations" class="level4">
 <h4 class="anchored" data-anchor-id="initial-considerations">Initial considerations</h4>
-<p>The goal is for the user to find a quick design scheme for analyzing a molecule bank. This example will be performed with 200 molecules, attempting to respect the limit allowed by SwissADME. For more information on the user interface and workflow, please refer to the tutorials</p>
 <p>This ADMETShiny package contains four sections, each with its own independent workflow. The user will ultimately be able to generate a comprehensive report that includes the main characteristics of the applied filters (Executive Summary per model, Statistics of Key properties, Drug-likeness Filter Results, BOILED-Egg ADMET Classification, Additional Drug-likeness Metrics, Composite Drug-likeness Score &amp; graphs: BOILED-Egg, Distributions to MW, TPSA, LogP histograms, correlations between physicochemical properties &amp; cluster heatmaps per model).</p>
 </section>
+</section>
+<section id="introduction-and-architectural-overview" class="level3">
+<h3 class="anchored" data-anchor-id="introduction-and-architectural-overview">Introduction and Architectural Overview</h3>
+<p>ADMETShiny is an R package providing an interactive Shiny application and a programmatic API for the management, calculation, filtering, visualization, and exploratory analysis of molecular descriptors and ADMET properties. It integrates four data sources with fundamentally different algorithms and data schema, standardizing them into a unified pipeline.</p>
+<p>The <strong>Design Philosophy</strong> of this package include an architected around three core principles. For one hand a single generic LogP column is used across all modules, with thresholds from original publications (That’s include SwissADME values). This ensures that filters work identically regardless of data provenance.</p>
+</section>
+<section id="section" class="level3">
+<h3 class="anchored" data-anchor-id="section"><img src="..\images/9.png" class="img-fluid"></h3>
+<p>The UI is composed of independent tab modules (SwissADME, CDK, ADMETLab, Deep-PK and report), each with its own UI builder, reactive values, and server logic, sharing a common set of computational functions.</p>
+</section>
+<section id="package-structure" class="level3">
+<h3 class="anchored" data-anchor-id="package-structure">Package Structure</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Layer</th>
+<th>Files</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Core API</td>
+<td><code>filters.R, data_fixers.R, cdk_webchem.R, plots.R, plots_cluster.R, plot_customization.R, report.R</code></td>
+<td>Exported functions for filtering normalization, visualization, reporting</td>
+</tr>
+<tr class="even">
+<td>Shiny App</td>
+<td><code>app_ui.R, app_server.R, ui.R, dark_mode.R, run_app.R</code></td>
+<td>Interactive web application</td>
+</tr>
+<tr class="odd">
+<td>Infrastructure</td>
+<td><code>admetshiny-package.R, globals.R, utils-pipe.R, boiled_egg_data.R</code></td>
+<td>Package metadata, constants, imports, data</td>
+</tr>
+</tbody>
+</table>
+<p>This separation ensures that the computational functions can be used independently of the Shiny application, either in R scripts or embedded in other packages.</p>
 </section>
 <section id="theoretical-background" class="level3">
 <h3 class="anchored" data-anchor-id="theoretical-background">Theoretical background</h3>
@@ -559,6 +607,107 @@ Pgp
 <p><img src="..\images/28.png" class="img-fluid"></p>
 <p>This harmonization enables identical downstream workflows for physicochemical descriptors analysis, drug-likeness filters, statistical summaries, BOILED-Egg visualization and report generation. The objective is not to force numerical equivalence among different prediction models but to provide a consistent computational interface across heterogeneous software platforms.</p>
 </section>
+<section id="data-standardization-schema" class="level3">
+<h3 class="anchored" data-anchor-id="data-standardization-schema">Data Standardization Schema</h3>
+<p>Each data source provides physicochemical descriptors and ADMET predictions computed with different algorithms and named with different conventions. ADMETShiny maps all of them to a unified internal schema.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 21%">
+<col style="width: 21%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Standar column</th>
+<th style="text-align: center;">SwissADME</th>
+<th style="text-align: center;">ADMETLab 3.0</th>
+<th style="text-align: center;">Deep-pK</th>
+<th style="text-align: center;">CDK &amp; Webchem</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">MW</td>
+<td style="text-align: center;">MW</td>
+<td style="text-align: center;">MW</td>
+<td style="text-align: center;">WeightDescriptor (CDK)</td>
+<td style="text-align: center;">WeightDescriptor</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">LogP</td>
+<td style="text-align: center;">WLOGP</td>
+<td style="text-align: center;">logP</td>
+<td style="text-align: center;">[Log(P)] Predictions or AlogP (CDK)</td>
+<td style="text-align: center;">AlogP (Ghose-Crippen)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">TPSA</td>
+<td style="text-align: center;">TPSA</td>
+<td style="text-align: center;">TPSA</td>
+<td style="text-align: center;">TPSADescriptor (CDK)</td>
+<td style="text-align: center;">TPSADescriptor (CDK)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">#H Bond acceptors</td>
+<td style="text-align: center;">#H bond acceptors</td>
+<td style="text-align: center;">nHA</td>
+<td style="text-align: center;">nHBAcc (CDK)</td>
+<td style="text-align: center;">nHBAcc</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">#H Bond donors</td>
+<td style="text-align: center;">#H bond donors</td>
+<td style="text-align: center;">nHD</td>
+<td style="text-align: center;">nHBDon (CDK)</td>
+<td style="text-align: center;">nHBDon</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">#Rotatable bonds</td>
+<td style="text-align: center;">#Rotatable bonds</td>
+<td style="text-align: center;">nRot</td>
+<td style="text-align: center;">nRotB (CDK)</td>
+<td style="text-align: center;">nRotB</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">#Heavy atoms</td>
+<td style="text-align: center;">#Heavy atoms</td>
+<td style="text-align: center;">nAtom</td>
+<td style="text-align: center;">nAtom (CDK)</td>
+<td style="text-align: center;">nAtom</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">MR</td>
+<td style="text-align: center;">MR</td>
+<td style="text-align: center;">AMR</td>
+<td style="text-align: center;">AMR (CDK)</td>
+<td style="text-align: center;">AMR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">GI absorption</td>
+<td style="text-align: center;">GI absorption</td>
+<td style="text-align: center;">hia&gt;=0.5 (binarized)</td>
+<td style="text-align: center;">Interpretation text (parsed)</td>
+<td style="text-align: center;">Boiled-Egg polygon test</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">BBB permeant</td>
+<td style="text-align: center;">BBB permeant</td>
+<td style="text-align: center;">BBB &gt;=0.5 (binarized)</td>
+<td style="text-align: center;">Intepretation text (parsed)</td>
+<td style="text-align: center;">Boiled-Egg polygon test</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Pgp substrate</td>
+<td style="text-align: center;">Pgp substrate</td>
+<td style="text-align: center;">pgp_sub &gt;=0.5 (binarized)</td>
+<td style="text-align: center;">Interpretation text (parsed)</td>
+<td style="text-align: center;">Heuristic</td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="the-boiled-egg-model" class="level3">
 <h3 class="anchored" data-anchor-id="the-boiled-egg-model">The BOILED-Egg model</h3>
 <section id="mathematical-implementation-of-the-boiled-egg-model" class="level5">
@@ -582,8 +731,9 @@ TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for th
 <li><p>Yellow yolk (BBB): high probability of crossing the blood-brain barrier</p></li>
 </ul>
 </section>
-<section id="validation-of-the-approximation" class="level5">
-<h5 class="anchored" data-anchor-id="validation-of-the-approximation">Validation of the approximation</h5>
+</section>
+<section id="validation-of-the-approximation" class="level3">
+<h3 class="anchored" data-anchor-id="validation-of-the-approximation">Validation of the approximation</h3>
 <p>ADMETShiny uses the official polygon coordinates published as data S3 in the supplementary material of the original articles. Each polygon is defined by 101 <code>(x,y)</code> points where <code>x = TPSA and y = WLOGP</code>.</p>
 <p><img src="..\images/29.png" class="img-fluid"></p>
 <table class="caption-top table">
@@ -664,7 +814,61 @@ TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for th
 </tbody>
 </table>
 <p>In this SwissADME module, users can select which <code>LogP</code> variant to use for the BOILED-Egg plot (<code>WLOGP</code>, <code>Consensus</code> <code>LogP</code>, <code>MLOGP</code>, <code>XLOGP3</code>, <code>iLOGP</code> or <code>generic</code> <code>LogP</code>). For other modules, the platform’s own <code>LogP</code> is used, which may introduce classification errors for compounds near the polygon boundaries.</p>
-</section>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Source</th>
+<th>Algorithm</th>
+<th>Method Type</th>
+<th>Typical difference vs WLOGP</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>SwissADME WLOGP</td>
+<td>Wildman-Crippen</td>
+<td>Atom-based fragmentation</td>
+<td>Without difference</td>
+</tr>
+<tr class="even">
+<td>SwissADME Consensus LogP</td>
+<td>Mean of iLOGP, XLOGP3, WLOGP, MLOGP</td>
+<td>Ensemble</td>
+<td>0.3 - 0.8 units</td>
+</tr>
+<tr class="odd">
+<td>SwissADME MLOGP</td>
+<td>Moriguchi</td>
+<td>Topological indices</td>
+<td>0.5 -1.5 units</td>
+</tr>
+<tr class="even">
+<td>ADMETLab LogP</td>
+<td>Proprietary ML model</td>
+<td>Machine Learning</td>
+<td>0.5 - 1-5 units</td>
+</tr>
+<tr class="odd">
+<td>Deep-pK LogP</td>
+<td>Proprietary DL model</td>
+<td>Deep learning</td>
+<td>0.5 - 2.0 units</td>
+</tr>
+<tr class="even">
+<td>CDK AlogP</td>
+<td>Ghose-Crippen</td>
+<td>Atom-based fragmentation</td>
+<td>0.5 - 1.5 units</td>
+</tr>
+</tbody>
+</table>
+<p>For SwissADME Manager, WLOGP is used as the default LogP (matching the BOILED-Egg calibration). For other sources, the platform’s own LogP is used as an approximation.</p>
 <section id="p-glycoprotein-substrate-prediction" class="level5">
 <h5 class="anchored" data-anchor-id="p-glycoprotein-substrate-prediction">P-glycoprotein substrate prediction</h5>
 </section>
@@ -694,6 +898,7 @@ TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for th
 </section>
 <section id="case-study" class="level4">
 <h4 class="anchored" data-anchor-id="case-study">Case study</h4>
+<p>The goal is for the user to find a quick design scheme for analyzing a molecule bank. This example will be performed with 200 molecules, attempting to respect the limit allowed by SwissADME. For more information on the user interface and workflow, please refer to the tutorials</p>
 <section id="gui-workflow" class="level5">
 <h5 class="anchored" data-anchor-id="gui-workflow">GUI workflow</h5>
 </section>
