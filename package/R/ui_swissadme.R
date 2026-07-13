@@ -107,6 +107,33 @@ swissadme_tab <- function() {
             )),
 
             conditionalPanel(
+              condition = "input.plot_type == 'Boiled Egg'",
+              tags$div(
+                class = "alert-primary",
+                icon("book-open"),
+                tags$b(" Function: "),
+                "Predicts GI absorption and BBB permeability from LogP and TPSA."
+              ),
+              tags$div(
+                class = "alert-primary",
+                icon("book-open"),
+                tags$b(" Analysis: "),
+                "Points inside the white region have high GI absorption; points inside the yellow yolk cross the BBB."
+              ),
+              tags$hr(),
+              selectInput("boiled_egg_logp", "LogP source for BOILED-Egg",
+                          choices = c("WLOGP (default)" = "WLOGP",
+                                      "Consensus Log P" = "Consensus Log P",
+                                      "MLOGP" = "MLOGP",
+                                      "XLOGP3" = "XLOGP3",
+                                      "iLOGP" = "iLOGP",
+                                      "Generic LogP" = "LogP"),
+                          selected = "WLOGP"),
+              helpText("The BOILED-Egg was originally calibrated with WLOGP. ",
+                       "You can select a different LogP variant if available.")
+            ),
+
+            conditionalPanel(
               condition = "input.plot_type == 'Radar plot (Chemical profile)'",
               tags$div(class = "alert-primary", icon("book-open"), tags$b(" Function: "),
                        "Simultaneously compares multiple physicochemical properties of one or more compounds."),

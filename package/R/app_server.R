@@ -407,8 +407,41 @@ app_server <- function(input, output, session) {
         mapped$TEMP_SMILES <- mapped$SMILES
         mapped$SMILES <- NULL
 
-        final_df <- merge(smiles_table_rv(), mapped,
-                          by.x = smiles_col, by.y = "TEMP_SMILES", all = FALSE)
+        ## Use cbind instead of merge to avoid row duplication when
+        ## there are duplicate SMILES in the original data.
+        ## merge() does a database-style join which produces a cartesian
+        ## product when both tables have duplicate keys.
+        ## Since calcCDKDescriptors returns descriptors in the same order
+        ## as the input SMILES (minus unparseable ones), we need to
+        ## match by SMILES but preserve the original row order.
+
+        ## Get the SMILES from the original table
+        orig_smiles <- as.character(smiles_table_rv()[[smiles_col]])
+
+        ## Match each original SMILES to the CDK results by position
+        ## CDK results are in the order of successfully parsed molecules
+        cdk_smiles <- mapped$TEMP_SMILES
+
+        ## Build a lookup: for each original SMILES, find its CDK result
+        ## by matching the SMILES string. Use the first match to avoid
+        ## duplication (if multiple identical SMILES exist, they get
+        ## the same descriptor values).
+        cdk_lookup <- split(mapped, mapped$TEMP_SMILES)
+
+        ## Apply descriptors to each row of the original table
+        result_list <- lapply(seq_len(nrow(smiles_table_rv())), function(i) {
+          smi <- orig_smiles[i]
+          if (!is.na(smi) && smi %in% names(cdk_lookup)) {
+            cdk_row <- cdk_lookup[[smi]][1, , drop = FALSE]
+            cdk_row$TEMP_SMILES <- NULL
+            cbind(smiles_table_rv()[i, , drop = FALSE], cdk_row)
+          } else {
+            ## SMILES not parsed by CDK -- return the row with NA descriptors
+            smiles_table_rv()[i, , drop = FALSE]
+          }
+        })
+
+        final_df <- do.call(rbind, result_list)
         cdk_results_rv(final_df)
 
         showNotification(sprintf("Descriptors calculated for %d molecules.",
@@ -907,7 +940,17 @@ app_server <- function(input, output, session) {
       }
     } else {
       switch(pt,
-             "Boiled Egg" = plotBoiledEgg(resultado()),
+             "Boiled Egg" = {
+               ## Allow user to select which LogP variant to use for BOILED-Egg
+               ## Default is WLOGP (what the model was calibrated with)
+               logp_choice <- input$boiled_egg_logp
+               if (is.null(logp_choice) || logp_choice == "") logp_choice <- "LogP"
+               data_be <- resultado()
+               if (logp_choice %in% names(data_be) && logp_choice != "LogP") {
+                 data_be$LogP <- data_be[[logp_choice]]
+               }
+               plotBoiledEgg(data_be)
+             },
              "Molecular Weight" = plotMW(resultado()),
              "TPSA" = plotTPSA(resultado()),
              "LogP" = plotLogP(resultado()),

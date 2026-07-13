@@ -105,7 +105,16 @@ calcCDKDescriptors <- function(smiles, which = c(
   }
 
   smiles_chr <- trimws(as.character(smiles))
-  mols <- rcdk::parse.smiles(smiles_chr)
+
+  ## Remove NA and empty SMILES before parsing
+  valid_idx <- !is.na(smiles_chr) & nzchar(smiles_chr)
+  smiles_valid <- smiles_chr[valid_idx]
+
+  if (length(smiles_valid) == 0) {
+    stop("No valid SMILES strings provided.", call. = FALSE)
+  }
+
+  mols <- rcdk::parse.smiles(smiles_valid)
 
   ok <- !vapply(mols, is.null, logical(1))
   if (!any(ok)) {
@@ -124,7 +133,24 @@ calcCDKDescriptors <- function(smiles, which = c(
   }))
 
   desc_df <- rcdk::eval.desc(mols[ok], classes)
-  desc_df$SMILES <- smiles_chr[ok]
+
+  ## The ALOGPDescriptor returns 3 columns: ALogP, ALogP2, AMR.
+  ## ALogP is the Ghose-Crippen LogP (the one we want for "LogP").
+  ## ALogP2 is a second LogP model (not used).
+  ## AMR is the Approximate Molar Refractivity (used for "MR").
+  ## If alogp or mr was requested but the columns don't exist with the
+  ## expected names, try to find them by partial match.
+  if ("alogp" %in% which && !"ALogP" %in% names(desc_df)) {
+    alogp_col <- grep("alogp", names(desc_df), ignore.case = TRUE, value = TRUE)
+    if (length(alogp_col) > 0) names(desc_df)[names(desc_df) == alogp_col[1]] <- "ALogP"
+  }
+  if ("mr" %in% which && !"AMR" %in% names(desc_df)) {
+    amr_col <- grep("amr", names(desc_df), ignore.case = TRUE, value = TRUE)
+    if (length(amr_col) > 0) names(desc_df)[names(desc_df) == amr_col[1]] <- "AMR"
+  }
+
+  ## Add SMILES column -- only for molecules that were successfully parsed
+  desc_df$SMILES <- smiles_valid[ok]
 
   rownames(desc_df) <- NULL
   desc_df

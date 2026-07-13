@@ -95,15 +95,15 @@ fixSwissADME <- function(data) {
 
   data[character_columns] <- lapply(data[character_columns], as.character)
 
-  ## Create the generic LogP column from Consensus Log P (preferred) or
-  ## WLOGP as fallback. This is the only LogP column the filters and plots
-  ## require. The original SwissADME-specific MLOGP/WLOGP/XLOGP3 columns
-  ## remain in the data.frame for reference but are not used by the
-  ## drug-likeness filters.
-  if ("Consensus Log P" %in% names(data)) {
-    data$LogP <- data[["Consensus Log P"]]
-  } else if ("WLOGP" %in% names(data)) {
+  ## Create the generic LogP column from WLOGP (preferred, as this is what
+  ## the BOILED-Egg model was calibrated with) or Consensus Log P as fallback.
+  ## The original SwissADME-specific MLOGP/WLOGP/XLOGP3/Consensus Log P
+  ## columns remain in the data.frame for reference and can be selected
+  ## in the BOILED-Egg plot.
+  if ("WLOGP" %in% names(data)) {
     data$LogP <- data$WLOGP
+  } else if ("Consensus Log P" %in% names(data)) {
+    data$LogP <- data[["Consensus Log P"]]
   } else if ("MLOGP" %in% names(data)) {
     data$LogP <- data$MLOGP
   }

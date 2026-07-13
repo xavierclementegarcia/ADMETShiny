@@ -114,10 +114,10 @@ docs_tab <- function() {
                                             tags$table(class = "doc-table",
                                                        tags$thead(tags$tr(tags$th("Source"), tags$th("Original Column"), tags$th("Internal Standard Column"))),
                                                        tags$tbody(
-                                                         tags$tr(tags$td("SwissADME"), tags$td("Molecular Weight"), tags$td(tags$code("MW"))),
-                                                         tags$tr(tags$td("ADMETlab 3.0"), tags$td("nHA / nHD / nRot"), tags$td(tags$code("#H-bond acceptors / donors / Rotatable bonds"))),
+                                                         tags$tr(tags$td("SwissADME"), tags$td("WLOGP"), tags$td(tags$code("LogP"))),
+                                                         tags$tr(tags$td("ADMETlab 3.0"), tags$td("logP"), tags$td(tags$code("LogP"))),
                                                          tags$tr(tags$td("Deep-PK"), tags$td("[General Properties/Log(P)] Predictions"), tags$td(tags$code("LogP"))),
-                                                         tags$tr(tags$td("CDK (Calculated)"), tags$td("ALogP / TopoPSA"), tags$td(tags$code("LogP / TPSA")))
+                                                         tags$tr(tags$td("CDK (Calculated)"), tags$td("ALogP"), tags$td(tags$code("LogP")))
                                                        )
                                             ),
                                             tags$div(class = "alert-warning-dark",

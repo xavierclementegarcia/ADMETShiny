@@ -25,11 +25,11 @@ Drug development is difficult, not only because of complex process and long deve
 
 ##### TPSA
 
-Topological polar surface area (TPSA), which makes use of functional group contributions based on a large database of structures [@chuang2020]. This molecular descriptor (MD) calculated as the sum of surface contributions from polar atoms [@prasanna2009]. TPSA is derived directly from the molecular topology, that the case correspond to SMILES [@beck2022]. Currently this MD is expressed in square angstroms $(Å²)$ and are highly predictive of how a molecule behaves in the body.
+Topological polar surface area `(TPSA)`, which makes use of functional group contributions based on a large database of structures [@chuang2020]. This molecular descriptor (MD) calculated as the sum of surface contributions from polar atoms [@prasanna2009]. TPSA is derived directly from the molecular topology, that the case correspond to SMILES [@beck2022]. Currently this MD is expressed in square angstroms $(Å²)$ and are highly predictive of how a molecule behaves in the body.
 
 ##### Lipophilicity
 
-Since experimental LogP measurements are unavailable for most virtual compounds, computational chemistry relies on predictive algorithms to estimate lipophilicity. Several approaches have been proposed, including atom-fragment methods, fragment-correction schemes [@morak-mlodawska2023]. Consequently, differents software platforms report different numerical estimations of LogP even when evaluating the same molecular structure. For example differents Web-servers for ADMET properties request several algorithms: Wildman-Crippen atom-fragment model (WLOGP), Atom-fragment model with correction factors (XLOGP), Ghose-Crippen atoms fragments (ALOGP) [@abramson2024].
+Since experimental `LogP` measurements are unavailable for most virtual compounds, computational chemistry relies on predictive algorithms to estimate lipophilicity. Several approaches have been proposed, including atom-fragment methods, fragment-correction schemes [@morak-mlodawska2023]. Consequently, differents software platforms report different numerical estimations of LogP even when evaluating the same molecular structure. For example differents Web-servers for ADMET properties request several algorithms: Wildman-Crippen atom-fragment model `(WLOGP)`, Atom-fragment model with correction factors `(XLOGP)`, Ghose-Crippen atoms fragments `(ALOGP)` [@abramson2024].
 
 The quantification lipohilicity are described with numerical estimators of the same physicochemical properties rather than interchangeable values.
 
@@ -154,25 +154,61 @@ $$\mathcal{D}
 =
 \{
 WLogP,\,
-TPSA\}$$
-Since WLOGP is unavailable in several supported backends, for this reason ADMETShiny introduces the practical mathematical approximation. THe approximation is list followed: 
-$$\mathcal{}
+TPSA\}$$ Since WLOGP is unavailable in several supported backends, for this reason ADMETShiny introduces the practical mathematical approximation. THe approximation is list followed:
 
-\{
-WLogP,\,
-TPSA\}  \mathcal{}
-=
-\{
-LogP,\,
-TPSA\}$$
-where the generic LogP corresponds to the lipophilicity estimator returned by the selected computational engine.
-Accordingly, the only approximation introduced in the ADMETshiny implementation concerns the lipophilicity descriptor itself. 
-The geometric decision regions, polygon coordinates, and point-in-polygon classification algorithm remain identical to those defined in the original BOILED-Egg model.
-##### Geometric implementation
+$$\{WLOGP,\;TPSA\}
+\;\approx\;
+\{LogP,\;TPSA\}$$
+
+where the generic LogP corresponds to the lipophilicity estimator returned by the selected computational engine. Accordingly, the only approximation introduced in the ADMETshiny implementation concerns the lipophilicity descriptor itself. The geometric decision regions, polygon coordinates, and point-in-polygon classification algorithm remain identical to those defined in the original BOILED-Egg model.
 
 ##### Physical-chemical space in the BOILED-Egg
 
+The BOILED-Egg model [@daina2016] is a visual and computational model that predicts gastrointestinal absorption (GI) and blood-brain barrier (BBB) permeability from two physicochemical properties, `TPSA` (x-axis) and `WLOGP` (y-axis). The model defines two regions:
+
+- White region (HIA): high probability of gastrointestinal absorption
+
+- Yellow yolk (BBB): high probability of crossing the blood-brain barrier
+
 ##### Validation of the approximation
+
+ADMETShiny uses the official polygon coordinates published as data S3 in the supplementary material of the original articles. Each polygon is defined by 101 `(x,y)` points where `x = TPSA and y = WLOGP`.
+
+![](/images/29.png)
+
+| Region       | TPSA Range    | WLOGP Range  | Points |
+|--------------|---------------|--------------|--------|
+| HIA (white)  | 0.02 - 142.03 | -2.25 - 6.84 | 101    |
+| BBB (yellow) | -2.96 - 79.10 | 0.41 - 5.96  | 101    |
+
+: Polygon points defined by 101 points
+
+The BOILED-Egg is defined with 101 points for WLOGP [@daina2016]. These coordinates are stored as internal R objects `.hia_polygon`, `.bbb_polygon` in the file `R/boiled_egg_data.R` and are loaded once when the package is attached.
+
+![](/images/30.png)
+
+Point in polygon classification for each molecule with coordinates `(TPSA, LogP)`, the classification is performed using a point in polygon algorithm. ADMETShiny implements two approaches:
+
+1.  `sp::point.in.polygon()` from the suggested package `"sp"`. This is a C-optimized implementation of the ray-casting algorithm.
+
+2.  A pure-R implementation of the ray-casting algorithm. A ray is cast horizontally from the query point; if it crosses the polygon boundary an odd number of times, the point is inside.
+
+The classification logic correspond to:
+
+`if point_in_polygon(TPSA, LogP, HIA_polygon): GI_absorption = 'High' else: GI_absorption = 'Low'  if point_in_polygon(TPSA, LogP, BBB_polygon): BBB_permeant = 'Yes' else: BBB_permeant = 'No'`
+
+This package use a BOILED-Egg approximation LogP source was that calibrated with WLOGP (Wildman-Crippen). The accuracy of the classification depends on the LogP algorithm used:
+
+|    Module     |       LogP used       |  Fidelity   |   Recommendation   |
+|:-------------:|:---------------------:|:-----------:|:------------------:|
+|   SwissADME   |         WLOGP         |   Optimal   | Use for validation |
+| ADMETLab 3.0  |    logP (ML model)    | Approximate |  Exploratory only  |
+|    Deep-PK    |    LogP (DL model)    | Approximate |  Exploratory only  |
+| CDK & Webchem | ALogP (Ghose-Crippen) | Approximate |  Exploratory only  |
+
+In this SwissADME module, users can select which `LogP` variant to use for the BOILED-Egg plot (`WLOGP`, `Consensus` `LogP`, `MLOGP`, `XLOGP3`, `iLOGP` or `generic` `LogP`). For other modules, the platform's own `LogP` is used, which may introduce classification errors for compounds near the polygon boundaries.
+
+##### P-glycoprotein substrate prediction
 
 #### Data sources and computational backends
 
