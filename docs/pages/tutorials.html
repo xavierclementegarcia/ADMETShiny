@@ -469,9 +469,9 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="package-structure">Package Structure</h3>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
+<col style="width: 11%">
+<col style="width: 50%">
+<col style="width: 37%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -579,6 +579,9 @@ window.Quarto = {
 </section>
 <section id="applyfilters-dispatcher" class="level4">
 <h4 class="anchored" data-anchor-id="applyfilters-dispatcher">ApplyFilters() Dispatcher</h4>
+<p>The dispatcher applies selected filters in a fixed order <code>(Lipinski &gt; Veber &gt; Ghose &gt; Egan &gt; Muegge)</code>. Each filter is applied to the output of the previous one, so the result is the <strong>intersection</strong> of all selected rules. The fixed order ensures deterministic behavior.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>applyFilters <span class="ot">&lt;-</span> <span class="cf">function</span>(data, filters, <span class="at">lipinski =</span> <span class="fu">list</span>(), ...) {   resultado <span class="ot">&lt;-</span> data   <span class="cf">if</span> (<span class="st">"Lipinski"</span> <span class="sc">%in%</span> filters)     resultado <span class="ot">&lt;-</span> <span class="fu">do.call</span>(lipinskiFilter, <span class="fu">c</span>(<span class="fu">list</span>(<span class="at">data =</span> resultado), lipinski))   <span class="cf">if</span> (<span class="st">"Veber"</span> <span class="sc">%in%</span> filters)     resultado <span class="ot">&lt;-</span> <span class="fu">do.call</span>(veberFilter, <span class="fu">c</span>(<span class="fu">list</span>(<span class="at">data =</span> resultado), veber))   <span class="co"># ... (same for Ghose, Egan, Muegge)   resultado }</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The <code>do.call() + named parameter</code> list pattern allows the UI to pass a sparse parameter set per filter. Empty lists fall back to each filter’s defaults.</p>
 </section>
 </section>
 <section id="descriptor-harmonization" class="level3">
@@ -606,45 +609,45 @@ Pgp
 \}\]</span></p>
 <p>where every backend is transformed into this common representation.</p>
 <p>In the source code for the transformation in the building BOILED-Egg graph is represent as</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="st">"Consensus Log P"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  data<span class="sc">$</span>LogP <span class="ot">&lt;-</span> data[[<span class="st">"Consensus Log P"</span>]]</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (<span class="st">"WLOGP"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  data<span class="sc">$</span>LogP <span class="ot">&lt;-</span> data<span class="sc">$</span>WLOGP</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (<span class="st">"MLOGP"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  data<span class="sc">$</span>LogP <span class="ot">&lt;-</span> data<span class="sc">$</span>MLOGP</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="st">"Consensus Log P"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  data<span class="sc">$</span>LogP <span class="ot">&lt;-</span> data[[<span class="st">"Consensus Log P"</span>]]</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (<span class="st">"WLOGP"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  data<span class="sc">$</span>LogP <span class="ot">&lt;-</span> data<span class="sc">$</span>WLOGP</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (<span class="st">"MLOGP"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  data<span class="sc">$</span>LogP <span class="ot">&lt;-</span> data<span class="sc">$</span>MLOGP</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>A little example to this show in the block code above. Another example listed for ADMETLab 3.0 datasets as:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 1. Remove the molstr (SVG) column if it exists</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="st">"molstr"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    data<span class="sc">$</span>molstr <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 2. Remove the first index column if it exists</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  first_col_name <span class="ot">&lt;-</span> <span class="fu">names</span>(data)[<span class="dv">1</span>]</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (first_col_name <span class="sc">==</span> <span class="st">"0"</span> <span class="sc">||</span> first_col_name <span class="sc">==</span> <span class="st">""</span>) {</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> data[, <span class="sc">-</span><span class="dv">1</span>, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 3. Rename columns from ADMETlab names to the application's standard names</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  rename_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"smiles"</span> <span class="ot">=</span> <span class="st">"CanonicalSMILES"</span>,</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"MW"</span>     <span class="ot">=</span> <span class="st">"MW"</span>,</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"TPSA"</span>   <span class="ot">=</span> <span class="st">"TPSA"</span>,</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nHA"</span>    <span class="ot">=</span> <span class="st">"#H-bond acceptors"</span>,</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nHD"</span>    <span class="ot">=</span> <span class="st">"#H-bond donors"</span>,</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nRot"</span>   <span class="ot">=</span> <span class="st">"#Rotatable bonds"</span>,</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"logP"</span>   <span class="ot">=</span> <span class="st">"LogP"</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 1. Remove the molstr (SVG) column if it exists</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="st">"molstr"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    data<span class="sc">$</span>molstr <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 2. Remove the first index column if it exists</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  first_col_name <span class="ot">&lt;-</span> <span class="fu">names</span>(data)[<span class="dv">1</span>]</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (first_col_name <span class="sc">==</span> <span class="st">"0"</span> <span class="sc">||</span> first_col_name <span class="sc">==</span> <span class="st">""</span>) {</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> data[, <span class="sc">-</span><span class="dv">1</span>, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 3. Rename columns from ADMETlab names to the application's standard names</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  rename_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"smiles"</span> <span class="ot">=</span> <span class="st">"CanonicalSMILES"</span>,</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"MW"</span>     <span class="ot">=</span> <span class="st">"MW"</span>,</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"TPSA"</span>   <span class="ot">=</span> <span class="st">"TPSA"</span>,</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nHA"</span>    <span class="ot">=</span> <span class="st">"#H-bond acceptors"</span>,</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nHD"</span>    <span class="ot">=</span> <span class="st">"#H-bond donors"</span>,</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nRot"</span>   <span class="ot">=</span> <span class="st">"#Rotatable bonds"</span>,</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"logP"</span>   <span class="ot">=</span> <span class="st">"LogP"</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This package in fixADMETlab() are not only renaming columns, this too compute missing descriptors for the analysis</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 5. Calculate missing properties (MR, #Heavy atoms, #Aromatic heavy atoms)</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="do">##    from SMILES using CDK. ADMETlab 3.0 does not provide these natively,</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="do">##    but they are required by the Ghose and Muegge filters.</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  missing_props <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="st">"MR"</span>, <span class="st">"#Heavy atoms"</span>, <span class="st">"#Aromatic heavy atoms"</span>),</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">names</span>(data)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 5. Calculate missing properties (MR, #Heavy atoms, #Aromatic heavy atoms)</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="do">##    from SMILES using CDK. ADMETlab 3.0 does not provide these natively,</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="do">##    but they are required by the Ghose and Muegge filters.</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  missing_props <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="st">"MR"</span>, <span class="st">"#Heavy atoms"</span>, <span class="st">"#Aromatic heavy atoms"</span>),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">names</span>(data)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>For this we used rCDK function:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">calcCDKDescriptors</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">calcCDKDescriptors</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The workflows is define with the next steps:</p>
 <p><img src="..\images/28.png" class="img-fluid"></p>
 <p>This harmonization enables identical downstream workflows for physicochemical descriptors analysis, drug-likeness filters, statistical summaries, BOILED-Egg visualization and report generation. The objective is not to force numerical equivalence among different prediction models but to provide a consistent computational interface across heterogeneous software platforms.</p>
@@ -654,11 +657,11 @@ Pgp
 <p>Each data source provides physicochemical descriptors and ADMET predictions computed with different algorithms and named with different conventions. ADMETShiny maps all of them to a unified internal schema.</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 21%">
+<col style="width: 28%">
+<col style="width: 18%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -778,8 +781,16 @@ TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for th
 <h3 class="anchored" data-anchor-id="validation-of-the-approximation">Validation of the approximation</h3>
 <p>ADMETShiny uses the official polygon coordinates published as data S3 in the supplementary material of the original articles. Each polygon is defined by 101 <code>(x,y)</code> points where <code>x = TPSA and y = WLOGP</code>.</p>
 <p><img src="..\images/29.png" class="img-fluid"></p>
+<p>The BBB polygon in the below table contains small negative TPSA value (-2.96). This is intentional in the official polygon and reflects the model’s calibration; it does not represent a physical impossibility but rather the mathematical extension of the fitted boundary. That the case the coordinates are stored as internal R object in R/boiled_egg_data.R:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>.hia_polygon <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="fl">97.8055224368</span>, <span class="sc">-</span><span class="fl">2.2270390475</span>, ...), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>) .bbb_polygon <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="fl">40.9701792513</span>, <span class="fl">0.4062562900</span>, ...), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>) <span class="co"># Column 1 = TPSA (x-axis), Column 2 = LogP (y-axis)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <caption>Polygon points defined by 101 points</caption>
+<colgroup>
+<col style="width: 20%">
+<col style="width: 22%">
+<col style="width: 20%">
+<col style="width: 12%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Region</th>
@@ -815,10 +826,10 @@ TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for th
 <p>This package use a BOILED-Egg approximation LogP source was that calibrated with WLOGP (Wildman-Crippen). The accuracy of the classification depends on the LogP algorithm used:</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 21%">
-<col style="width: 32%">
-<col style="width: 18%">
-<col style="width: 28%">
+<col style="width: 20%">
+<col style="width: 30%">
+<col style="width: 20%">
+<col style="width: 26%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -858,10 +869,10 @@ TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for th
 <p>In this SwissADME module, users can select which <code>LogP</code> variant to use for the BOILED-Egg plot (<code>WLOGP</code>, <code>Consensus</code> <code>LogP</code>, <code>MLOGP</code>, <code>XLOGP3</code>, <code>iLOGP</code> or <code>generic</code> <code>LogP</code>). For other modules, the platform’s own <code>LogP</code> is used, which may introduce classification errors for compounds near the polygon boundaries.</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
+<col style="width: 21%">
+<col style="width: 30%">
+<col style="width: 21%">
+<col style="width: 24%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -915,8 +926,58 @@ TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for th
 <h5 class="anchored" data-anchor-id="mathematical-implication">Mathematical implication</h5>
 <p>If a molecule has <code>WLOGP = 2.0</code> and <code>ALogP = 1.3</code> , and the HIA polygon boundary at that <code>TPSA</code> is at <code>LogP = 1.5</code>, the molecule would be classified as <strong>high</strong> (inside) with <code>WLOGP</code> but <strong>low</strong> (outside) with <code>AlogP</code>. This boundary effect is the primary source of classification disagreement between modules.</p>
 </section>
+<section id="axis-convention" class="level5">
+<h5 class="anchored" data-anchor-id="axis-convention">Axis convention</h5>
+<p>The plot in ADMETShiny package follow the SwissADME convention: X-axis = TPSA (0 to 200), Y-axis = LogP (-2 to 7). The polygon coordinates are stored in this (TPSA, LogP) = (x,y) format, so no transposition is needed when passing to point_in_polygon or geom_polygon.</p>
+</section>
 <section id="p-glycoprotein-substrate-prediction" class="level5">
 <h5 class="anchored" data-anchor-id="p-glycoprotein-substrate-prediction">P-glycoprotein substrate prediction</h5>
+<p>The Boiled-Egg uses P-gp substrate status only for point colouring (blue=PGP+, red=PGP-), not for GI/BBB classification. Each module obtais P-gp differently:</p>
+<table class="caption-top table">
+<caption>At the case of CDK, the heuristic equation correspond to the follow:</caption>
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Modue</th>
+<th style="text-align: center;">Method</th>
+<th style="text-align: center;">Algorithm</th>
+<th style="text-align: center;">Accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">SwissADME</td>
+<td style="text-align: center;">CSV</td>
+<td style="text-align: center;">SVM</td>
+<td style="text-align: center;">High (Validated)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">ADMETLab 3.0</td>
+<td style="text-align: center;">pgp__sub&gt;0.5</td>
+<td style="text-align: center;">ML model probability threshold</td>
+<td style="text-align: center;">High</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Deep-pK</td>
+<td style="text-align: center;">Text parsing (Substrate/Non-substrate)</td>
+<td style="text-align: center;">DL model interpretation</td>
+<td style="text-align: center;">High</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">CDK &amp; Webchem</td>
+<td style="text-align: center;">Heuristic formula</td>
+<td style="text-align: center;">Literature-based <span class="citation" data-cites="seelig1998">(<a href="#ref-seelig1998" role="doc-biblioref">Seelig 1998a</a>)</span></td>
+<td style="text-align: center;">Medium-Low (approximation)</td>
+</tr>
+</tbody>
+</table>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>Pgp <span class="ot">=</span> Yes <span class="cf">if</span><span class="sc">:</span>     (MW <span class="sc">&gt;</span> <span class="dv">400</span> AND TPSA <span class="sc">&gt;</span> <span class="dv">40</span> <span class="fu">AND</span> (HBA <span class="sc">+</span> HBD) <span class="sc">&gt;=</span> <span class="dv">8</span> AND LogP <span class="sc">&gt;</span> <span class="dv">1</span>)     <span class="fu">OR</span>     (MW <span class="sc">&gt;</span> <span class="dv">500</span> AND LogP <span class="sc">&gt;</span> <span class="dv">4</span> AND TPSA <span class="sc">&gt;</span> <span class="dv">40</span>) <span class="cf">else</span><span class="sc">:</span> Pgp <span class="ot">=</span> No</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This heuristic is more selective than the original Seeling criteria (Which only required MW&gt;400) to avoid classifying nearly all drug-like compounds as P-gp substrates <span class="citation" data-cites="seelig1998a">(<a href="#ref-seelig1998a" role="doc-biblioref">Seelig 1998b</a>)</span>. The additional LogP&gt;1 condition was added because the original criteria produced 80% false positive rate on typical drug-like datasets.</p>
 </section>
 <section id="data-sources-and-computational-backends" class="level4">
 <h4 class="anchored" data-anchor-id="data-sources-and-computational-backends">Data sources and computational backends</h4>
@@ -990,6 +1051,12 @@ Nelson, E. 1961. <span>“Kinetics of drug absorption, distribution, metabolism,
 </div>
 <div id="ref-prasanna2009" class="csl-entry" role="listitem">
 Prasanna, S., and R. J. Doerksen. 2009. <span>“Topological Polar Surface Area: A Useful Descriptor in 2D-QSAR.”</span> <em>Current Medicinal Chemistry</em> 16 (1): 21–41. <a href="https://doi.org/10.2174/092986709787002817">https://doi.org/10.2174/092986709787002817</a>.
+</div>
+<div id="ref-seelig1998" class="csl-entry" role="listitem">
+Seelig, Anna. 1998a. <span>“A General Pattern for Substrate Recognition by p-Glycoprotein.”</span> <em>European Journal of Biochemistry</em> 251 (1-2): 252–61. <a href="https://doi.org/10.1046/j.1432-1327.1998.2510252.x">https://doi.org/10.1046/j.1432-1327.1998.2510252.x</a>.
+</div>
+<div id="ref-seelig1998a" class="csl-entry" role="listitem">
+Seelig, Anna. 1998b. <span>“A General Pattern for Substrate Recognition by p-Glycoprotein.”</span> <em>European Journal of Biochemistry</em> 251 (1-2): 252–61. <a href="https://doi.org/10.1046/j.1432-1327.1998.2510252.x">https://doi.org/10.1046/j.1432-1327.1998.2510252.x</a>.
 </div>
 <div id="ref-veber2002" class="csl-entry" role="listitem">
 Veber, Daniel F., Stephen R. Johnson, Hung-Yuan Cheng, Brian R. Smith, Keith W. Ward, and Kenneth D. Kopple. 2002. <span>“Molecular Properties That Influence the Oral Bioavailability of Drug Candidates.”</span> <em>Journal of Medicinal Chemistry</em> 45 (12): 2615–23. <a href="https://doi.org/10.1021/jm020017n">https://doi.org/10.1021/jm020017n</a>.
