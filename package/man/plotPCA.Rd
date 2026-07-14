@@ -41,3 +41,10 @@ coloured by a grouping variable, with 95\% confidence ellipses, observation
 labels and variable loading arrows. Labels require the suggested package
 \pkg{ggrepel}.
 }
+\examples{
+\dontrun{
+d <- data.frame(MW = c(300, 400, 500), LogP = c(2, 3, 4),
+  TPSA = c(60, 80, 100), group = c("A", "A", "B"))
+plotPCA(d, variables = c("MW", "LogP", "TPSA"), color_by = "group")
+}
+}

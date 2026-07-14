@@ -168,23 +168,32 @@ cdk_tab <- function() {
       tags$hr(),
 
       h3("Step 2: Molecular descriptors"),
+
+      tags$div(
+        class = "alert alert-warning",
+        icon("triangle-exclamation"),
+        tags$b(" Important: "),
+        "The descriptors marked with (*) are required for drug-likeness filtering and BOILED-Egg visualization. ",
+        "It is strongly recommended to include them."
+      ),
+
       fluidRow(
-        column(6,
-               checkboxGroupInput("cdk_descriptors", "Molecular descriptors",
+        column(12,
+               tags$b("Core descriptors (required for filtering)"),
+               checkboxGroupInput("cdk_descriptors_core", "",
                                   choices = c(
-                                    "Molecular weight (MW)"                 = "mw",
-                                    "LogP (ALogP)"                          = "alogp",
-                                    "TPSA"                                  = "tpsa",
-                                    "H bond donors (HBD)"                   = "hbd",
-                                    "H bond acceptors (HBA)"                = "hba",
-                                    "Rotatable bonds"                       = "rotb",
-                                    "Heavy atoms"                           = "heavy",
-                                    "Aromatic heavy atoms"                  = "aroma",
-                                    "Molar refractivity (aprox., AMR)"      = "mr"
+                                    "Molecular weight (MW) *"              = "mw",
+                                    "LogP (ALogP) *"                       = "alogp",
+                                    "TPSA *"                                = "tpsa",
+                                    "H-bond donors (HBD) *"                = "hbd",
+                                    "H-bond acceptors (HBA) *"             = "hba",
+                                    "Rotatable bonds *"                    = "rotb",
+                                    "Heavy atoms *"                        = "heavy",
+                                    "Aromatic heavy atoms *"               = "aroma",
+                                    "Molar refractivity (MR) *"            = "mr"
                                   ),
-                                  selected = c("mw", "alogp", "tpsa", "hbd", "hba", "rotb", "heavy", "aroma", "mr"))
-        ),
-        column(6, br(),
+                                  selected = c("mw", "alogp", "tpsa", "hbd", "hba", "rotb", "heavy", "aroma", "mr")),
+               br(),
                actionButton("calc_cdk", "Calculate molecular descriptors",
                             icon = icon("calculator"), class = "btn-primary")
         )
@@ -267,6 +276,7 @@ cdk_tab <- function() {
                 "Correlation Heatmap",
                 "Principal Component Analysys (PCA - Chemical space)",
                 "t-SNE (Chemical space)",
+                "UMAP (Chemical space)",
                 "Cluster Heatmap (Dendrogram)",
                 "Parallel Coordinates",
                 "Violin Plot"
@@ -340,6 +350,16 @@ cdk_tab <- function() {
                          "Tight clusters represent similar molecules; the distance between groups reflects differences in their profiles."),
                 tags$hr(),
                 uiOutput("cdk_tsne_controls")
+              ),
+
+              conditionalPanel(
+                condition = "input.cdk_plot_type == 'UMAP (Chemical space)'",
+                tags$div(class = "alert-primary", icon("book-open"), tags$b(" Function: "),
+                         "Non-linear dimensionality reduction that preserves both local and global structure of the chemical space."),
+                tags$div(class = "alert-primary", icon("book-open"), tags$b(" Analysis: "),
+                         "Nearby points correspond to molecules with similar physicochemical profiles; well-separated clusters indicate distinct chemical series."),
+                tags$hr(),
+                uiOutput("cdk_umap_controls")
               ),
 
               conditionalPanel(

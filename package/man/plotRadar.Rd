@@ -33,6 +33,16 @@ Compares up to 5 molecules simultaneously on a radar chart using 6 key
 physicochemical properties, normalized 0-1 against the range observed in
 the full dataset. Requires the suggested package \pkg{fmsb}.
 }
+\examples{
+\dontrun{
+d <- data.frame(
+  Name = c("mol1", "mol2"),
+  MW = c(300, 400), LogP = c(2, 3), TPSA = c(60, 90),
+  "#H-bond acceptors" = c(4, 5), "#H-bond donors" = c(2, 1),
+  "#Rotatable bonds" = c(3, 5), check.names = FALSE)
+plotRadar(d, id_col = "Name", ids = c("mol1", "mol2"))
+}
+}
 \references{
 Nakazawa, M. (2019). \emph{fmsb: Functions for Medical
 Statistics Book with some Demographic Data}. R package.

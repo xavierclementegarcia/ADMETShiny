@@ -82,6 +82,7 @@ admetlab_tab <- function() {
                      "Correlation Heatmap",
                      "Principal Component Analysys (PCA - Chemical space)",
                      "t-SNE (Chemical space)",
+                     "UMAP (Chemical space)",
                      "Cluster Heatmap (Dendrogram)",
                      "Parallel Coordinates",
                      "Violin Plot"
@@ -142,6 +143,14 @@ admetlab_tab <- function() {
                                              "Tight clusters represent similar molecules; the distance between groups reflects differences in their profiles."),
                                     tags$hr(),
                                     uiOutput("admetlab_tsne_controls")),
+
+                   conditionalPanel(condition = "input.admetlab_plot_type == 'UMAP (Chemical space)'",
+                                    tags$div(class = "alert-primary", icon("book-open"), tags$b(" Function: "),
+                                             "Non-linear dimensionality reduction that preserves both local and global structure of the chemical space."),
+                                    tags$div(class = "alert-primary", icon("book-open"), tags$b(" Analysis: "),
+                                             "Nearby points correspond to molecules with similar physicochemical profiles; well-separated clusters indicate distinct chemical series."),
+                                    tags$hr(),
+                                    uiOutput("admetlab_umap_controls")),
 
                    conditionalPanel(condition = "input.admetlab_plot_type == 'Cluster Heatmap (Dendrogram)'",
                                     tags$div(class = "alert-primary", icon("book-open"), tags$b(" Function: "),

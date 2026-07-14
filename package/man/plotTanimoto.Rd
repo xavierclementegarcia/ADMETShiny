@@ -35,6 +35,16 @@ similarity matrix and clusters the molecules with AGNES. Requires the
 suggested packages \pkg{rcdk}, \pkg{fingerprint} and \pkg{cluster}, plus a
 working Java JDK (for \pkg{rcdk}).
 }
+\examples{
+\dontrun{
+d <- data.frame(
+  Name = c("ethanol", "aspirin", "benzene", "toluene", "phenol"),
+  SMILES = c("CCO", "CC(=O)Oc1ccccc1C(=O)O", "c1ccccc1",
+            "Cc1ccccc1", "Oc1ccccc1"),
+  stringsAsFactors = FALSE)
+plotTanimoto(d, smiles_col = "SMILES", label_col = "Name")
+}
+}
 \references{
 Willett, P., Barnard, J. M., & Downs, G. M. (1998). Chemical
 similarity searching. \emph{Journal of Chemical Information and Computer

@@ -28,6 +28,13 @@ application's generic \code{LogP} column is used (which may be WLOGP,
 Consensus Log P, ALogP, or the source platform's own LogP). This is an
 acceptable approximation for exploratory visualization.
 }
+\examples{
+\dontrun{
+d <- data.frame(LogP = 2, TPSA = 80, MW = 300,
+  "#H-bond donors" = 2, "#H-bond acceptors" = 4, check.names = FALSE)
+d <- computeADMETProperties(d)
+}
+}
 \references{
 Daina, A., & Zoete, V. (2016). A boiled egg to predict
 gastrointestinal absorption and brain penetration of small molecules.

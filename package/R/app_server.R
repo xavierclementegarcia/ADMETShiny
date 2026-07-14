@@ -206,17 +206,15 @@ app_server <- function(input, output, session) {
     tryCatch({
       d <- read.csv(drugs_file, check.names = FALSE, stringsAsFactors = FALSE)
 
-      ## Auto-detect the SMILES column
-      smiles_col <- NULL
-      candidate_cols <- names(d)[grepl("smiles", names(d), ignore.case = TRUE)]
-      if (length(candidate_cols) > 0) {
-        smiles_col <- candidate_cols[1]
-      } else {
+      ## The drugs.csv file has columns: name, smiles
+      if (!"smiles" %in% tolower(names(d))) {
         showNotification("Error: no 'smiles' column found in example dataset.",
                          type = "error", duration = 10)
         return(NULL)
       }
 
+      ## Find the SMILES column (case-insensitive)
+      smiles_col <- names(d)[tolower(names(d)) == "smiles"][1]
       smiles_raw <- trimws(as.character(d[[smiles_col]]))
       valid <- smiles_raw != "" & !is.na(smiles_raw)
 
@@ -230,8 +228,9 @@ app_server <- function(input, output, session) {
       d$CanonicalSMILES <- smiles_raw[valid]
 
       ## Ensure a 'query' column (use the 'name' column if present)
-      if ("name" %in% names(d)) {
-        d$query <- as.character(d$name)
+      if ("name" %in% tolower(names(d))) {
+        name_col <- names(d)[tolower(names(d)) == "name"][1]
+        d$query <- as.character(d[[name_col]])
       } else if (!"query" %in% names(d)) {
         d$query <- paste0("Molecule_", seq_len(nrow(d)))
       }
@@ -383,52 +382,41 @@ app_server <- function(input, output, session) {
                        type = "error", duration = 10)
       return(NULL)
     }
-    if (length(input$cdk_descriptors) == 0) {
+    if (length(input$cdk_descriptors_core) == 0) {
       showNotification("Error: select at least one descriptor from the list.",
                        type = "error", duration = 10)
       return(NULL)
     }
 
+    all_descriptors <- input$cdk_descriptors_core
+
     cols <- names(smiles_table_rv())
-    smiles_col <- cols[grepl("smiles", cols, ignore.case = TRUE)]
-    if (length(smiles_col) == 0) {
-      showNotification("Error: no SMILES column found in the loaded data.",
-                       type = "error", duration = 10)
-      return(NULL)
+    ## Prefer CanonicalSMILES, then any column containing "smiles"
+    if ("CanonicalSMILES" %in% cols) {
+      smiles_col <- "CanonicalSMILES"
+    } else {
+      smiles_col <- cols[grepl("smiles", cols, ignore.case = TRUE)]
+      if (length(smiles_col) == 0) {
+        showNotification("Error: no SMILES column found in the loaded data.",
+                         type = "error", duration = 10)
+        return(NULL)
+      }
+      smiles_col <- smiles_col[1]
     }
-    smiles_col <- smiles_col[1]
 
     withProgress(message = "Calculating descriptors with CDK...", value = 0.5, {
       tryCatch({
         raw <- calcCDKDescriptors(smiles_table_rv()[[smiles_col]],
-                                  which = input$cdk_descriptors)
+                                  which = all_descriptors)
         mapped <- mapCDKDescriptors(raw)
 
         mapped$TEMP_SMILES <- mapped$SMILES
         mapped$SMILES <- NULL
 
-        ## Use cbind instead of merge to avoid row duplication when
-        ## there are duplicate SMILES in the original data.
-        ## merge() does a database-style join which produces a cartesian
-        ## product when both tables have duplicate keys.
-        ## Since calcCDKDescriptors returns descriptors in the same order
-        ## as the input SMILES (minus unparseable ones), we need to
-        ## match by SMILES but preserve the original row order.
-
-        ## Get the SMILES from the original table
+        ## Use lookup instead of merge to avoid row duplication
         orig_smiles <- as.character(smiles_table_rv()[[smiles_col]])
-
-        ## Match each original SMILES to the CDK results by position
-        ## CDK results are in the order of successfully parsed molecules
-        cdk_smiles <- mapped$TEMP_SMILES
-
-        ## Build a lookup: for each original SMILES, find its CDK result
-        ## by matching the SMILES string. Use the first match to avoid
-        ## duplication (if multiple identical SMILES exist, they get
-        ## the same descriptor values).
         cdk_lookup <- split(mapped, mapped$TEMP_SMILES)
 
-        ## Apply descriptors to each row of the original table
         result_list <- lapply(seq_len(nrow(smiles_table_rv())), function(i) {
           smi <- orig_smiles[i]
           if (!is.na(smi) && smi %in% names(cdk_lookup)) {
@@ -436,7 +424,6 @@ app_server <- function(input, output, session) {
             cdk_row$TEMP_SMILES <- NULL
             cbind(smiles_table_rv()[i, , drop = FALSE], cdk_row)
           } else {
-            ## SMILES not parsed by CDK -- return the row with NA descriptors
             smiles_table_rv()[i, , drop = FALSE]
           }
         })
@@ -573,6 +560,23 @@ app_server <- function(input, output, session) {
     )
   })
 
+  output$cdk_umap_controls <- renderUI({
+    req(cdk_resultado())
+    cols <- names(cdk_resultado())
+    numeric_cols <- cols[sapply(cdk_resultado(), is.numeric)]
+    tagList(
+      selectInput("cdk_umap_variables", "Variables", choices = numeric_cols,
+                  selected = intersect(c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"), numeric_cols),
+                  multiple = TRUE),
+      sliderInput("cdk_umap_n_neighbors", "n_neighbors", min = 2, max = 50, value = 15),
+      sliderInput("cdk_umap_min_dist", "min_dist", min = 0, max = 1, value = 0.1, step = 0.05),
+      selectInput("cdk_umap_color", "Colour by", choices = c("None", cols), selected = "None"),
+      selectInput("cdk_umap_label", "Labels", choices = c("None", cols),
+                  selected = if ("query" %in% cols) "query" else "None"),
+      checkboxInput("cdk_umap_scale", "Scale variables", TRUE)
+    )
+  })
+
   output$cdk_parallel_controls <- renderUI({
     req(cdk_resultado())
     cols <- names(cdk_resultado())
@@ -678,6 +682,15 @@ app_server <- function(input, output, session) {
                                       max_iter = input$cdk_tsne_iter,
                                       scale_data = input$cdk_tsne_scale),
                              input$cdk_palette, cdk_resultado(), input$cdk_tsne_color),
+             "UMAP (Chemical space)" =
+               apply_palette(plotUMAP(data = cdk_resultado(),
+                                      variables = input$cdk_umap_variables,
+                                      color_by = input$cdk_umap_color,
+                                      label_by = input$cdk_umap_label,
+                                      n_neighbors = input$cdk_umap_n_neighbors,
+                                      min_dist = input$cdk_umap_min_dist,
+                                      scale_data = input$cdk_umap_scale),
+                             input$cdk_palette, cdk_resultado(), input$cdk_umap_color),
              "Parallel Coordinates" =
                apply_palette(plotParallel(data = cdk_resultado(),
                                           variables = input$cdk_parallel_variables,
@@ -860,6 +873,24 @@ app_server <- function(input, output, session) {
     )
   })
 
+  output$umap_controls <- renderUI({
+    req(resultado())
+    cols <- names(resultado())
+    numeric_cols <- cols[sapply(resultado(), is.numeric)]
+    default_color <- if ("GI absorption" %in% cols) "GI absorption" else "None"
+    default_label <- if ("Molecule" %in% cols) "Molecule" else "None"
+    tagList(
+      selectInput("umap_variables", "Variables", choices = numeric_cols,
+                  selected = c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"),
+                  multiple = TRUE),
+      sliderInput("umap_n_neighbors", "n_neighbors", min = 2, max = 50, value = 15),
+      sliderInput("umap_min_dist", "min_dist", min = 0, max = 1, value = 0.1, step = 0.05),
+      selectInput("umap_color", "Colour by", choices = c("None", cols), selected = default_color),
+      selectInput("umap_label", "Labels", choices = c("None", cols), selected = default_label),
+      checkboxInput("umap_scale", "Scale variables", TRUE)
+    )
+  })
+
   output$parallel_controls <- renderUI({
     req(resultado())
     cols <- names(resultado())
@@ -941,8 +972,6 @@ app_server <- function(input, output, session) {
     } else {
       switch(pt,
              "Boiled Egg" = {
-               ## Allow user to select which LogP variant to use for BOILED-Egg
-               ## Default is WLOGP (what the model was calibrated with)
                logp_choice <- input$boiled_egg_logp
                if (is.null(logp_choice) || logp_choice == "") logp_choice <- "LogP"
                data_be <- resultado()
@@ -966,6 +995,12 @@ app_server <- function(input, output, session) {
                                       perplexity = input$tsne_perplexity, max_iter = input$tsne_iter,
                                       scale_data = input$tsne_scale),
                              input$swiss_palette, resultado(), input$tsne_color),
+             "UMAP (Chemical space)" =
+               apply_palette(plotUMAP(data = resultado(), variables = input$umap_variables,
+                                      color_by = input$umap_color, label_by = input$umap_label,
+                                      n_neighbors = input$umap_n_neighbors,
+                                      min_dist = input$umap_min_dist, scale_data = input$umap_scale),
+                             input$swiss_palette, resultado(), input$umap_color),
              "Parallel Coordinates" =
                apply_palette(plotParallel(data = resultado(), variables = input$parallel_variables,
                                           color_by = input$parallel_color, scale_data = input$parallel_scale),
@@ -1131,6 +1166,22 @@ app_server <- function(input, output, session) {
     )
   })
 
+  output$admetlab_umap_controls <- renderUI({
+    req(admetlab_resultado())
+    cols <- names(admetlab_resultado())
+    numeric_cols <- cols[sapply(admetlab_resultado(), is.numeric)]
+    tagList(
+      selectInput("admetlab_umap_variables", "Variables", choices = numeric_cols,
+                  selected = intersect(c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"), numeric_cols),
+                  multiple = TRUE),
+      sliderInput("admetlab_umap_n_neighbors", "n_neighbors", min = 2, max = 50, value = 15),
+      sliderInput("admetlab_umap_min_dist", "min_dist", min = 0, max = 1, value = 0.1, step = 0.05),
+      selectInput("admetlab_umap_color", "Colour by", choices = c("None", cols), selected = "None"),
+      selectInput("admetlab_umap_label", "Labels", choices = c("None", cols), selected = "None"),
+      checkboxInput("admetlab_umap_scale", "Scale", TRUE)
+    )
+  })
+
   output$admetlab_parallel_controls <- renderUI({
     req(admetlab_resultado())
     cols <- names(admetlab_resultado())
@@ -1227,6 +1278,13 @@ app_server <- function(input, output, session) {
                                       perplexity = input$admetlab_tsne_perplexity, max_iter = input$admetlab_tsne_iter,
                                       scale_data = input$admetlab_tsne_scale),
                              input$admetlab_palette, admetlab_resultado(), input$admetlab_tsne_color),
+             "UMAP (Chemical space)" =
+               apply_palette(plotUMAP(data = admetlab_resultado(), variables = input$admetlab_umap_variables,
+                                      color_by = input$admetlab_umap_color, label_by = input$admetlab_umap_label,
+                                      n_neighbors = input$admetlab_umap_n_neighbors,
+                                      min_dist = input$admetlab_umap_min_dist,
+                                      scale_data = input$admetlab_umap_scale),
+                             input$admetlab_palette, admetlab_resultado(), input$admetlab_umap_color),
              "Parallel Coordinates" =
                apply_palette(plotParallel(data = admetlab_resultado(), variables = input$admetlab_parallel_variables,
                                           color_by = input$admetlab_parallel_color, scale_data = input$admetlab_parallel_scale),
@@ -1389,6 +1447,22 @@ app_server <- function(input, output, session) {
     )
   })
 
+  output$deeppk_umap_controls <- renderUI({
+    req(deeppk_resultado())
+    cols <- names(deeppk_resultado())
+    num_cols <- cols[sapply(deeppk_resultado(), is.numeric)]
+    tagList(
+      selectInput("deeppk_umap_variables", "Variables", choices = num_cols,
+                  selected = intersect(c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"), num_cols),
+                  multiple = TRUE),
+      sliderInput("deeppk_umap_n_neighbors", "n_neighbors", min = 2, max = 50, value = 15),
+      sliderInput("deeppk_umap_min_dist", "min_dist", min = 0, max = 1, value = 0.1, step = 0.05),
+      selectInput("deeppk_umap_color", "Colour", choices = c("None", cols), selected = "None"),
+      selectInput("deeppk_umap_label", "Labels", choices = c("None", cols), selected = "None"),
+      checkboxInput("deeppk_umap_scale", "Scale", TRUE)
+    )
+  })
+
   output$deeppk_parallel_controls <- renderUI({
     req(deeppk_resultado())
     cols <- names(deeppk_resultado())
@@ -1485,6 +1559,13 @@ app_server <- function(input, output, session) {
                                       perplexity = input$deeppk_tsne_perplexity, max_iter = input$deeppk_tsne_iter,
                                       scale_data = input$deeppk_tsne_scale),
                              input$deeppk_palette, deeppk_resultado(), input$deeppk_tsne_color),
+             "UMAP (Chemical space)" =
+               apply_palette(plotUMAP(data = deeppk_resultado(), variables = input$deeppk_umap_variables,
+                                      color_by = input$deeppk_umap_color, label_by = input$deeppk_umap_label,
+                                      n_neighbors = input$deeppk_umap_n_neighbors,
+                                      min_dist = input$deeppk_umap_min_dist,
+                                      scale_data = input$deeppk_umap_scale),
+                             input$deeppk_palette, deeppk_resultado(), input$deeppk_umap_color),
              "Parallel Coordinates" =
                apply_palette(plotParallel(data = deeppk_resultado(), variables = input$deeppk_parallel_variables,
                                           color_by = input$deeppk_parallel_color, scale_data = input$deeppk_parallel_scale),

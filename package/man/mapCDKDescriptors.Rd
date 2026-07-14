@@ -25,6 +25,13 @@ column. No artificial \code{MLOGP}/\code{WLOGP}/\code{XLOGP3} columns are
 created; the application uses a single \code{LogP} column for all
 drug-likeness filters, with thresholds from the original publications.
 }
+\examples{
+\dontrun{
+smiles <- c("CCO", "CC(=O)Oc1ccccc1C(=O)O")
+desc <- calcCDKDescriptors(smiles)
+mapped <- mapCDKDescriptors(desc)
+}
+}
 \seealso{
 \code{\link{calcCDKDescriptors}},
 \code{\link{computeViolationColumns}}, \code{\link{computeADMETProperties}}.

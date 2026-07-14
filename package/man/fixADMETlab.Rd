@@ -29,6 +29,12 @@ The source's \code{logP} column is mapped to the generic \code{LogP}
 column. No artificial \code{MLOGP}/\code{WLOGP}/\code{XLOGP3} columns are
 created.
 }
+\examples{
+\dontrun{
+d <- read.csv("admetlab.csv", check.names = FALSE)
+d <- fixADMETlab(d)
+}
+}
 \seealso{
 \code{\link{fixSwissADME}}, \code{\link{fixDeepPK}},
 \code{\link{computeViolationColumns}}, \code{\link{calcCDKDescriptors}}.

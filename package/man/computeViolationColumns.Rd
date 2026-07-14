@@ -32,6 +32,14 @@ The Veber violation is binary: a compound violates if it has more than 10
 rotatable bonds OR if both polarity conditions fail (TPSA > 140 AND
 HBA + HBD > 12).
 }
+\examples{
+\dontrun{
+d <- data.frame(MW = 300, LogP = 2, TPSA = 80, MR = 90,
+  "#H-bond acceptors" = 4, "#H-bond donors" = 2,
+  "#Rotatable bonds" = 3, "#Heavy atoms" = 22, check.names = FALSE)
+d <- computeViolationColumns(d)
+}
+}
 \seealso{
 \code{\link{lipinskiFilter}}, \code{\link{ghoseFilter}},
 \code{\link{veberFilter}}, \code{\link{eganFilter}},

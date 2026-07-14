@@ -14,7 +14,8 @@ calcCDKDescriptors(
 
 \item{which}{Character vector of descriptor short names. Any subset of
 \code{c("mw", "alogp", "tpsa", "hbd", "hba", "rotb", "heavy", "aroma",
-"mr")}. By default all are calculated.}
+"mr")}.
+By default all are calculated.}
 }
 \value{
 A data.frame with one row per valid molecule and a \code{SMILES}
@@ -25,6 +26,12 @@ Parses SMILES strings and calculates the requested molecular descriptors
 locally using the Chemistry Development Kit (CDK) through the suggested
 package \pkg{rcdk}. Requires a working Java JDK (a JRE alone is not
 sufficient).
+}
+\examples{
+\dontrun{
+smiles <- c("CCO", "CC(=O)Oc1ccccc1C(=O)O")
+desc <- calcCDKDescriptors(smiles)
+}
 }
 \seealso{
 \code{\link{mapCDKDescriptors}}, \code{\link{getSmilesFromIdentifiers}}.

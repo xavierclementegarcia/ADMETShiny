@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------------------
 # plots.R
 # Plotting functions: BOILED-Egg, descriptor histograms, correlation heatmap,
-# radar chart, Tanimoto/AGNES clustering, PCA, t-SNE, parallel coordinates
-# and violin plot.
+# radar chart, Tanimoto/AGNES clustering, PCA, t-SNE, UMAP, parallel
+# coordinates and violin plot.
 # ---------------------------------------------------------------------------
 
 ## --------------------------- BOILED-Egg (official polygons) ---------------
@@ -141,6 +141,11 @@ plotBoiledEgg <- function(data) {
 #'
 #' @param data A data.frame containing a numeric \code{MW} column.
 #' @return A \pkg{ggplot2} object.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(MW = c(300, 400, 500))
+#' plotMW(d)
+#' }
 #' @export
 plotMW <- function(data) {
   ggplot(data, aes(x = MW)) +
@@ -154,6 +159,11 @@ plotMW <- function(data) {
 #'
 #' @param data A data.frame containing a numeric \code{TPSA} column.
 #' @return A \pkg{ggplot2} object.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(TPSA = c(40, 80, 120))
+#' plotTPSA(d)
+#' }
 #' @export
 plotTPSA <- function(data) {
   ggplot(data, aes(x = TPSA)) +
@@ -167,6 +177,11 @@ plotTPSA <- function(data) {
 #'
 #' @param data A data.frame containing a numeric \code{LogP} column.
 #' @return A \pkg{ggplot2} object.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(LogP = c(1, 2, 3))
+#' plotLogP(d)
+#' }
 #' @export
 plotLogP <- function(data) {
   ggplot(data, aes(x = LogP)) +
@@ -196,6 +211,15 @@ plotLogP <- function(data) {
 #'   #Rotatable bonds}.
 #' @return Invisibly \code{NULL}; called for the side-effect of drawing the
 #'   radar chart on the current graphics device.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(
+#'   Name = c("mol1", "mol2"),
+#'   MW = c(300, 400), LogP = c(2, 3), TPSA = c(60, 90),
+#'   "#H-bond acceptors" = c(4, 5), "#H-bond donors" = c(2, 1),
+#'   "#Rotatable bonds" = c(3, 5), check.names = FALSE)
+#' plotRadar(d, id_col = "Name", ids = c("mol1", "mol2"))
+#' }
 #' @export
 #' @references Nakazawa, M. (2019). \emph{fmsb: Functions for Medical
 #'   Statistics Book with some Demographic Data}. R package.
@@ -294,6 +318,15 @@ plotRadar <- function(data, id_col, ids, props = c(
 #'   \code{"complete"}, \code{"single"}, \code{"ward"}. Default
 #'   \code{"average"}.
 #' @return Invisibly the Tanimoto similarity matrix.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(
+#'   Name = c("ethanol", "aspirin", "benzene", "toluene", "phenol"),
+#'   SMILES = c("CCO", "CC(=O)Oc1ccccc1C(=O)O", "c1ccccc1",
+#'             "Cc1ccccc1", "Oc1ccccc1"),
+#'   stringsAsFactors = FALSE)
+#' plotTanimoto(d, smiles_col = "SMILES", label_col = "Name")
+#' }
 #' @export
 #' @references Willett, P., Barnard, J. M., & Downs, G. M. (1998). Chemical
 #'   similarity searching. \emph{Journal of Chemical Information and Computer
@@ -383,6 +416,12 @@ plotTanimoto <- function(data, smiles_col, label_col = NULL,
 #' @param props Character vector of property column names. Defaults to a set
 #'   of common descriptors.
 #' @return A \pkg{ggplot2} object.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(MW = c(300, 400, 500), LogP = c(2, 3, 4),
+#'   TPSA = c(60, 80, 100))
+#' plotCorrHeatmap(d)
+#' }
 #' @export
 plotCorrHeatmap <- function(data, props = c(
   "MW", "LogP", "TPSA", "MR",
@@ -458,6 +497,12 @@ plotCorrHeatmap <- function(data, props = c(
 #' @param ellipse Logical. Whether to draw 95% confidence ellipses per group.
 #'   Default \code{TRUE}.
 #' @return A \pkg{ggplot2} object.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(MW = c(300, 400, 500), LogP = c(2, 3, 4),
+#'   TPSA = c(60, 80, 100), group = c("A", "A", "B"))
+#' plotPCA(d, variables = c("MW", "LogP", "TPSA"), color_by = "group")
+#' }
 #' @export
 plotPCA <- function(data, variables = NULL, color_by = "None",
                     label_by = "None", scale_data = TRUE, ellipse = TRUE) {
@@ -636,6 +681,12 @@ plotPCA <- function(data, variables = NULL, color_by = "None",
 #' @param max_iter Integer. Number of iterations. Default 1000.
 #' @param scale_data Logical. Whether to scale variables. Default \code{TRUE}.
 #' @return A \pkg{ggplot2} object.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(MW = c(300, 400, 500), LogP = c(2, 3, 4),
+#'   TPSA = c(60, 80, 100), group = c("A", "A", "B"))
+#' plotTSNE(d, variables = c("MW", "LogP", "TPSA"), color_by = "group")
+#' }
 #' @export
 plotTSNE <- function(data, variables, color_by = "None", label_by = "None",
                      perplexity = 30, max_iter = 1000, scale_data = TRUE) {
@@ -727,6 +778,123 @@ plotTSNE <- function(data, variables, color_by = "None", label_by = "None",
     theme_classic(base_size = 13)
 }
 
+## --------------------------- UMAP ----------------------------------------
+
+#' UMAP chemical space plot
+#'
+#' Produces a 2D UMAP projection of the selected numeric variables for
+#' exploratory analysis of the chemical space. Points can be coloured and
+#' labelled. Requires the suggested packages \pkg{uwot} and \pkg{ggrepel}.
+#'
+#' @param data A data.frame with numeric property columns.
+#' @param variables Character vector of numeric column names to use.
+#' @param color_by Character. Column to colour points by, or \code{"None"}.
+#' @param label_by Character. Column to use as labels, or \code{"None"}.
+#' @param n_neighbors Integer. Number of nearest neighbours used by UMAP.
+#'   Default 15.
+#' @param min_dist Numeric. Minimum distance between points in the embedding.
+#'   Default 0.1.
+#' @param scale_data Logical. Whether to scale variables. Default \code{TRUE}.
+#' @return A \pkg{ggplot2} object.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(MW = c(300, 400, 500), LogP = c(2, 3, 4),
+#'   TPSA = c(60, 80, 100), group = c("A", "A", "B"))
+#' plotUMAP(d, variables = c("MW", "LogP", "TPSA"), color_by = "group")
+#' }
+#' @export
+plotUMAP <- function(data, variables, color_by = "None", label_by = "None",
+                     n_neighbors = 15, min_dist = 0.1, scale_data = TRUE) {
+
+  if (!requireNamespace("uwot", quietly = TRUE)) {
+    stop("Install the 'uwot' package: install.packages('uwot')",
+         call. = FALSE)
+  }
+  if (!requireNamespace("ggrepel", quietly = TRUE)) {
+    stop("Install the 'ggrepel' package: install.packages('ggrepel')",
+         call. = FALSE)
+  }
+
+  if (is.null(variables) || length(variables) < 2) {
+    stop("Select at least 2 variables for UMAP.", call. = FALSE)
+  }
+
+  keep <- complete.cases(data[, variables, drop = FALSE])
+  X <- data[keep, variables, drop = FALSE]
+  original <- data[keep, , drop = FALSE]
+
+  if (nrow(X) < 4) {
+    stop("At least 4 observations are required for UMAP.", call. = FALSE)
+  }
+
+  X <- as.data.frame(lapply(X, function(x) as.numeric(as.character(x))))
+  keep2 <- complete.cases(X)
+  X <- X[keep2, , drop = FALSE]
+  original <- original[keep2, , drop = FALSE]
+
+  if (nrow(X) < 4) {
+    stop("After cleaning NAs there are not enough observations.",
+         call. = FALSE)
+  }
+
+  ## Remove zero-variance columns -- scale() produces NaN for these
+  col_vars <- sapply(X, var, na.rm = TRUE)
+  zero_var_cols <- names(X)[is.na(col_vars) | col_vars == 0]
+  if (length(zero_var_cols) > 0) {
+    X <- X[, !(names(X) %in% zero_var_cols), drop = FALSE]
+  }
+  if (ncol(X) < 2) {
+    stop("After removing zero-variance columns, fewer than 2 variables remain.",
+         call. = FALSE)
+  }
+
+  if (scale_data) {
+    X <- scale(X)
+    ## Replace any NaN/Inf produced by scaling
+    X[is.nan(X) | is.infinite(X)] <- 0
+  }
+
+  ## Clamp n_neighbors to the valid range for uwot::umap
+  n_obs <- nrow(X)
+  n_neighbors <- as.integer(min(max(n_neighbors, 2), n_obs - 1))
+  if (n_neighbors < 2) {
+    stop("n_neighbors is too small for the number of observations.",
+         call. = FALSE)
+  }
+
+  ## uwot::umap returns a matrix with `n_components` columns
+  set.seed(42)
+  emb <- uwot::umap(
+    X, n_neighbors = n_neighbors, min_dist = min_dist,
+    n_components = 2, init = "spectral", verbose = FALSE
+  )
+
+  plot_df <- data.frame(UMAP1 = emb[, 1], UMAP2 = emb[, 2])
+
+  if (!is.null(color_by) && !is.na(color_by) && color_by != "None" &&
+      color_by %in% names(original)) {
+    plot_df$Color <- original[[color_by]]
+  }
+  if (!is.null(label_by) && !is.na(label_by) && label_by != "None" &&
+      label_by %in% names(original)) {
+    plot_df$Label <- original[[label_by]]
+  }
+
+  p <- ggplot(plot_df, aes(UMAP1, UMAP2)) + geom_point(size = 3)
+
+  if ("Color" %in% names(plot_df)) {
+    p <- p + aes(color = Color)
+  }
+  if ("Label" %in% names(plot_df)) {
+    p <- p + ggrepel::geom_text_repel(
+      aes(label = Label), size = 3, max.overlaps = Inf
+    )
+  }
+
+  p + labs(title = "UMAP Chemical Space", x = "UMAP 1", y = "UMAP 2") +
+    theme_classic(base_size = 13)
+}
+
 ## --------------------------- Parallel coordinates -------------------------
 
 #' Parallel coordinates plot
@@ -742,6 +910,12 @@ plotTSNE <- function(data, variables, color_by = "None", label_by = "None",
 #' @param scale_data Logical. Whether to standardize variables. Default
 #'   \code{TRUE}.
 #' @return A \pkg{ggplot2} object.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(MW = c(300, 400, 500), LogP = c(2, 3, 4),
+#'   TPSA = c(60, 80, 100), group = c("A", "A", "B"))
+#' plotParallel(d, variables = c("MW", "LogP", "TPSA"), color_by = "group")
+#' }
 #' @export
 plotParallel <- function(data, variables, color_by = NULL,
                          scale_data = TRUE) {
@@ -819,6 +993,12 @@ plotParallel <- function(data, variables, color_by = NULL,
 #' @param show_points Logical. Whether to overlay jittered points. Default
 #'   \code{FALSE}.
 #' @return A \pkg{ggplot2} object.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(MW = c(300, 400, 500),
+#'   group = c("A", "A", "B"))
+#' plotViolin(d, variable = "MW", group_by = "group")
+#' }
 #' @export
 plotViolin <- function(data, variable, group_by,
                        show_box = TRUE, show_points = FALSE) {

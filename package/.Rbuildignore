@@ -9,3 +9,5 @@
 ^hexicon_source$
 ^\.travis\.yml$
 ^appveyor\.yml$
+^worklog\.md$
+^admetshiny_technical_reference\.docx$

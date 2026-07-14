@@ -34,9 +34,11 @@ Imports:
     stats
 Suggests:
     rcdk,
+    rJava,
     webchem,
     fmsb,
     Rtsne,
+    uwot,
     ggrepel,
     fingerprint,
     cluster,

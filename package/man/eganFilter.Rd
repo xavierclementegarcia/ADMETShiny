@@ -23,6 +23,13 @@ thresholds.
 Filters compounds according to the Egan rule (Egan et al., 2000) based on
 TPSA and LogP.
 }
+\examples{
+\dontrun{
+d <- data.frame(TPSA = 80, LogP = 2, "Egan #violations" = 0,
+  check.names = FALSE)
+eganFilter(d)
+}
+}
 \references{
 Egan, W. J., Merz, K. M., & Baldwin, J. J. (2000). Prediction
 of drug absorption using multivariate statistics. \emph{Journal of

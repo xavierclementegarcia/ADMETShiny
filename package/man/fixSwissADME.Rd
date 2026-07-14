@@ -21,6 +21,12 @@ strings to \code{NA}, and creates a generic \code{LogP} column from
 drug-likeness filters and plots work with a single lipophilicity column
 across all data sources.
 }
+\examples{
+\dontrun{
+d <- read.csv("swissadme.csv", check.names = FALSE)
+d <- fixSwissADME(d)
+}
+}
 \seealso{
 \code{\link{fixADMETlab}}, \code{\link{fixDeepPK}},
 \code{\link{applyFilters}}.

@@ -77,6 +77,12 @@
 #' @param violations Integer. Maximum tolerated Lipinski violations. Default 0.
 #' @return A data.frame with the rows of \code{data} that satisfy all
 #'   thresholds.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(MW = 300, LogP = 2, "#H-bond acceptors" = 4,
+#'   "#H-bond donors" = 2, "Lipinski #violations" = 0, check.names = FALSE)
+#' lipinskiFilter(d)
+#' }
 #' @export
 #' @references Lipinski, C. A., Lombardo, F., Dominy, B. W., & Feeney, P. J.
 #'   (1997). Experimental and computational approaches to estimate solubility
@@ -128,6 +134,12 @@ lipinskiFilter <- function(
 #' @param violations Integer. Maximum tolerated Ghose violations. Default 0.
 #' @return A data.frame with the rows of \code{data} that satisfy all
 #'   thresholds.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(MW = 300, MR = 90, LogP = 2, "#Heavy atoms" = 22,
+#'   "Ghose #violations" = 0, check.names = FALSE)
+#' ghoseFilter(d)
+#' }
 #' @export
 #' @references Ghose, A. K., Viswanadhan, V. N., & Wendoloski, J. J. (1999).
 #'   A knowledge-based approach in designing combinatorial or medicinal
@@ -175,6 +187,12 @@ ghoseFilter <- function(
 #' @param violations Integer. Maximum tolerated Egan violations. Default 0.
 #' @return A data.frame with the rows of \code{data} that satisfy all
 #'   thresholds.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(TPSA = 80, LogP = 2, "Egan #violations" = 0,
+#'   check.names = FALSE)
+#' eganFilter(d)
+#' }
 #' @export
 #' @references Egan, W. J., Merz, K. M., & Baldwin, J. J. (2000). Prediction
 #'   of drug absorption using multivariate statistics. \emph{Journal of
@@ -200,8 +218,8 @@ eganFilter <- function(
 ## Muegge et al., 2001: MW 200-600 | LogP -2 to 5 | TPSA <= 150 |
 ##   HBA <= 10 | HBD <= 5 | rotatable bonds <= 15.
 ## Note: the original Muegge rule also includes "pharmacophore points >= 4"
-## (HBA + HBD + rings + cations + anions), but this is not directly available
-## from SwissADME/ADMETlab/Deep-PK/CDK data. The aromatic heavy atoms
+## (HBA + HBD + rings), but rings are not directly available from
+## SwissADME/ADMETlab/Deep-PK/CDK data. The aromatic heavy atoms
 ## criterion was removed because it is NOT part of the original Muegge rule
 ## and the threshold of <= 7 is far too restrictive (a single benzene ring
 ## has 6 aromatic heavy atoms; two rings have 10-12).
@@ -223,6 +241,13 @@ eganFilter <- function(
 #' @param violations Integer. Maximum tolerated Muegge violations. Default 0.
 #' @return A data.frame with the rows of \code{data} that satisfy all
 #'   thresholds.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(MW = 300, LogP = 2, TPSA = 80,
+#'   "#H-bond acceptors" = 4, "#H-bond donors" = 2,
+#'   "#Rotatable bonds" = 3, "Muegge #violations" = 0, check.names = FALSE)
+#' mueggeFilter(d)
+#' }
 #' @export
 #' @references Muegge, I., Heald, S. L., & Brittelli, D. (2001). Simple
 #'   selection criteria for drug-like chemical matter. \emph{Journal of
@@ -276,6 +301,13 @@ mueggeFilter <- function(
 #' @param violations Integer. Maximum tolerated Veber violations. Default 0.
 #' @return A data.frame with the rows of \code{data} that satisfy all
 #'   thresholds.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(TPSA = 80, "#Rotatable bonds" = 3,
+#'   "#H-bond acceptors" = 4, "#H-bond donors" = 2,
+#'   "Veber #violations" = 0, check.names = FALSE)
+#' veberFilter(d)
+#' }
 #' @export
 #' @references Veber, D. F., Johnson, S. R., Cheng, H. Y., Smith, B. R.,
 #'   Ward, K. W., & Kopple, K. D. (2002). Molecular properties that influence
@@ -320,6 +352,16 @@ veberFilter <- function(
 #'   to the corresponding filter function.
 #' @return A data.frame with the rows of \code{data} that pass every selected
 #'   filter.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(MW = 300, LogP = 2, TPSA = 80, MR = 90,
+#'   "#Heavy atoms" = 22, "#Rotatable bonds" = 3,
+#'   "#H-bond acceptors" = 4, "#H-bond donors" = 2,
+#'   "Lipinski #violations" = 0, "Ghose #violations" = 0,
+#'   "Veber #violations" = 0, "Egan #violations" = 0,
+#'   "Muegge #violations" = 0, check.names = FALSE)
+#' applyFilters(d, filters = c("Lipinski", "Veber", "Egan"))
+#' }
 #' @export
 #' @seealso \code{\link{lipinskiFilter}}, \code{\link{veberFilter}},
 #'   \code{\link{ghoseFilter}}, \code{\link{eganFilter}},

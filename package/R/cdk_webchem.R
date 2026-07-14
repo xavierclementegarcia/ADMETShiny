@@ -18,6 +18,11 @@
 #' @return A data.frame with columns \code{query}, \code{cid},
 #'   \code{CanonicalSMILES}, \code{IsomericSMILES}, \code{MolecularFormula},
 #'   \code{IUPACName}.
+#' @examples
+#' \dontrun{
+#' ids <- c("aspirin", "ibuprofen")
+#' smiles <- getSmilesFromIdentifiers(ids, from = "name")
+#' }
 #' @export
 #' @seealso \code{\link{calcCDKDescriptors}}.
 getSmilesFromIdentifiers <- function(ids, from = "name") {
@@ -69,9 +74,15 @@ getSmilesFromIdentifiers <- function(ids, from = "name") {
 #' @param smiles Character vector of SMILES strings.
 #' @param which Character vector of descriptor short names. Any subset of
 #'   \code{c("mw", "alogp", "tpsa", "hbd", "hba", "rotb", "heavy", "aroma",
-#'   "mr")}. By default all are calculated.
+#'   "mr")}.
+#'   By default all are calculated.
 #' @return A data.frame with one row per valid molecule and a \code{SMILES}
 #'   column.
+#' @examples
+#' \dontrun{
+#' smiles <- c("CCO", "CC(=O)Oc1ccccc1C(=O)O")
+#' desc <- calcCDKDescriptors(smiles)
+#' }
 #' @export
 #' @seealso \code{\link{mapCDKDescriptors}}, \code{\link{getSmilesFromIdentifiers}}.
 calcCDKDescriptors <- function(smiles, which = c(
@@ -87,7 +98,8 @@ calcCDKDescriptors <- function(smiles, which = c(
     "mw", "alogp", "tpsa", "hbd", "hba", "rotb", "heavy", "aroma", "mr"
   ), several.ok = TRUE)
 
-  desc_classes <- c(
+  ## Core descriptors: use CDK eval.desc with KNOWN working Java classes
+  core_classes <- c(
     mw    = "org.openscience.cdk.qsar.descriptors.molecular.WeightDescriptor",
     alogp = "org.openscience.cdk.qsar.descriptors.molecular.ALOGPDescriptor",
     mr    = "org.openscience.cdk.qsar.descriptors.molecular.ALOGPDescriptor",
@@ -99,29 +111,26 @@ calcCDKDescriptors <- function(smiles, which = c(
     aroma = "org.openscience.cdk.qsar.descriptors.molecular.AromaticAtomsCountDescriptor"
   )
 
-  classes <- unique(desc_classes[intersect(which, names(desc_classes))])
-  if (length(classes) == 0) {
+  core_which <- intersect(which, names(core_classes))
+
+  if (length(core_which) == 0) {
     stop("No valid descriptor was selected.", call. = FALSE)
   }
 
   smiles_chr <- trimws(as.character(smiles))
-
-  ## Remove NA and empty SMILES before parsing
   valid_idx <- !is.na(smiles_chr) & nzchar(smiles_chr)
   smiles_valid <- smiles_chr[valid_idx]
-
   if (length(smiles_valid) == 0) {
     stop("No valid SMILES strings provided.", call. = FALSE)
   }
 
   mols <- rcdk::parse.smiles(smiles_valid)
-
   ok <- !vapply(mols, is.null, logical(1))
   if (!any(ok)) {
     stop("No SMILES could be interpreted by CDK.", call. = FALSE)
   }
 
-  ## Mandatory molecule configuration (modern rcdk API)
+  ## Mandatory molecule configuration
   invisible(lapply(mols[ok], function(m) {
     tryCatch({
       rcdk::convert.implicit.to.explicit(m)
@@ -132,14 +141,11 @@ calcCDKDescriptors <- function(smiles, which = c(
     })
   }))
 
+  ## Core descriptors via eval.desc
+  classes <- unique(core_classes[core_which])
   desc_df <- rcdk::eval.desc(mols[ok], classes)
 
-  ## The ALOGPDescriptor returns 3 columns: ALogP, ALogP2, AMR.
-  ## ALogP is the Ghose-Crippen LogP (the one we want for "LogP").
-  ## ALogP2 is a second LogP model (not used).
-  ## AMR is the Approximate Molar Refractivity (used for "MR").
-  ## If alogp or mr was requested but the columns don't exist with the
-  ## expected names, try to find them by partial match.
+  ## Fix ALOGPDescriptor column names
   if ("alogp" %in% which && !"ALogP" %in% names(desc_df)) {
     alogp_col <- grep("alogp", names(desc_df), ignore.case = TRUE, value = TRUE)
     if (length(alogp_col) > 0) names(desc_df)[names(desc_df) == alogp_col[1]] <- "ALogP"
@@ -149,9 +155,7 @@ calcCDKDescriptors <- function(smiles, which = c(
     if (length(amr_col) > 0) names(desc_df)[names(desc_df) == amr_col[1]] <- "AMR"
   }
 
-  ## Add SMILES column -- only for molecules that were successfully parsed
   desc_df$SMILES <- smiles_valid[ok]
-
   rownames(desc_df) <- NULL
   desc_df
 }
@@ -173,6 +177,12 @@ calcCDKDescriptors <- function(smiles, which = c(
 #' @param cdk_df A data.frame as returned by \code{\link{calcCDKDescriptors}}.
 #' @return A data.frame with renamed columns, violation columns and ADMET
 #'   properties.
+#' @examples
+#' \dontrun{
+#' smiles <- c("CCO", "CC(=O)Oc1ccccc1C(=O)O")
+#' desc <- calcCDKDescriptors(smiles)
+#' mapped <- mapCDKDescriptors(desc)
+#' }
 #' @export
 #' @seealso \code{\link{calcCDKDescriptors}},
 #'   \code{\link{computeViolationColumns}}, \code{\link{computeADMETProperties}}.
@@ -226,6 +236,13 @@ mapCDKDescriptors <- function(cdk_df) {
 #'
 #' @param data A data.frame with physicochemical property columns.
 #' @return A data.frame with the added violation columns.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(MW = 300, LogP = 2, TPSA = 80, MR = 90,
+#'   "#H-bond acceptors" = 4, "#H-bond donors" = 2,
+#'   "#Rotatable bonds" = 3, "#Heavy atoms" = 22, check.names = FALSE)
+#' d <- computeViolationColumns(d)
+#' }
 #' @export
 #' @seealso \code{\link{lipinskiFilter}}, \code{\link{ghoseFilter}},
 #'   \code{\link{veberFilter}}, \code{\link{eganFilter}},
@@ -248,8 +265,6 @@ computeViolationColumns <- function(data) {
   hbd   <- safe_get("#H-bond donors")
   rb    <- safe_get("#Rotatable bonds")
   ha    <- safe_get("#Heavy atoms")
-  ## Note: #Aromatic heavy atoms is no longer used by any filter (it was
-  ## incorrectly used in the Muegge filter before; see mueggeFilter docs).
 
   ## Lipinski (1997): MW > 500, LogP > 5, HBA > 10, HBD > 5
   data[["Lipinski #violations"]] <-
@@ -270,14 +285,14 @@ computeViolationColumns <- function(data) {
     (tpsa > 131.6) + (logp > 5.88)
 
   ## Muegge (2001): MW 200-600, LogP -2 to 5, HBA > 10, HBD > 5,
-  ##   RB > 15, TPSA > 150.
-  ## Note: the original Muegge rule also includes "pharmacophore points >= 4",
-  ## but this is not available from the standard column schema. The aromatic
-  ## heavy atoms criterion was removed because it is not part of the original
-  ## rule and is far too restrictive.
+  ##   RB > 15, TPSA > 150, pharmacophore points < 4.
+  ## Pharmacophore points are approximated as HBA + HBD.
+  pharma_points <- hba + hbd
+  pharma_violation <- as.integer(pharma_points < 4)
+
   data[["Muegge #violations"]] <-
     (mw < 200 | mw > 600) + (logp < -2 | logp > 5) + (hba > 10) +
-    (hbd > 5) + (rb > 15) + (tpsa > 150)
+    (hbd > 5) + (rb > 15) + (tpsa > 150) + pharma_violation
 
   data
 }
@@ -302,6 +317,12 @@ computeViolationColumns <- function(data) {
 #' @param data A data.frame with \code{LogP}, \code{TPSA}, \code{MW},
 #'   \code{#H-bond donors} and \code{#H-bond acceptors} columns.
 #' @return A data.frame with the added ADMET property columns.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(LogP = 2, TPSA = 80, MW = 300,
+#'   "#H-bond donors" = 2, "#H-bond acceptors" = 4, check.names = FALSE)
+#' d <- computeADMETProperties(d)
+#' }
 #' @export
 #' @references Daina, A., & Zoete, V. (2016). A boiled egg to predict
 #'   gastrointestinal absorption and brain penetration of small molecules.

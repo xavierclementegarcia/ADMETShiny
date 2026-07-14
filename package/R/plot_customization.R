@@ -10,6 +10,11 @@
 #'
 #' @param id Character. Input id to use for the select input.
 #' @return A \code{shiny.tag} (select input).
+#' @examples
+#' \dontrun{
+#' library(shiny)
+#' palette_selector_ui("my_palette")
+#' }
 #' @export
 palette_selector_ui <- function(id) {
   selectInput(
@@ -42,6 +47,13 @@ palette_selector_ui <- function(id) {
 #' @param color_col Character. Name of the column used for colouring, or
 #'   \code{"None"}.
 #' @return A ggplot object (possibly modified).
+#' @examples
+#' \dontrun{
+#' library(ggplot2)
+#' d <- data.frame(MW = c(300, 400, 500), group = c("A", "A", "B"))
+#' p <- ggplot(d, aes(x = group, y = MW, color = group)) + geom_point()
+#' p <- apply_palette(p, "Set1", d, "group")
+#' }
 #' @export
 apply_palette <- function(p, palette_name, data, color_col) {
 

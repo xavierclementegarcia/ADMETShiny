@@ -101,6 +101,7 @@ swissadme_tab <- function() {
               "Correlation Heatmap",
               "Principal Component Analysys (PCA - Chemical space)",
               "t-SNE (Chemical space)",
+              "UMAP (Chemical space)",
               "Cluster Heatmap (Dendrogram)",
               "Parallel Coordinates",
               "Violin Plot"
@@ -108,29 +109,16 @@ swissadme_tab <- function() {
 
             conditionalPanel(
               condition = "input.plot_type == 'Boiled Egg'",
-              tags$div(
-                class = "alert-primary",
-                icon("book-open"),
-                tags$b(" Function: "),
-                "Predicts GI absorption and BBB permeability from LogP and TPSA."
-              ),
-              tags$div(
-                class = "alert-primary",
-                icon("book-open"),
-                tags$b(" Analysis: "),
-                "Points inside the white region have high GI absorption; points inside the yellow yolk cross the BBB."
-              ),
+              tags$div(class = "alert-primary", icon("book-open"), tags$b(" Function: "),
+                       "Predicts gastrointestinal absorption and blood-brain barrier permeability using the BOILED-Egg model."),
+              tags$div(class = "alert-primary", icon("book-open"), tags$b(" Analysis: "),
+                       "Points inside the white region (yolk) are predicted to be absorbed by the GI tract; points inside the yellow region (white) are predicted to cross the BBB."),
               tags$hr(),
               selectInput("boiled_egg_logp", "LogP source for BOILED-Egg",
-                          choices = c("WLOGP (default)" = "WLOGP",
-                                      "Consensus Log P" = "Consensus Log P",
-                                      "MLOGP" = "MLOGP",
-                                      "XLOGP3" = "XLOGP3",
-                                      "iLOGP" = "iLOGP",
-                                      "Generic LogP" = "LogP"),
+                          choices = c("WLOGP", "Consensus Log P", "MLOGP",
+                                      "XLOGP3", "iLOGP", "Generic LogP"),
                           selected = "WLOGP"),
-              helpText("The BOILED-Egg was originally calibrated with WLOGP. ",
-                       "You can select a different LogP variant if available.")
+              helpText("Select which LogP variant to use on the y-axis. The BOILED-Egg model was originally calibrated with WLOGP.")
             ),
 
             conditionalPanel(
@@ -201,6 +189,16 @@ swissadme_tab <- function() {
                        "Tight clusters represent similar molecules; the distance between groups reflects differences in their profiles."),
               tags$hr(),
               uiOutput("tsne_controls")
+            ),
+
+            conditionalPanel(
+              condition = "input.plot_type == 'UMAP (Chemical space)'",
+              tags$div(class = "alert-primary", icon("book-open"), tags$b(" Function: "),
+                       "Non-linear dimensionality reduction that preserves both local and global structure of the chemical space."),
+              tags$div(class = "alert-primary", icon("book-open"), tags$b(" Analysis: "),
+                       "Nearby points correspond to molecules with similar physicochemical profiles; well-separated clusters indicate distinct chemical series."),
+              tags$hr(),
+              uiOutput("umap_controls")
             ),
 
             conditionalPanel(

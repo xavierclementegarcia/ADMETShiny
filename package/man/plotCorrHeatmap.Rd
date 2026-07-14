@@ -23,3 +23,10 @@ A \pkg{ggplot2} object.
 Produces a heatmap of the Pearson correlation between key physicochemical
 properties.
 }
+\examples{
+\dontrun{
+d <- data.frame(MW = c(300, 400, 500), LogP = c(2, 3, 4),
+  TPSA = c(60, 80, 100))
+plotCorrHeatmap(d)
+}
+}

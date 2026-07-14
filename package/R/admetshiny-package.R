@@ -109,6 +109,8 @@ utils::globalVariables(c(
   "PC1", "PC2", "Colour", "Label", "Variable",
   # ---- t_sne.R (ggplot2::aes bare column names) ----
   "TSNE1", "TSNE2", "Color",
+  # ---- umap (ggplot2::aes bare column names) ----
+  "UMAP1", "UMAP2",
   # ---- parallel.R (ggplot2::aes / ggparcoord) ----
   "Group",
   # ---- report.R (plotViolationsSummary / plotDruglikenessScore) ----

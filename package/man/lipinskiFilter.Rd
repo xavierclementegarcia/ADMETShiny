@@ -34,6 +34,13 @@ pre-computed number of Lipinski violations.
 Uses the generic \code{LogP} column with the original threshold of 5 (not
 the SwissADME-specific MLOGP <= 4.15).
 }
+\examples{
+\dontrun{
+d <- data.frame(MW = 300, LogP = 2, "#H-bond acceptors" = 4,
+  "#H-bond donors" = 2, "Lipinski #violations" = 0, check.names = FALSE)
+lipinskiFilter(d)
+}
+}
 \references{
 Lipinski, C. A., Lombardo, F., Dominy, B. W., & Feeney, P. J.
 (1997). Experimental and computational approaches to estimate solubility

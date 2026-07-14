@@ -25,3 +25,10 @@ Produces a parallel coordinates plot of the selected numeric variables,
 optionally coloured by a grouping variable. Requires the suggested package
 \pkg{GGally}.
 }
+\examples{
+\dontrun{
+d <- data.frame(MW = c(300, 400, 500), LogP = c(2, 3, 4),
+  TPSA = c(60, 80, 100), group = c("A", "A", "B"))
+plotParallel(d, variables = c("MW", "LogP", "TPSA"), color_by = "group")
+}
+}

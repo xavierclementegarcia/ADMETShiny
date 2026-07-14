@@ -22,6 +22,11 @@
 #' @param data A data.frame read with \code{read.csv(..., check.names = FALSE)}.
 #' @return A data.frame with numeric and categorical columns correctly typed,
 #'   plus a \code{LogP} column.
+#' @examples
+#' \dontrun{
+#' d <- read.csv("swissadme.csv", check.names = FALSE)
+#' d <- fixSwissADME(d)
+#' }
 #' @export
 #' @seealso \code{\link{fixADMETlab}}, \code{\link{fixDeepPK}},
 #'   \code{\link{applyFilters}}.
@@ -33,7 +38,6 @@ fixSwissADME <- function(data) {
     "MW",
     "#Heavy atoms",
     "#Aromatic heavy atoms",
-    "Fraction Csp3",
     "#Rotatable bonds",
     "#H-bond acceptors",
     "#H-bond donors",
@@ -97,9 +101,6 @@ fixSwissADME <- function(data) {
 
   ## Create the generic LogP column from WLOGP (preferred, as this is what
   ## the BOILED-Egg model was calibrated with) or Consensus Log P as fallback.
-  ## The original SwissADME-specific MLOGP/WLOGP/XLOGP3/Consensus Log P
-  ## columns remain in the data.frame for reference and can be selected
-  ## in the BOILED-Egg plot.
   if ("WLOGP" %in% names(data)) {
     data$LogP <- data$WLOGP
   } else if ("Consensus Log P" %in% names(data)) {
@@ -109,11 +110,7 @@ fixSwissADME <- function(data) {
   }
 
   ## Recalculate the #violations columns using the application's standard
-  ## thresholds (LogP <= 5 for Lipinski, no aromatic heavy atoms for Muegge,
-  ## etc.). SwissADME pre-computes these with its own thresholds (MLOGP <= 4.15
-  ## for Lipinski, aromatic heavy atoms <= 7 for Muegge) which are
-  ## inconsistent with the filters. Overwriting them ensures consistency
-  ## between the #violations column and the individual property thresholds.
+  ## thresholds.
   data <- computeViolationColumns(data)
 
   required_base <- c("MW", "LogP", "#H-bond acceptors", "#H-bond donors")
@@ -147,6 +144,11 @@ fixSwissADME <- function(data) {
 #'
 #' @param data A data.frame read from an ADMETlab 3.0 CSV file.
 #' @return A data.frame ready for filtering and plotting.
+#' @examples
+#' \dontrun{
+#' d <- read.csv("admetlab.csv", check.names = FALSE)
+#' d <- fixADMETlab(d)
+#' }
 #' @export
 #' @seealso \code{\link{fixSwissADME}}, \code{\link{fixDeepPK}},
 #'   \code{\link{computeViolationColumns}}, \code{\link{calcCDKDescriptors}}.
@@ -191,8 +193,7 @@ fixADMETlab <- function(data) {
   }
 
   ## 5. Calculate missing properties (MR, #Heavy atoms, #Aromatic heavy atoms)
-  ##    from SMILES using CDK. ADMETlab 3.0 does not provide these natively,
-  ##    but they are required by the Ghose and Muegge filters.
+  ##    from SMILES using CDK if available.
   missing_props <- setdiff(
     c("MR", "#Heavy atoms", "#Aromatic heavy atoms"),
     names(data)
@@ -200,34 +201,41 @@ fixADMETlab <- function(data) {
 
   if (length(missing_props) > 0 && "CanonicalSMILES" %in% names(data)) {
     if (!requireNamespace("rcdk", quietly = TRUE)) {
-      stop("The 'rcdk' package is required to calculate MR, #Heavy atoms ",
-           "and #Aromatic heavy atoms from SMILES for ADMETlab 3.0 data. ",
-           "Install it with: install.packages('rcdk')",
-           call. = FALSE)
-    }
+      warning("The 'rcdk' package is required to calculate MR, #Heavy atoms, ",
+              "and #Aromatic heavy atoms from SMILES for ADMETlab 3.0 data. ",
+              "Install it with: install.packages('rcdk')")
+    } else {
+      tryCatch({
+        smiles <- as.character(data$CanonicalSMILES)
+        cdk_desc <- calcCDKDescriptors(smiles,
+          which = c("mr", "heavy", "aroma"))
 
-    smiles <- as.character(data$CanonicalSMILES)
-    cdk_desc <- calcCDKDescriptors(smiles, which = c("mr", "heavy", "aroma"))
+        cdk_rename <- c(
+          AMR = "MR", nAtom = "#Heavy atoms",
+          naAromAtom = "#Aromatic heavy atoms"
+        )
+        for (old in names(cdk_rename)) {
+          if (old %in% names(cdk_desc)) {
+            names(cdk_desc)[names(cdk_desc) == old] <- cdk_rename[[old]]
+          }
+        }
 
-    ## Map CDK names to standard names
-    cdk_rename <- c(
-      AMR        = "MR",
-      nAtom      = "#Heavy atoms",
-      naAromAtom = "#Aromatic heavy atoms"
-    )
-    for (old in names(cdk_rename)) {
-      if (old %in% names(cdk_desc)) {
-        names(cdk_desc)[names(cdk_desc) == old] <- cdk_rename[[old]]
-      }
-    }
-
-    ## Keep only the SMILES and the missing property columns
-    keep <- intersect(c("SMILES", missing_props), names(cdk_desc))
-    if (length(keep) > 1) {
-      cdk_desc <- cdk_desc[, keep, drop = FALSE]
-      data <- merge(data, cdk_desc,
-                    by.x = "CanonicalSMILES", by.y = "SMILES",
-                    all.x = TRUE)
+        ## Use lookup to avoid row duplication
+        cdk_lookup <- split(cdk_desc, cdk_desc$SMILES)
+        for (col in missing_props) {
+          if (col %in% names(cdk_desc)) {
+            data[[col]] <- sapply(smiles, function(s) {
+              if (!is.na(s) && s %in% names(cdk_lookup)) {
+                cdk_lookup[[s]][[col]][1]
+              } else {
+                NA
+              }
+            })
+          }
+        }
+      }, error = function(e) {
+        warning("Could not calculate CDK descriptors for ADMETlab: ", e$message)
+      })
     }
   }
 
@@ -289,6 +297,11 @@ computeADMETlabProperties <- function(data) {
 #'
 #' @param data A data.frame read from a Deep-PK CSV file.
 #' @return A data.frame ready for filtering and plotting.
+#' @examples
+#' \dontrun{
+#' d <- read.csv("deeppk.csv", check.names = FALSE)
+#' d <- fixDeepPK(d)
+#' }
 #' @export
 #' @seealso \code{\link{fixSwissADME}}, \code{\link{fixADMETlab}},
 #'   \code{\link{calcCDKDescriptors}}, \code{\link{mapCDKDescriptors}}.
@@ -320,29 +333,43 @@ fixDeepPK <- function(data) {
   }
 
   smiles <- as.character(data$CanonicalSMILES)
-  cdk_desc <- calcCDKDescriptors(
-    smiles,
-    which = c("mw", "alogp", "tpsa", "hbd", "hba", "rotb", "heavy", "aroma", "mr")
-  )
-  mapped <- mapCDKDescriptors(cdk_desc)
 
-  ## Prepare CDK results for merge
-  mapped$CanonicalSMILES <- mapped$SMILES
-  mapped$SMILES <- NULL
+  tryCatch({
+    cdk_desc <- calcCDKDescriptors(
+      smiles,
+      which = c("mw", "alogp", "tpsa", "hbd", "hba", "rotb", "heavy", "aroma",
+                "mr")
+    )
+    mapped <- mapCDKDescriptors(cdk_desc)
 
-  ## If Deep-PK provided its own LogP, drop CDK's LogP from mapped (Deep-PK
-  ## value takes precedence). Otherwise, keep CDK's LogP (ALogP).
-  if (has_deepkp_logp) {
-    mapped$LogP <- NULL
-  }
+    mapped$CanonicalSMILES <- mapped$SMILES
+    mapped$SMILES <- NULL
 
-  ## Keep only the standard descriptor columns
-  keep_cols <- c("CanonicalSMILES", "MW", "LogP", "TPSA", "#H-bond donors",
-                 "#H-bond acceptors", "#Rotatable bonds", "#Heavy atoms",
-                 "#Aromatic heavy atoms", "MR")
-  mapped <- mapped[, intersect(keep_cols, names(mapped)), drop = FALSE]
+    if (has_deepkp_logp) {
+      mapped$LogP <- NULL
+    }
 
-  data <- merge(data, mapped, by = "CanonicalSMILES", all.x = TRUE)
+    keep_cols <- c("CanonicalSMILES", "MW", "LogP", "TPSA", "#H-bond donors",
+                   "#H-bond acceptors", "#Rotatable bonds", "#Heavy atoms",
+                   "#Aromatic heavy atoms", "MR")
+    mapped <- mapped[, intersect(keep_cols, names(mapped)), drop = FALSE]
+
+    ## Use lookup instead of merge to avoid row duplication
+    cdk_lookup <- split(mapped, mapped$CanonicalSMILES)
+    for (col in names(mapped)) {
+      if (col != "CanonicalSMILES") {
+        data[[col]] <- sapply(smiles, function(s) {
+          if (!is.na(s) && s %in% names(cdk_lookup)) {
+            cdk_lookup[[s]][[col]][1]
+          } else {
+            NA
+          }
+        })
+      }
+    }
+  }, error = function(e) {
+    warning("Could not calculate CDK descriptors for Deep-PK: ", e$message)
+  })
 
   ## 5. Map Deep-PK ADMET predictions to categorical labels
   clean_text <- function(x) gsub("<br/>|&nbsp;|<.*?>", " ", x)

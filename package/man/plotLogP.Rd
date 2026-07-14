@@ -15,3 +15,9 @@ A \pkg{ggplot2} object.
 \description{
 LogP distribution histogram
 }
+\examples{
+\dontrun{
+d <- data.frame(LogP = c(1, 2, 3))
+plotLogP(d)
+}
+}

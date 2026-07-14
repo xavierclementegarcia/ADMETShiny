@@ -16,3 +16,9 @@ A \code{shiny.tag} (select input).
 A Shiny \code{selectInput} that lets the user choose a colour palette for
 the plots produced by the application.
 }
+\examples{
+\dontrun{
+library(shiny)
+palette_selector_ui("my_palette")
+}
+}

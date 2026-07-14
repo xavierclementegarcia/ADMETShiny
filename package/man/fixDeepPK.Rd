@@ -22,6 +22,12 @@ calculated on-the-fly from the SMILES using CDK
 LogP prediction, that value takes precedence over the CDK-calculated ALogP.
 Requires the suggested package \pkg{rcdk} and a working Java JDK.
 }
+\examples{
+\dontrun{
+d <- read.csv("deeppk.csv", check.names = FALSE)
+d <- fixDeepPK(d)
+}
+}
 \seealso{
 \code{\link{fixSwissADME}}, \code{\link{fixADMETlab}},
 \code{\link{calcCDKDescriptors}}, \code{\link{mapCDKDescriptors}}.

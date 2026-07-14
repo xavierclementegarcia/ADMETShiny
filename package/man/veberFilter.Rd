@@ -26,6 +26,14 @@ Filters compounds according to the Veber oral-bioavailability rule (Veber
 et al., 2002): rotatable bonds and a polarity condition (TPSA or
 HBA+HBD).
 }
+\examples{
+\dontrun{
+d <- data.frame(TPSA = 80, "#Rotatable bonds" = 3,
+  "#H-bond acceptors" = 4, "#H-bond donors" = 2,
+  "Veber #violations" = 0, check.names = FALSE)
+veberFilter(d)
+}
+}
 \references{
 Veber, D. F., Johnson, S. R., Cheng, H. Y., Smith, B. R.,
 Ward, K. W., & Kopple, K. D. (2002). Molecular properties that influence

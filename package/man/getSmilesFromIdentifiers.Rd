@@ -22,6 +22,12 @@ Queries PubChem (via the suggested package \pkg{webchem}) to obtain CIDs and
 canonical SMILES for a vector of chemical identifiers (names, CAS numbers,
 InChIKeys or PubChem CIDs).
 }
+\examples{
+\dontrun{
+ids <- c("aspirin", "ibuprofen")
+smiles <- getSmilesFromIdentifiers(ids, from = "name")
+}
+}
 \seealso{
 \code{\link{calcCDKDescriptors}}.
 }

@@ -46,6 +46,14 @@ thresholds.
 Filters compounds according to the Muegge pharmacophore-point filter
 (Muegge et al., 2001): MW, LogP, HBA, HBD, TPSA and rotatable bonds.
 }
+\examples{
+\dontrun{
+d <- data.frame(MW = 300, LogP = 2, TPSA = 80,
+  "#H-bond acceptors" = 4, "#H-bond donors" = 2,
+  "#Rotatable bonds" = 3, "Muegge #violations" = 0, check.names = FALSE)
+mueggeFilter(d)
+}
+}
 \references{
 Muegge, I., Heald, S. L., & Brittelli, D. (2001). Simple
 selection criteria for drug-like chemical matter. \emph{Journal of

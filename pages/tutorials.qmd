@@ -22,7 +22,7 @@ The UI is composed of independent tab modules (SwissADME, CDK, ADMETLab, Deep-PK
 ### Package Structure
 
 | Layer | Files | Purpose |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Core API | `filters.R, data_fixers.R, cdk_webchem.R, plots.R, plots_cluster.R, plot_customization.R, report.R` | Exported functions for filtering normalization, visualization, reporting |
 | Shiny App | `app_ui.R, app_server.R, ui.R, dark_mode.R, run_app.R` | Interactive web application |
 | Infrastructure | `admetshiny-package.R, globals.R, utils-pipe.R, boiled_egg_data.R` | Package metadata, constants, imports, data |
@@ -87,7 +87,7 @@ V_Lipinski = I(MW > 500) + I(LogP > 5) + I(HBA > 10) + I(HBD > 5)  where I(condi
 
 The original Lipinski paper use `MLOGP <=4.15`[@lipinski1997]. ADMETShiny uses the generic `LogP <=5` . This is bacause `MLOGP` is a specific algorithm (Moriguchi topological method) that is only available in SwissADME and R alternative versions with `reticulate`. Using `LogP <=5` (The threshold stated in the original Rule-of-Five as `LogP < 5`) makes the filter source-agnostic. The violations columns is recalculated by computeViolationColumns() consoles to use this threshold, overwriting SwissADME pre-computed values.
 
-#### Veber oral bioavailability Rule 
+#### Veber oral bioavailability Rule
 
 ``` r
 V_Veber = I(RB > 10 OR (TPSA > 140 AND (HBA + HBD) > 12))  Note: This is a BINARY violation (0 or 1), not a sum. The two polarity conditions (TPSA and HBA+HBD) are ALTERNATIVES (OR), not cumulative (AND).  Filter: compound passes if V_Veber == 0
@@ -95,7 +95,7 @@ V_Veber = I(RB > 10 OR (TPSA > 140 AND (HBA + HBD) > 12))  Note: This is a BINAR
 
 The original paper state that good oral bioavailability is associated with `RB<=10 & (TPSA<=140 or HBA+HBD<=12)`[@veber2002]. Many implementations incorrectly use and between the polarity conditions. ADMETShiny correctly use OR, matching the original paper. The implementation creates a temporary column `.hb_sum = HBADconsolas` inside the filter pipeline, then removes it with `select(.hb_sum)consolas` to avoid polluting the output .
 
-#### Ghose Qualifying Range 
+#### Ghose Qualifying Range
 
 ``` r
 V_Ghose = I(MW < 160 OR MW > 480)       + I(MR < 40 OR MR > 130)       + I(LogP < -0.4 OR LogP > 5.6)       + I(#Heavy atoms < 20 OR #Heavy atoms > 70)  Filter: compound passes if V_Ghose <= max_violations (default: 0)
@@ -105,7 +105,30 @@ The Ghose filter requires MR (Molar Refractivity) and #Heavy atoms . SwissADME p
 
 #### Egan PSA-LogP rule
 
-#### Muegge Pharmacophore filter 
+``` r
+V_Egan = I(TPSA > 131.6) + I(LogP > 5.88)  Filter: compound passes if V_Egan <= max_violations (default: 0)
+```
+
+Two properties using this formula. The thresholds are derived from multivariate statistical analysis of oral bioavailability data [@egan2000].
+
+#### Muegge Pharmacophore filter
+
+``` r
+V_Muegge = I(MW < 200 OR MW > 600)         + I(LogP < -2 OR LogP > 5)         + I(HBA > 10)         + I(HBD > 5)         + I(RB > 15)         + I(TPSA > 150)  Filter: compound passes if V_Muegge <= max_violations (default: 0)
+```
+
+The original Muegge rule include a pharmacophore points \>=4 criteria (HBA + HBD +rings + cations + anions\>=4). This is not available from any of the four data sources. For example, HBA y HBD is available in the four datasets that the user could report. Cations and anion are not available, that's rule not considered. In the other hand, ADMETLab 3.0 dataset have `nRing`, but in SwissADME, Deep-pK and rCDK this category not. In the package that is a limitation.
+
+``` r
+# Una molécula pasa si:
+#Rotatable bonds <= 15
+AND  MW >= 200 AND MW <= 600
+AND  LogP >= -2 AND LogP <= 5
+AND  TPSA <= 150
+AND  #H-bond acceptors <= 10
+AND  #H-bond donors <= 5
+AND  Muegge #violations <= 0  (configurable)
+```
 
 #### ApplyFilters() Dispatcher
 
@@ -205,7 +228,7 @@ This harmonization enables identical downstream workflows for physicochemical de
 Each data source provides physicochemical descriptors and ADMET predictions computed with different algorithms and named with different conventions. ADMETShiny maps all of them to a unified internal schema.
 
 | Standar column | SwissADME | ADMETLab 3.0 | Deep-pK | CDK & Webchem |
-|:-------:|:-------:|:----------------:|:----------------:|:----------------:|
+|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|
 | MW | MW | MW | WeightDescriptor (CDK) | WeightDescriptor |
 | LogP | WLOGP | logP | \[Log(P)\] Predictions or AlogP (CDK) | AlogP (Ghose-Crippen) |
 | TPSA | TPSA | TPSA | TPSADescriptor (CDK) | TPSADescriptor (CDK) |
@@ -283,7 +306,7 @@ This package use a BOILED-Egg approximation LogP source was that calibrated with
 In this SwissADME module, users can select which `LogP` variant to use for the BOILED-Egg plot (`WLOGP`, `Consensus` `LogP`, `MLOGP`, `XLOGP3`, `iLOGP` or `generic` `LogP`). For other modules, the platform's own `LogP` is used, which may introduce classification errors for compounds near the polygon boundaries.
 
 | Source | Algorithm | Method Type | Typical difference vs WLOGP |
-|----|----|----|----|
+|------------------|------------------|------------------|------------------|
 | SwissADME WLOGP | Wildman-Crippen | Atom-based fragmentation | Without difference |
 | SwissADME Consensus LogP | Mean of iLOGP, XLOGP3, WLOGP, MLOGP | Ensemble | 0.3 - 0.8 units |
 | SwissADME MLOGP | Moriguchi | Topological indices | 0.5 -1.5 units |

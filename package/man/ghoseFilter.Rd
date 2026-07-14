@@ -47,6 +47,13 @@ Filters compounds according to the Ghose qualifying range (Ghose et al.,
 1999): molecular weight, molar refractivity, LogP and number of heavy
 atoms.
 }
+\examples{
+\dontrun{
+d <- data.frame(MW = 300, MR = 90, LogP = 2, "#Heavy atoms" = 22,
+  "Ghose #violations" = 0, check.names = FALSE)
+ghoseFilter(d)
+}
+}
 \references{
 Ghose, A. K., Viswanadhan, V. N., & Wendoloski, J. J. (1999).
 A knowledge-based approach in designing combinatorial or medicinal
