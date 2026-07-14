@@ -22,8 +22,9 @@ about:
     - icon: file-text
       text: Author
       href: https://xavierclementegarcia.github.io/
-metadata:
-  google-site-verification: "h2lnvvhWpvnoK2cNWm9_9bdMCOZDnfvi_dNeRIm9GGM"
+format: 
+    html: 
+        header-includes: <meta name="google-site-verification" content="h2lnvvhWpvnoK2cNWm9_9bdMCOZDnfvi_dNeRIm9GGM" />
 ---
 
 ## What's admetshiny v1.0.0 *Espeletia hartwegiana*?
