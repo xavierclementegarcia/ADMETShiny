@@ -63,7 +63,7 @@ plotClusterHeatmap <- function(data, variables = NULL, id_col = NULL,
   }
   variables <- intersect(variables, names(data))
   if (length(variables) < 2) {
-    stop("At least two numeric variables are required.", call. = FALSE)
+    stop("At least two numeric variables are required.", call. = FALSE) #Andrés Ojedin, i love you, Thank you
   }
 
   ## Coerce to numeric explicitly

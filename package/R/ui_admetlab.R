@@ -29,7 +29,7 @@ admetlab_tab <- function() {
                          numericInput("admetlab_mw", "Max. Molecular Weight", 500),
                          numericInput("admetlab_logp", "Max. LogP", 5),
                          numericInput("admetlab_hba", "Max. H-bond acceptors", 10),
-                         numericInput("admetlab_hbd", "Max. H-bond donors", 5),
+                         numericInput("admetlab_hbd", "Max. H-bond donors", 5), #Laura Lasso, Thank you!
                          numericInput("admetlab_violations", "Maximum Lipinski Violations", 0)),
 
         conditionalPanel(condition = "input.admetlab_filters.includes('Veber')",

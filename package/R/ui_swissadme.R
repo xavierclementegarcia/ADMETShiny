@@ -39,7 +39,7 @@ swissadme_tab <- function() {
         ),
 
         conditionalPanel(
-          condition = "input.filters.includes('Veber')",
+          condition = "input.filters.includes('Veber')", #Jeison, i love you! Thank you
           tags$b("Veber"),
           numericInput("v_rb", "Max. Rotatable Bonds", 10),
           numericInput("v_tpsa", "Max. TPSA", 140),

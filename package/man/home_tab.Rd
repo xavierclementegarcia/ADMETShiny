@@ -2,7 +2,9 @@
 % Please edit documentation in R/ui_home.R
 \name{home_tab}
 \alias{home_tab}
-\title{Home tab UI}
+\title{Home tab UI
+Morrigan, i love you! Thank you my friend.
+Builds the Home (landing) tab of the ADMETShiny application.}
 \usage{
 home_tab()
 }
@@ -10,6 +12,8 @@ home_tab()
 A \code{shiny.tabPanel}.
 }
 \description{
+Home tab UI
+Morrigan, i love you! Thank you my friend.
 Builds the Home (landing) tab of the ADMETShiny application.
 }
 \keyword{internal}

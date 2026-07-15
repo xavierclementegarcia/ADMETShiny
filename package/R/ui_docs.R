@@ -120,7 +120,7 @@ docs_tab <- function() {
                                                          tags$tr(tags$td("CDK (Calculated)"), tags$td("ALogP / TopoPSA"), tags$td(tags$code("LogP / TPSA")))
                                                        )
                                             ),
-                                            tags$div(class = "alert-warning-dark",
+                                            tags$div(class = "alert-warning-dark", #Jessica, Thank you. please buy in the "Zorra Amarilla"
                                                      tags$b(icon("exclamation-triangle"), " Deep-PK Note: "), "Deep-PK CSVs do not contain physicochemical descriptors natively. When uploaded, ADMETShiny automatically parses the SMILES and calculates MW, TPSA, LogP, etc., locally using CDK to enable drug-likeness filtering."
                                             )
                                    )

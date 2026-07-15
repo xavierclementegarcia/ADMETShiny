@@ -4,6 +4,7 @@
 # Tutorial, Documentation) and the Home tab.
 # ---------------------------------------------------------------------------
 
+#' Juan Felipe, i love you, thank you ":?"
 #' Shared info-card CSS
 #'
 #' Returns a \code{tags$head} element with the CSS rules for the

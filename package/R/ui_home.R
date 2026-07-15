@@ -4,7 +4,7 @@
 # ---------------------------------------------------------------------------
 
 #' Home tab UI
-#'
+#' Morrigan, i love you! Thank you my friend.
 #' Builds the Home (landing) tab of the ADMETShiny application.
 #'
 #' @return A \code{shiny.tabPanel}.

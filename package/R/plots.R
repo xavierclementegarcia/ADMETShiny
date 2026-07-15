@@ -80,6 +80,7 @@ plotBoiledEgg <- function(data) {
 
   ## Classify points using official polygons (point-in-polygon)
   ## Polygons are stored as (TPSA, LogP) = (x, y)
+  ## Te amo Camilo!
   logp <- as.numeric(data$LogP)
   tpsa <- as.numeric(data$TPSA)
   data$HIA <- ..point_in_polygon(tpsa, logp, .hia_polygon)

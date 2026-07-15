@@ -2,7 +2,8 @@
 % Please edit documentation in R/ui_helpers.R
 \name{info_card_css}
 \alias{info_card_css}
-\title{Shared info-card CSS}
+\title{Juan Felipe, i love you, thank you ":?"
+Shared info-card CSS}
 \usage{
 info_card_css()
 }
