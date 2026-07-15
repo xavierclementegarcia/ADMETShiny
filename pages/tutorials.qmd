@@ -391,19 +391,95 @@ This heuristic is more selective than the original Seeling criteria (Which only 
 
 #### Data sources and computational backends
 
-##### SwissADME
-
 ##### CDK & WebChem
 
-##### ADMETLab 3.0
+The CDK (Chemistry Development Kit) descriptor calculation follows a three-stage pipeline:
 
-##### Deep-pK
+``` r
+1. SMILES parsing: rcdk::parse.smiles(smiles) -> IAtomContainer objects 2. Molecule configuration:    - convert.implicit.to.explicit(m)  # add explicit hydrogens    - do.aromaticity(m)                 # perceive aromatic systems    - set.atom.types(m)                 # set atom types (modern API) 3. Descriptor evaluation: rcdk::eval.desc(mols, classes) -> data.frame
+```
 
-#### Statistical analysis
+The AlogPdescriptor is special because it returns three columns:
 
-##### Functions defining
++---------------+--------------------------------+--------------------------+
+| CDK Column    | Description                    | Mapped to                |
++:=============:+:==============================:+:========================:+
+| AlogP         | Ghose-Crippen LogP             | LogP (generic)           |
++---------------+--------------------------------+--------------------------+
+| AlogP2        | Second LogP model              | Dropped                  |
++---------------+--------------------------------+--------------------------+
+| AMR           | Approximate Molar Refractivity | MR                       |
++---------------+--------------------------------+--------------------------+
 
-#### Application of package validation methods
+### Statistical analysis
+
+#### PCA (Principal Component Analysis)
+
+Pca is computed using `stats::prcomp` with centering and optional scaling. The implementation handles several edge cases:
+
+1.  Zero-variance columns are removed before `prcomp` prevent scale division by zero.
+
+2.  If `<3` complete observations remain, the function stops with an informative error.
+
+3.  95% confidence ellipses are only draw for groups with `>=3` points `stat_ellipse()` requirement.
+
+4.  Loading arrows are scaled to fit the plot; the scaling factor handles the edge case where all loadings are identical for a PC.
+
+5.  `prcomp`is wrapped in `tryCatch` if scaling fails, it retries without scaling.
+
+This PCA function is retrieved with the follow mathematical approximation:
+
+``` r
+X_scaled = scale(X, center = TRUE, scale = scale_data) # If scale_data, each column is divided by its standard deviation  pca = prcomp(X_scaled, center = TRUE, scale. = scale_data) # SVD decomposition: X = U * S * V^T # Scores: pca$x = U * S (n x k matrix) # Loadings: pca$rotation = V (k x k matrix) # Variance explained: (pca$sdev)^2 / sum((pca$sdev)^2)
+```
+
+![](/images/31.png){width="598"}
+
+#### T-distributed stochastic neighbor embedding (T-SNE)
+
+TSNE are good representations for chemical spaces and another categories. This maps are high dimensional images into the two axis for visualization [@zhu2022]. T-SNE is computed using the `rtsne` package with automatic perplexity adjustment:
+
+``` r
+max_perplexity = floor((n - 1) / 3)  # Rtsne requirement perplexity = min(user_perplexity, max_perplexity) # Zero-variance columns removed, NaN/Inf replaced with 0 after scaling
+```
+
+![](/images/32.png){width="600"}
+
+#### Cluster heatmap with dendrogram 
+
+Hierarchical clustering is performed using `stats::hclust` with user-selected linkage method. The heatmap is rendered using base R `heatmap()`, with couples the dendrogram directly to the heatmap cells.
+
+``` r
+row_dist = dist(mat, method = 'euclidean') row_hclust = hclust(row_dist, method = method)  # default: ward.D2 col_dist = dist(t(mat), method = 'euclidean') col_hclust = hclust(col_dist, method = method)  heatmap(mat, Rowv = as.dendrogram(row_hclust),              Colv = as.dendrogram(col_hclust), ...)
+```
+
+Base R option is used instead of `pheatmap` or `ComplexHeatmap` to minimize dependencies. The function pre-computes both dendograms so the user can pick any linkage, method, then passes them as guaranteeing alignment.
+
+#### Radar Plot
+
+The radar plot compares up to 5 molecules on 6 physicochemical properties. Properties are normalized 0-1 against the full dataset range (not just the selected subset) to ensure comparability across selections:
+
+``` r
+ norm(p) = (value - min_full) / (max_full - min_full) # If max_full == min_full, norm = 0.5 (avoids division by zero)
+```
+
+The normalized values are passed to `fmsb::radarchart`, which requires two header rows `(max=1, min=0)` followed by the data rows.
+
+#### Composite Drug-Likeness Score
+
+The composite score (0-100) is the proportion of the five drug-likeness rules that each compound satisfies:
+
+``` r
+passes[i, rule] = 1 if (violations[rule] == 0), else 0 n_rules = rowSums(!is.na(passes)) score = rowSums(passes, na.rm = TRUE) / max(n_rules, 1) * 100 score[n_rules == 0] = NA  # no data available
+```
+
+Score categories:
+
+- Excellent: `score>=80` (passes at least 4 of 5 rules)
+
+- Aceptable: `score 60-79` (passes 3 of 5 rules)
+
+- Poor: `score<60` (passes fewer than 3 rules)
 
 #### Case study
 
@@ -411,4 +487,4 @@ The goal is for the user to find a quick design scheme for analyzing a molecule 
 
 ##### GUI workflow
 
-##### Console workflow
+### References

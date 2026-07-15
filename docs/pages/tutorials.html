@@ -425,6 +425,8 @@ window.Quarto = {
   <li><a href="#data-standardization-schema" id="toc-data-standardization-schema" class="nav-link" data-scroll-target="#data-standardization-schema">Data Standardization Schema</a></li>
   <li><a href="#the-boiled-egg-model" id="toc-the-boiled-egg-model" class="nav-link" data-scroll-target="#the-boiled-egg-model">The BOILED-Egg model</a></li>
   <li><a href="#validation-of-the-approximation" id="toc-validation-of-the-approximation" class="nav-link" data-scroll-target="#validation-of-the-approximation">Validation of the approximation</a></li>
+  <li><a href="#statistical-analysis" id="toc-statistical-analysis" class="nav-link" data-scroll-target="#statistical-analysis">Statistical analysis</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 </nav>
     </div>
@@ -981,27 +983,89 @@ TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for th
 </section>
 <section id="data-sources-and-computational-backends" class="level4">
 <h4 class="anchored" data-anchor-id="data-sources-and-computational-backends">Data sources and computational backends</h4>
-<section id="swissadme" class="level5">
-<h5 class="anchored" data-anchor-id="swissadme">SwissADME</h5>
-</section>
 <section id="cdk-webchem" class="level5">
 <h5 class="anchored" data-anchor-id="cdk-webchem">CDK &amp; WebChem</h5>
+<p>The CDK (Chemistry Development Kit) descriptor calculation follows a three-stage pipeline:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fl">1.</span> SMILES parsing<span class="sc">:</span> rcdk<span class="sc">::</span><span class="fu">parse.smiles</span>(smiles) <span class="ot">-&gt;</span> IAtomContainer objects <span class="fl">2.</span> Molecule configuration<span class="sc">:</span>    <span class="sc">-</span> <span class="fu">convert.implicit.to.explicit</span>(m)  <span class="co"># add explicit hydrogens    - do.aromaticity(m)                 # perceive aromatic systems    - set.atom.types(m)                 # set atom types (modern API) 3. Descriptor evaluation: rcdk::eval.desc(mols, classes) -&gt; data.frame</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The AlogPdescriptor is special because it returns three columns:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 42%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">CDK Column</th>
+<th style="text-align: center;">Description</th>
+<th style="text-align: center;">Mapped to</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">AlogP</td>
+<td style="text-align: center;">Ghose-Crippen LogP</td>
+<td style="text-align: center;">LogP (generic)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">AlogP2</td>
+<td style="text-align: center;">Second LogP model</td>
+<td style="text-align: center;">Dropped</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">AMR</td>
+<td style="text-align: center;">Approximate Molar Refractivity</td>
+<td style="text-align: center;">MR</td>
+</tr>
+</tbody>
+</table>
 </section>
-<section id="admetlab-3.0" class="level5">
-<h5 class="anchored" data-anchor-id="admetlab-3.0">ADMETLab 3.0</h5>
-</section>
-<section id="deep-pk" class="level5">
-<h5 class="anchored" data-anchor-id="deep-pk">Deep-pK</h5>
 </section>
 </section>
-<section id="statistical-analysis" class="level4">
-<h4 class="anchored" data-anchor-id="statistical-analysis">Statistical analysis</h4>
-<section id="functions-defining" class="level5">
-<h5 class="anchored" data-anchor-id="functions-defining">Functions defining</h5>
+<section id="statistical-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="statistical-analysis">Statistical analysis</h3>
+<section id="pca-principal-component-analysis" class="level4">
+<h4 class="anchored" data-anchor-id="pca-principal-component-analysis">PCA (Principal Component Analysis)</h4>
+<p>Pca is computed using <code>stats::prcomp</code> with centering and optional scaling. The implementation handles several edge cases:</p>
+<ol type="1">
+<li><p>Zero-variance columns are removed before <code>prcomp</code> prevent scale division by zero.</p></li>
+<li><p>If <code>&lt;3</code> complete observations remain, the function stops with an informative error.</p></li>
+<li><p>95% confidence ellipses are only draw for groups with <code>&gt;=3</code> points <code>stat_ellipse()</code> requirement.</p></li>
+<li><p>Loading arrows are scaled to fit the plot; the scaling factor handles the edge case where all loadings are identical for a PC.</p></li>
+<li><p><code>prcomp</code>is wrapped in <code>tryCatch</code> if scaling fails, it retries without scaling.</p></li>
+</ol>
+<p>This PCA function is retrieved with the follow mathematical approximation:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>X_scaled <span class="ot">=</span> <span class="fu">scale</span>(X, <span class="at">center =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> scale_data) <span class="co"># If scale_data, each column is divided by its standard deviation  pca = prcomp(X_scaled, center = TRUE, scale. = scale_data) # SVD decomposition: X = U * S * V^T # Scores: pca$x = U * S (n x k matrix) # Loadings: pca$rotation = V (k x k matrix) # Variance explained: (pca$sdev)^2 / sum((pca$sdev)^2)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><img src="..\images/31.png" class="img-fluid" width="598"></p>
 </section>
+<section id="t-distributed-stochastic-neighbor-embedding-t-sne" class="level4">
+<h4 class="anchored" data-anchor-id="t-distributed-stochastic-neighbor-embedding-t-sne">T-distributed stochastic neighbor embedding (T-SNE)</h4>
+<p>TSNE are good representations for chemical spaces and another categories. This maps are high dimensional images into the two axis for visualization <span class="citation" data-cites="zhu2022">(<a href="#ref-zhu2022" role="doc-biblioref">Zhu et al. 2022</a>)</span>. T-SNE is computed using the <code>rtsne</code> package with automatic perplexity adjustment:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>max_perplexity <span class="ot">=</span> <span class="fu">floor</span>((n <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">3</span>)  <span class="co"># Rtsne requirement perplexity = min(user_perplexity, max_perplexity) # Zero-variance columns removed, NaN/Inf replaced with 0 after scaling</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><img src="..\images/32.png" class="img-fluid" width="600"></p>
 </section>
-<section id="application-of-package-validation-methods" class="level4">
-<h4 class="anchored" data-anchor-id="application-of-package-validation-methods">Application of package validation methods</h4>
+<section id="cluster-heatmap-with-dendrogram" class="level4">
+<h4 class="anchored" data-anchor-id="cluster-heatmap-with-dendrogram">Cluster heatmap with dendrogram</h4>
+<p>Hierarchical clustering is performed using <code>stats::hclust</code> with user-selected linkage method. The heatmap is rendered using base R <code>heatmap()</code>, with couples the dendrogram directly to the heatmap cells.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>row_dist <span class="ot">=</span> <span class="fu">dist</span>(mat, <span class="at">method =</span> <span class="st">'euclidean'</span>) row_hclust <span class="ot">=</span> <span class="fu">hclust</span>(row_dist, <span class="at">method =</span> method)  <span class="co"># default: ward.D2 col_dist = dist(t(mat), method = 'euclidean') col_hclust = hclust(col_dist, method = method)  heatmap(mat, Rowv = as.dendrogram(row_hclust),              Colv = as.dendrogram(col_hclust), ...)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Base R option is used instead of <code>pheatmap</code> or <code>ComplexHeatmap</code> to minimize dependencies. The function pre-computes both dendograms so the user can pick any linkage, method, then passes them as guaranteeing alignment.</p>
+</section>
+<section id="radar-plot" class="level4">
+<h4 class="anchored" data-anchor-id="radar-plot">Radar Plot</h4>
+<p>The radar plot compares up to 5 molecules on 6 physicochemical properties. Properties are normalized 0-1 against the full dataset range (not just the selected subset) to ensure comparability across selections:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">norm</span>(p) <span class="ot">=</span> (value <span class="sc">-</span> min_full) <span class="sc">/</span> (max_full <span class="sc">-</span> min_full) <span class="co"># If max_full == min_full, norm = 0.5 (avoids division by zero)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The normalized values are passed to <code>fmsb::radarchart</code>, which requires two header rows <code>(max=1, min=0)</code> followed by the data rows.</p>
+</section>
+<section id="composite-drug-likeness-score" class="level4">
+<h4 class="anchored" data-anchor-id="composite-drug-likeness-score">Composite Drug-Likeness Score</h4>
+<p>The composite score (0-100) is the proportion of the five drug-likeness rules that each compound satisfies:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>passes[i, rule] <span class="ot">=</span> <span class="dv">1</span> <span class="cf">if</span> (violations[rule] <span class="sc">==</span> <span class="dv">0</span>), <span class="cf">else</span> <span class="dv">0</span> n_rules <span class="ot">=</span> <span class="fu">rowSums</span>(<span class="sc">!</span><span class="fu">is.na</span>(passes)) score <span class="ot">=</span> <span class="fu">rowSums</span>(passes, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">max</span>(n_rules, <span class="dv">1</span>) <span class="sc">*</span> <span class="dv">100</span> score[n_rules <span class="sc">==</span> <span class="dv">0</span>] <span class="ot">=</span> <span class="cn">NA</span>  <span class="co"># no data available</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Score categories:</p>
+<ul>
+<li><p>Excellent: <code>score&gt;=80</code> (passes at least 4 of 5 rules)</p></li>
+<li><p>Aceptable: <code>score 60-79</code> (passes 3 of 5 rules)</p></li>
+<li><p>Poor: <code>score&lt;60</code> (passes fewer than 3 rules)</p></li>
+</ul>
 </section>
 <section id="case-study" class="level4">
 <h4 class="anchored" data-anchor-id="case-study">Case study</h4>
@@ -1009,16 +1073,16 @@ TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for th
 <section id="gui-workflow" class="level5">
 <h5 class="anchored" data-anchor-id="gui-workflow">GUI workflow</h5>
 </section>
-<section id="console-workflow" class="level5">
+</section>
+</section>
+<section id="references" class="level3">
 
 
 
 
 </section>
-</section>
-</section>
 
-<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">Console workflow</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-abramson2024" class="csl-entry" role="listitem">
 Abramson, Josh, Jonas Adler, Jack Dunger, et al. 2024. <span>“Accurate Structure Prediction of Biomolecular Interactions with AlphaFold 3.”</span> <em>Nature</em> 630 (8016): 493–500. <a href="https://doi.org/10.1038/s41586-024-07487-w">https://doi.org/10.1038/s41586-024-07487-w</a>.
 </div>
@@ -1066,6 +1130,9 @@ Waring, Michael J., John Arrowsmith, Andrew R. Leach, et al. 2015. <span>“An A
 </div>
 <div id="ref-wei2020" class="csl-entry" role="listitem">
 Wei, Wenxiu, Srinivasulu Cherukupalli, Lanlan Jing, Xinyong Liu, and Peng Zhan. 2020. <span>“Fsp3: A New Parameter for Drug-Likeness.”</span> <em>Drug Discovery Today</em> 25 (10): 1839–45. <a href="https://doi.org/10.1016/j.drudis.2020.07.017">https://doi.org/10.1016/j.drudis.2020.07.017</a>.
+</div>
+<div id="ref-zhu2022" class="csl-entry" role="listitem">
+Zhu, Qiqi, Xi Guo, Weihuan Deng, et al. 2022. <span>“Land-Use/Land-Cover Change Detection Based on a Siamese Global Learning Framework for High Spatial Resolution Remote Sensing Imagery.”</span> <em>ISPRS Journal of Photogrammetry and Remote Sensing</em> 184 (February): 63–78. <a href="https://doi.org/10.1016/j.isprsjprs.2021.12.005">https://doi.org/10.1016/j.isprsjprs.2021.12.005</a>.
 </div>
 </div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
