@@ -82,7 +82,8 @@ deeppk_tab <- function() {
                    "UMAP (Chemical space)",
                    "Cluster Heatmap (Dendrogram)",
                    "Parallel Coordinates",
-                   "Violin Plot"
+                   "Violin Plot",
+                   "Custom Histogram"
                  )),
 
                  conditionalPanel(condition = "input.deeppk_plot_type == 'Radar plot (Chemical profile)'",
@@ -156,6 +157,14 @@ deeppk_tab <- function() {
                                            "Branches close together indicate similar compounds; the color scale shows z-scored property values."),
                                   tags$hr(),
                                   uiOutput("deeppk_cluster_heatmap_controls")),
+
+                 conditionalPanel(condition = "input.deeppk_plot_type == 'Custom Histogram'",
+                                  tags$div(class = "alert-primary", icon("book-open"), tags$b(" Function: "),
+                                           "Highly customizable histogram of any numeric column in the dataset."),
+                                  tags$div(class = "alert-primary", icon("book-open"), tags$b(" Analysis: "),
+                                           "Reveals the distribution shape, modality and outliers of any descriptor or ADMET probability."),
+                                  tags$hr(),
+                                  uiOutput("deeppk_histogram_custom_controls")),
 
                  palette_selector_ui("deeppk_palette"),
                  br(),

@@ -78,13 +78,19 @@ plotBoiledEgg <- function(data) {
          call. = FALSE)
   }
 
-  ## Classify points using official polygons (point-in-polygon)
+  ## Select the appropriate BOILED-Egg polygon based on the LogP source.
+  ## If the data has a WLOGP column (SwissADME), use the official WLOGP
+  ## polygons. Otherwise (CDK/ADMETlab/Deep-PK), use ALogP-trained polygons.
+  use_alogp <- !"WLOGP" %in% names(data)
+  hia_poly <- if (use_alogp) .hia_polygon_alogp else .hia_polygon
+  bbb_poly <- if (use_alogp) .bbb_polygon_alogp else .bbb_polygon
+
+  ## Classify points using point-in-polygon
   ## Polygons are stored as (TPSA, LogP) = (x, y)
-  ## Te amo Camilo!
   logp <- as.numeric(data$LogP)
   tpsa <- as.numeric(data$TPSA)
-  data$HIA <- ..point_in_polygon(tpsa, logp, .hia_polygon)
-  data$BBB <- ..point_in_polygon(tpsa, logp, .bbb_polygon)
+  data$HIA <- ..point_in_polygon(tpsa, logp, hia_poly)
+  data$BBB <- ..point_in_polygon(tpsa, logp, bbb_poly)
 
   ## P-gp substrate colours (SwissADME style)
   if ("Pgp substrate" %in% names(data)) {
@@ -107,9 +113,9 @@ plotBoiledEgg <- function(data) {
   )
 
   ## Convert polygon matrices to data.frames for geom_polygon
-  ## Polygons are already in (TPSA, LogP) = (x, y) format
-  hia_df <- data.frame(x = .hia_polygon[, 1], y = .hia_polygon[, 2])
-  bbb_df <- data.frame(x = .bbb_polygon[, 1], y = .bbb_polygon[, 2])
+  ## Use the selected polygons (WLOGP or ALogP depending on data source)
+  hia_df <- data.frame(x = hia_poly[, 1], y = hia_poly[, 2])
+  bbb_df <- data.frame(x = bbb_poly[, 1], y = bbb_poly[, 2])
 
   ggplot(data, aes(x = TPSA, y = LogP)) +
     annotate("rect", xmin = 0, xmax = 200, ymin = -2, ymax = 7,
@@ -1022,4 +1028,86 @@ plotViolin <- function(data, variable, group_by,
     labs(x = group_by, y = variable, fill = group_by) +
     theme(legend.position = "none",
           axis.text.x = element_text(angle = 45, hjust = 1))
+}
+
+## --------------------------- Custom histogram ----------------------------
+
+#' Custom histogram
+#'
+#' Produces a highly customizable histogram of any numeric column in the
+#' dataset, with optional grouping (overlaid), kernel density overlay, rug
+#' plot, and configurable number of bins. This complements the pre-defined
+#' \code{plotMW}, \code{plotTPSA} and \code{plotLogP} histograms by allowing
+#' the user to pick any numeric variable (including user-supplied columns
+#' from CSV uploads, ADMET probabilities, etc.).
+#'
+#' @param data A data.frame.
+#' @param variable Character. Name of the numeric variable to histogram.
+#' @param bins Integer. Number of bins. Default 30.
+#' @param group_by Character. Optional categorical column for overlaid
+#'   groups, or \code{"None"}.
+#' @param show_density Logical. Overlay a kernel density estimate.
+#'   Default \code{TRUE}.
+#' @param show_rug Logical. Show a rug plot at the bottom. Default \code{FALSE}.
+#' @return A \pkg{ggplot2} object.
+#' @examples
+#' \dontrun{
+#' d <- data.frame(MW = c(300, 400, 500, 350, 450, 380),
+#'   group = c("A", "A", "B", "B", "C", "C"))
+#' plotHistogramCustom(d, variable = "MW", group_by = "group")
+#' }
+#' @export
+plotHistogramCustom <- function(data, variable, bins = 30,
+                                group_by = "None",
+                                show_density = TRUE, show_rug = FALSE) {
+
+  stopifnot(variable %in% names(data))
+
+  plot_df <- data
+  plot_df[[variable]] <- suppressWarnings(as.numeric(plot_df[[variable]]))
+  plot_df <- plot_df[!is.na(plot_df[[variable]]), , drop = FALSE]
+
+  if (nrow(plot_df) < 2) {
+    stop("Not enough non-NA values to build a histogram.", call. = FALSE)
+  }
+
+  bins <- max(2L, as.integer(bins))
+
+  p <- ggplot(plot_df, aes(x = .data[[variable]]))
+
+  has_group <- !is.null(group_by) && group_by != "None" &&
+    group_by %in% names(plot_df)
+
+  if (has_group) {
+    p <- p + geom_histogram(aes(fill = .data[[group_by]], y = after_stat(density)),
+                            bins = bins, alpha = 0.55, position = "identity",
+                            colour = "white", linewidth = 0.2)
+  } else {
+    p <- p + geom_histogram(aes(y = after_stat(density)),
+                            bins = bins, alpha = 0.7, fill = "#3B82F6",
+                            colour = "white", linewidth = 0.2)
+  }
+
+  if (show_density) {
+    if (has_group) {
+      p <- p + geom_density(aes(colour = .data[[group_by]]), linewidth = 1,
+                            alpha = 0.4)
+    } else {
+      p <- p + geom_density(colour = "#1F2937", linewidth = 1, alpha = 0.4)
+    }
+  }
+
+  if (show_rug) {
+    if (has_group) {
+      p <- p + geom_rug(aes(colour = .data[[group_by]]), alpha = 0.5)
+    } else {
+      p <- p + geom_rug(alpha = 0.5)
+    }
+  }
+
+  p + theme_bw(base_size = 12) +
+    labs(x = variable, y = "Density",
+         fill = if (has_group) group_by else NULL,
+         colour = if (has_group) group_by else NULL) +
+    theme(legend.position = "top")
 }

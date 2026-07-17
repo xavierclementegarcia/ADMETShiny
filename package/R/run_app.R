@@ -24,6 +24,10 @@
 #' }
 run_app <- function(onStart = NULL, ...) {
 
+  ## Allow uploads up to 200 MB (ADMETlab 3.0 / Deep-PK exports with
+  ## hundreds of molecules can easily exceed Shiny's default 5 MB cap).
+  options(shiny.maxRequestSize = 200 * 1024^2)
+
   www_dir <- system.file("www", package = "admetshiny", mustWork = FALSE)
   if (dir.exists(www_dir) && nchar(www_dir) > 0) {
     shiny::addResourcePath("admetshiny", www_dir)

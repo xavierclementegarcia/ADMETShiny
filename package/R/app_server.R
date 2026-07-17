@@ -422,7 +422,14 @@ app_server <- function(input, output, session) {
           if (!is.na(smi) && smi %in% names(cdk_lookup)) {
             cdk_row <- cdk_lookup[[smi]][1, , drop = FALSE]
             cdk_row$TEMP_SMILES <- NULL
-            cbind(smiles_table_rv()[i, , drop = FALSE], cdk_row)
+            ## Drop any original columns whose names collide with CDK-derived
+            ## names to prevent duplicated column names in the cbind result.
+            orig_row <- smiles_table_rv()[i, , drop = FALSE]
+            dup_cols <- intersect(names(orig_row), names(cdk_row))
+            if (length(dup_cols) > 0) {
+              orig_row[[dup_cols[1]]] <- NULL
+            }
+            cbind(orig_row, cdk_row)
           } else {
             smiles_table_rv()[i, , drop = FALSE]
           }
@@ -633,6 +640,21 @@ app_server <- function(input, output, session) {
     )
   })
 
+  ## ---- CDK: renderUI blocks for the new plot types ----
+  output$cdk_histogram_custom_controls <- renderUI({
+    req(cdk_resultado())
+    cols <- names(cdk_resultado())
+    numeric_cols <- cols[sapply(cdk_resultado(), is.numeric)]
+    categorical_cols <- cols[!sapply(cdk_resultado(), is.numeric)]
+    tagList(
+      selectInput("cdk_hc_variable", "Variable", choices = numeric_cols, selected = "MW"),
+      sliderInput("cdk_hc_bins", "Number of bins", min = 5, max = 100, value = 30),
+      selectInput("cdk_hc_group", "Group by (overlay)", choices = c("None", categorical_cols), selected = "None"),
+      checkboxInput("cdk_hc_density", "Show density curve", TRUE),
+      checkboxInput("cdk_hc_rug", "Show rug plot", FALSE)
+    )
+  })
+
   ## ============== CDK plot rendering ====================================
   cdk_base_plot_types <- c("Radar plot (Chemical profile)",
                            "Tanimoto / AGNES (Structural similarity)")
@@ -710,7 +732,14 @@ app_server <- function(input, output, session) {
                                          group_by = input$cdk_violin_group,
                                          show_box = input$cdk_violin_box,
                                          show_points = input$cdk_violin_points),
-                             input$cdk_palette, cdk_resultado(), input$cdk_violin_group)
+                             input$cdk_palette, cdk_resultado(), input$cdk_violin_group),
+             "Custom Histogram" =
+               plotHistogramCustom(data = cdk_resultado(),
+                                   variable = input$cdk_hc_variable,
+                                   bins = input$cdk_hc_bins,
+                                   group_by = input$cdk_hc_group,
+                                   show_density = input$cdk_hc_density,
+                                   show_rug = input$cdk_hc_rug)
       )
     }
   })
@@ -946,6 +975,22 @@ app_server <- function(input, output, session) {
     )
   })
 
+  ## ---- SwissADME: renderUI blocks for the new plot types ----
+  output$histogram_custom_controls <- renderUI({
+    req(resultado())
+    cols <- names(resultado())
+    numeric_cols <- cols[sapply(resultado(), is.numeric)]
+    categorical_cols <- cols[!sapply(resultado(), is.numeric)]
+    tagList(
+      selectInput("hc_variable", "Variable", choices = numeric_cols, selected = "MW"),
+      sliderInput("hc_bins", "Number of bins", min = 5, max = 100, value = 30),
+      selectInput("hc_group", "Group by (overlay)", choices = c("None", categorical_cols),
+                  selected = "None"),
+      checkboxInput("hc_density", "Show density curve", TRUE),
+      checkboxInput("hc_rug", "Show rug plot", FALSE)
+    )
+  })
+
   ## ----------------------------- SwissADME plot ------------------------
   base_plot_types <- c("Radar plot (Chemical profile)",
                        "Tanimoto / AGNES (Structural similarity)")
@@ -1016,7 +1061,14 @@ app_server <- function(input, output, session) {
                apply_palette(plotViolin(data = resultado(), variable = input$violin_variable,
                                          group_by = input$violin_group, show_box = input$violin_box,
                                          show_points = input$violin_points),
-                             input$swiss_palette, resultado(), input$violin_group)
+                             input$swiss_palette, resultado(), input$violin_group),
+             "Custom Histogram" =
+               plotHistogramCustom(data = resultado(),
+                                   variable = input$hc_variable,
+                                   bins = input$hc_bins,
+                                   group_by = input$hc_group,
+                                   show_density = input$hc_density,
+                                   show_rug = input$hc_rug)
       )
     }
   })
@@ -1057,7 +1109,10 @@ app_server <- function(input, output, session) {
     req(input$admetlab_archivo)
     tryCatch({
       d <- read.csv(input$admetlab_archivo$datapath, check.names = FALSE)
-      admetlab_datos_rv(fixADMETlab(d))
+      withProgress(message = "Processing ADMETlab dataset (calculating CDK descriptors)...",
+                   value = 0.5, {
+        admetlab_datos_rv(fixADMETlab(d))
+      })
       showNotification("ADMETlab dataset loaded and processed.",
                        type = "message", duration = 5)
     }, error = function(e) {
@@ -1084,6 +1139,10 @@ app_server <- function(input, output, session) {
         egan = list(e_tpsa = input$admetlab_e_tpsa, e_logp = input$admetlab_e_logp, violations = input$admetlab_egan_violations),
         muegge = list(m_mw_min = input$admetlab_m_mw[1], m_mw_max = input$admetlab_m_mw[2], m_logp_min = input$admetlab_m_logp[1], m_logp_max = input$admetlab_m_logp[2], m_hba = input$admetlab_m_hba, m_hbd = input$admetlab_m_hbd, m_rb = input$admetlab_m_rb, m_tpsa = input$admetlab_m_tpsa, violations = input$admetlab_muegge_violations)
       )
+      if (nrow(out) == 0) {
+        showNotification("No compound meets the selected filters.",
+                         type = "warning", duration = 6)
+      }
       out
     }, error = function(e) {
       showNotification(paste("Error applying filters:", e$message),
@@ -1238,6 +1297,21 @@ app_server <- function(input, output, session) {
     )
   })
 
+  ## ---- ADMETlab: renderUI blocks for the new plot types ----
+  output$admetlab_histogram_custom_controls <- renderUI({
+    req(admetlab_resultado())
+    cols <- names(admetlab_resultado())
+    numeric_cols <- cols[sapply(admetlab_resultado(), is.numeric)]
+    categorical_cols <- cols[!sapply(admetlab_resultado(), is.numeric)]
+    tagList(
+      selectInput("admetlab_hc_variable", "Variable", choices = numeric_cols, selected = "MW"),
+      sliderInput("admetlab_hc_bins", "Number of bins", min = 5, max = 100, value = 30),
+      selectInput("admetlab_hc_group", "Group by (overlay)", choices = c("None", categorical_cols), selected = "None"),
+      checkboxInput("admetlab_hc_density", "Show density curve", TRUE),
+      checkboxInput("admetlab_hc_rug", "Show rug plot", FALSE)
+    )
+  })
+
   ## ---- ADMETlab plot rendering ----
   admetlab_base_plot_types <- c("Radar plot (Chemical profile)",
                                 "Tanimoto / AGNES (Structural similarity)")
@@ -1300,7 +1374,14 @@ app_server <- function(input, output, session) {
                apply_palette(plotViolin(data = admetlab_resultado(), variable = input$admetlab_violin_variable,
                                          group_by = input$admetlab_violin_group, show_box = input$admetlab_violin_box,
                                          show_points = input$admetlab_violin_points),
-                             input$admetlab_palette, admetlab_resultado(), input$admetlab_violin_group)
+                             input$admetlab_palette, admetlab_resultado(), input$admetlab_violin_group),
+             "Custom Histogram" =
+               plotHistogramCustom(data = admetlab_resultado(),
+                                   variable = input$admetlab_hc_variable,
+                                   bins = input$admetlab_hc_bins,
+                                   group_by = input$admetlab_hc_group,
+                                   show_density = input$admetlab_hc_density,
+                                   show_rug = input$admetlab_hc_rug)
       )
     }
   })
@@ -1340,8 +1421,11 @@ app_server <- function(input, output, session) {
     req(input$deeppk_archivo)
     tryCatch({
       d <- read.csv(input$deeppk_archivo$datapath, check.names = FALSE)
-      deeppk_datos_rv(fixDeepPK(d))
-      showNotification("Deep-PK dataset loaded and processed (calculating descriptors with CDK).",
+      withProgress(message = "Processing Deep-PK dataset (calculating CDK descriptors)...",
+                   value = 0.5, {
+        deeppk_datos_rv(fixDeepPK(d))
+      })
+      showNotification("Deep-PK dataset loaded and processed.",
                        type = "message", duration = 5)
     }, error = function(e) {
       showNotification(paste("Error reading Deep-PK:", e$message),
@@ -1359,7 +1443,7 @@ app_server <- function(input, output, session) {
   deeppk_resultado <- eventReactive(input$deeppk_run, {
     req(deeppk_datos())
     tryCatch({
-      applyFilters(
+      out <- applyFilters(
         data = deeppk_datos(), filters = input$deeppk_filters,
         lipinski = list(mw = input$deeppk_mw, logp = input$deeppk_logp, hba = input$deeppk_hba, hbd = input$deeppk_hbd, violations = input$deeppk_violations),
         veber = list(v_rb = input$deeppk_v_rb, v_tpsa = input$deeppk_v_tpsa, v_hb_sum = input$deeppk_v_hb_sum, violations = input$deeppk_veber_violations),
@@ -1367,6 +1451,11 @@ app_server <- function(input, output, session) {
         egan = list(e_tpsa = input$deeppk_e_tpsa, e_logp = input$deeppk_e_logp, violations = input$deeppk_egan_violations),
         muegge = list(m_mw_min = input$deeppk_m_mw[1], m_mw_max = input$deeppk_m_mw[2], m_logp_min = input$deeppk_m_logp[1], m_logp_max = input$deeppk_m_logp[2], m_hba = input$deeppk_m_hba, m_hbd = input$deeppk_m_hbd, m_rb = input$deeppk_m_rb, m_tpsa = input$deeppk_m_tpsa, violations = input$deeppk_muegge_violations)
       )
+      if (nrow(out) == 0) {
+        showNotification("No compound meets the selected filters.",
+                         type = "warning", duration = 6)
+      }
+      out
     }, error = function(e) {
       showNotification(paste("Error applying filters:", e$message),
                        type = "error", duration = 8)
@@ -1519,6 +1608,21 @@ app_server <- function(input, output, session) {
     )
   })
 
+  ## ---- Deep-PK: renderUI blocks for the new plot types ----
+  output$deeppk_histogram_custom_controls <- renderUI({
+    req(deeppk_resultado())
+    cols <- names(deeppk_resultado())
+    numeric_cols <- cols[sapply(deeppk_resultado(), is.numeric)]
+    categorical_cols <- cols[!sapply(deeppk_resultado(), is.numeric)]
+    tagList(
+      selectInput("deeppk_hc_variable", "Variable", choices = numeric_cols, selected = "MW"),
+      sliderInput("deeppk_hc_bins", "Number of bins", min = 5, max = 100, value = 30),
+      selectInput("deeppk_hc_group", "Group by (overlay)", choices = c("None", categorical_cols), selected = "None"),
+      checkboxInput("deeppk_hc_density", "Show density curve", TRUE),
+      checkboxInput("deeppk_hc_rug", "Show rug plot", FALSE)
+    )
+  })
+
   ## ---- Deep-PK plot rendering ----
   deeppk_base_plot_types <- c("Radar plot (Chemical profile)",
                               "Tanimoto / AGNES (Structural similarity)")
@@ -1581,7 +1685,14 @@ app_server <- function(input, output, session) {
                apply_palette(plotViolin(data = deeppk_resultado(), variable = input$deeppk_violin_variable,
                                          group_by = input$deeppk_violin_group, show_box = input$deeppk_violin_box,
                                          show_points = input$deeppk_violin_points),
-                             input$deeppk_palette, deeppk_resultado(), input$deeppk_violin_group)
+                             input$deeppk_palette, deeppk_resultado(), input$deeppk_violin_group),
+             "Custom Histogram" =
+               plotHistogramCustom(data = deeppk_resultado(),
+                                   variable = input$deeppk_hc_variable,
+                                   bins = input$deeppk_hc_bins,
+                                   group_by = input$deeppk_hc_group,
+                                   show_density = input$deeppk_hc_density,
+                                   show_rug = input$deeppk_hc_rug)
       )
     }
   })

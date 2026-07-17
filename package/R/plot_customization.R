@@ -66,7 +66,7 @@ apply_palette <- function(p, palette_name, data, color_col) {
     return(p)
   }
 
-  is_continuous <- is.numeric(data[[color_col]]) #Kevin, i love you, thank you!
+  is_continuous <- is.numeric(data[[color_col]])
 
   if (palette_name %in% c("viridis", "magma", "inferno")) {
     if (is_continuous) {

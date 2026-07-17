@@ -39,7 +39,7 @@ swissadme_tab <- function() {
         ),
 
         conditionalPanel(
-          condition = "input.filters.includes('Veber')", #Jeison, i love you! Thank you
+          condition = "input.filters.includes('Veber')",
           tags$b("Veber"),
           numericInput("v_rb", "Max. Rotatable Bonds", 10),
           numericInput("v_tpsa", "Max. TPSA", 140),
@@ -104,7 +104,8 @@ swissadme_tab <- function() {
               "UMAP (Chemical space)",
               "Cluster Heatmap (Dendrogram)",
               "Parallel Coordinates",
-              "Violin Plot"
+              "Violin Plot",
+              "Custom Histogram"
             )),
 
             conditionalPanel(
@@ -209,6 +210,16 @@ swissadme_tab <- function() {
                        "Branches close together indicate similar compounds; the color scale shows z-scored property values."),
               tags$hr(),
               uiOutput("cluster_heatmap_controls")
+            ),
+
+            conditionalPanel(
+              condition = "input.plot_type == 'Custom Histogram'",
+              tags$div(class = "alert-primary", icon("book-open"), tags$b(" Function: "),
+                       "Highly customizable histogram of any numeric column in the dataset."),
+              tags$div(class = "alert-primary", icon("book-open"), tags$b(" Analysis: "),
+                       "Reveals the distribution shape, modality and outliers of any descriptor or ADMET probability."),
+              tags$hr(),
+              uiOutput("histogram_custom_controls")
             ),
 
             palette_selector_ui("swiss_palette"),

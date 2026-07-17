@@ -471,9 +471,9 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="package-structure">Package Structure</h3>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 11%">
-<col style="width: 50%">
-<col style="width: 37%">
+<col style="width: 20%">
+<col style="width: 45%">
+<col style="width: 33%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -659,11 +659,11 @@ Pgp
 <p>Each data source provides physicochemical descriptors and ADMET predictions computed with different algorithms and named with different conventions. ADMETShiny maps all of them to a unified internal schema.</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 21%">
-<col style="width: 28%">
-<col style="width: 18%">
+<col style="width: 19%">
+<col style="width: 19%">
+<col style="width: 19%">
+<col style="width: 23%">
+<col style="width: 19%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -787,12 +787,6 @@ TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for th
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>.hia_polygon <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="fl">97.8055224368</span>, <span class="sc">-</span><span class="fl">2.2270390475</span>, ...), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>) .bbb_polygon <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="fl">40.9701792513</span>, <span class="fl">0.4062562900</span>, ...), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>) <span class="co"># Column 1 = TPSA (x-axis), Column 2 = LogP (y-axis)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <caption>Polygon points defined by 101 points</caption>
-<colgroup>
-<col style="width: 20%">
-<col style="width: 22%">
-<col style="width: 20%">
-<col style="width: 12%">
-</colgroup>
 <thead>
 <tr class="header">
 <th>Region</th>
@@ -828,10 +822,10 @@ TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for th
 <p>This package use a BOILED-Egg approximation LogP source was that calibrated with WLOGP (Wildman-Crippen). The accuracy of the classification depends on the LogP algorithm used:</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 20%">
-<col style="width: 30%">
-<col style="width: 20%">
-<col style="width: 26%">
+<col style="width: 21%">
+<col style="width: 32%">
+<col style="width: 18%">
+<col style="width: 28%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -871,10 +865,10 @@ TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for th
 <p>In this SwissADME module, users can select which <code>LogP</code> variant to use for the BOILED-Egg plot (<code>WLOGP</code>, <code>Consensus</code> <code>LogP</code>, <code>MLOGP</code>, <code>XLOGP3</code>, <code>iLOGP</code> or <code>generic</code> <code>LogP</code>). For other modules, the platform’s own <code>LogP</code> is used, which may introduce classification errors for compounds near the polygon boundaries.</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 21%">
-<col style="width: 30%">
-<col style="width: 21%">
-<col style="width: 24%">
+<col style="width: 23%">
+<col style="width: 29%">
+<col style="width: 23%">
+<col style="width: 23%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -989,11 +983,6 @@ TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for th
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fl">1.</span> SMILES parsing<span class="sc">:</span> rcdk<span class="sc">::</span><span class="fu">parse.smiles</span>(smiles) <span class="ot">-&gt;</span> IAtomContainer objects <span class="fl">2.</span> Molecule configuration<span class="sc">:</span>    <span class="sc">-</span> <span class="fu">convert.implicit.to.explicit</span>(m)  <span class="co"># add explicit hydrogens    - do.aromaticity(m)                 # perceive aromatic systems    - set.atom.types(m)                 # set atom types (modern API) 3. Descriptor evaluation: rcdk::eval.desc(mols, classes) -&gt; data.frame</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The AlogPdescriptor is special because it returns three columns:</p>
 <table class="caption-top table">
-<colgroup>
-<col style="width: 20%">
-<col style="width: 42%">
-<col style="width: 35%">
-</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: center;">CDK Column</th>
@@ -1070,9 +1059,6 @@ TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for th
 <section id="case-study" class="level4">
 <h4 class="anchored" data-anchor-id="case-study">Case study</h4>
 <p>The goal is for the user to find a quick design scheme for analyzing a molecule bank. This example will be performed with 200 molecules, attempting to respect the limit allowed by SwissADME. For more information on the user interface and workflow, please refer to the tutorials</p>
-<section id="gui-workflow" class="level5">
-<h5 class="anchored" data-anchor-id="gui-workflow">GUI workflow</h5>
-</section>
 </section>
 </section>
 <section id="references" class="level3">

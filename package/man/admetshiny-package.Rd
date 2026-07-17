@@ -69,11 +69,14 @@ By Xavier Clemente Garcia Cevallos :3 "Hecho con amor para la ciencia"
 \item \code{\link{plotMW}}, \code{\link{plotTPSA}}, \code{\link{plotLogP}} - Distributions
 \item \code{\link{plotPCA}} - PCA chemical space
 \item \code{\link{plotTSNE}} - t-SNE chemical space
+\item \code{\link{plotUMAP}} - UMAP chemical space
 \item \code{\link{plotParallel}} - Parallel coordinates
 \item \code{\link{plotViolin}} - Violin plot
 \item \code{\link{plotRadar}} - Radar chart
 \item \code{\link{plotTanimoto}} - Tanimoto/AGNES clustering
 \item \code{\link{plotCorrHeatmap}} - Correlation heatmap
+\item \code{\link{plotClusterHeatmap}} - Cluster heatmap with dendrogram
+\item \code{\link{plotHistogramCustom}} - Customizable histogram of any numeric column
 \item \code{\link{palette_selector_ui}}, \code{\link{apply_palette}} - Colour customization
 }
 }

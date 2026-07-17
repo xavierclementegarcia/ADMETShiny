@@ -279,7 +279,8 @@ cdk_tab <- function() {
                 "UMAP (Chemical space)",
                 "Cluster Heatmap (Dendrogram)",
                 "Parallel Coordinates",
-                "Violin Plot"
+                "Violin Plot",
+                "Custom Histogram"
               )),
 
               conditionalPanel(
@@ -370,6 +371,16 @@ cdk_tab <- function() {
                          "Branches close together indicate similar compounds; the color scale shows z-scored property values."),
                 tags$hr(),
                 uiOutput("cdk_cluster_heatmap_controls")
+              ),
+
+              conditionalPanel(
+                condition = "input.cdk_plot_type == 'Custom Histogram'",
+                tags$div(class = "alert-primary", icon("book-open"), tags$b(" Function: "),
+                         "Highly customizable histogram of any numeric column in the dataset."),
+                tags$div(class = "alert-primary", icon("book-open"), tags$b(" Analysis: "),
+                         "Reveals the distribution shape, modality and outliers of any descriptor or ADMET probability."),
+                tags$hr(),
+                uiOutput("cdk_histogram_custom_controls")
               ),
 
               palette_selector_ui("cdk_palette"),

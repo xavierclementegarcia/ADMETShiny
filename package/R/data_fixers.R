@@ -165,6 +165,51 @@ fixADMETlab <- function(data) {
     data <- data[, -1, drop = FALSE]
   }
 
+  ## 2b. Remove the raw_smiles column (duplicate of the renamed CanonicalSMILES)
+  if ("raw_smiles" %in% names(data)) {
+    data$raw_smiles <- NULL
+  }
+
+  ## 2c. Parse toxicology alert columns from Python-literal strings to binary.
+  ##     ADMETlab outputs alerts as "['-']" (no alert) or "[(1, 2, 3)]" (alert
+  ##     found with atom indices). Convert to 0/1 so they display cleanly.
+  alert_cols <- c("Alarm_NMR", "BMS", "Chelating", "PAINS", "SureChEMBL",
+                  "NonBiodegradable", "NonGenotoxic_Carcinogenicity",
+                  "LD50_oral", "Skin_Sensitization", "Acute_Aquatic_Toxicity",
+                  "FAF-Drugs4 Rule", "Genotoxic_Carcinogenicity_Mutagenicity",
+                  "Aggregators", "Fluc", "Blue_fluorescence",
+                  "Green_fluorescence", "Reactive", "Other_assay_interference",
+                  "Promiscuous")
+  for (col in alert_cols) {
+    if (col %in% names(data)) {
+      val <- as.character(data[[col]])
+      data[[col]] <- ifelse(is.na(val) | grepl("^\\['-'\\]$", val), 0L, 1L)
+    }
+  }
+
+  ## 2d. Drop redundant drug-likeness columns that ADMETlab computes itself.
+  ##     The app computes its own violation columns (Lipinski #violations,
+  ##     etc.) with different semantics, so keeping ADMETlab's binary versions
+  ##     would confuse the user.
+  redundant_cols <- c("Lipinski", "Pfizer", "GSK", "GoldenTriangle")
+  for (col in redundant_cols) {
+    if (col %in% names(data)) {
+      data[[col]] <- NULL
+    }
+  }
+
+  ## 2e. Drop unused physicochemical descriptors that no plot or filter
+  ##     references. These would clutter the DT preview without adding value.
+  unused_descriptors <- c("Vol", "Dense", "nRing", "MaxRing", "nHet",
+                          "fChar", "nRig", "Flex", "nStereo", "gasa",
+                          "QED", "Synth", "Fsp3", "MCE-18",
+                          "Natural Product-likeness")
+  for (col in unused_descriptors) {
+    if (col %in% names(data)) {
+      data[[col]] <- NULL
+    }
+  }
+
   ## 3. Rename columns from ADMETlab names to the application's standard names
   rename_map <- c(
     "smiles" = "CanonicalSMILES",

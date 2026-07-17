@@ -206,6 +206,11 @@ mapCDKDescriptors <- function(cdk_df) {
     }
   }
 
+  ## Drop ALogP2 (returned by ALOGPDescriptor but not used by any plot/filter)
+  if ("ALogP2" %in% names(cdk_df)) {
+    cdk_df$ALogP2 <- NULL
+  }
+
   cdk_df <- computeViolationColumns(cdk_df)
   cdk_df <- computeADMETProperties(cdk_df)
 
@@ -345,36 +350,46 @@ computeADMETProperties <- function(data) {
   mw   <- safe_get("MW")
   hbd  <- safe_get("#H-bond donors")
   hba  <- safe_get("#H-bond acceptors")
+  rb   <- safe_get("#Rotatable bonds")
+  ha   <- safe_get("#Heavy atoms")
+  arom <- safe_get("#Aromatic heavy atoms")
+  mr   <- safe_get("MR")
 
-  ## Classify points using official polygons (point-in-polygon)
+  ## Select the appropriate BOILED-Egg polygon based on the LogP source.
+  ## If the data has a WLOGP column (SwissADME), use the official WLOGP
+  ## polygons from Daina & Zoete (2016). Otherwise (CDK/ADMETlab/Deep-PK,
+  ## which use ALogP or their own logP), use the ALogP-trained polygons.
+  use_alogp <- !"WLOGP" %in% names(data)
+  hia_poly <- if (use_alogp) .hia_polygon_alogp else .hia_polygon
+  bbb_poly <- if (use_alogp) .bbb_polygon_alogp else .bbb_polygon
+
+  ## Classify points using point-in-polygon
   ## Polygons are stored as (TPSA, LogP) = (x, y) in R/boiled_egg_data.R
-  ## point_in_polygon expects: x = TPSA, y = LogP
-  hia_inside <- ..point_in_polygon(tpsa, logp, .hia_polygon)
+  hia_inside <- ..point_in_polygon(tpsa, logp, hia_poly)
   data[["GI absorption"]] <- ifelse(
     is.na(hia_inside), NA,
     ifelse(hia_inside, "High", "Low")
   )
 
-  bbb_inside <- ..point_in_polygon(tpsa, logp, .bbb_polygon)
+  bbb_inside <- ..point_in_polygon(tpsa, logp, bbb_poly)
   data[["BBB permeant"]] <- ifelse(
     is.na(bbb_inside), NA,
     ifelse(bbb_inside, "Yes", "No")
   )
 
-  ## 3. P-gp substrate (literature heuristic based on Seelig 1998 and
-  ##    Didziapetris et al. 2003)
-  ##    P-gp substrates tend to be larger, more polar, and moderately
-  ##    lipophilic. We require:
-  ##      MW > 400 AND TPSA > 40 AND (HBA + HBD) >= 8 AND LogP > 1
-  ##    OR
-  ##      MW > 500 AND LogP > 4 AND TPSA > 40
-  pgp_condition <-
-    (mw > 400 & tpsa > 40 & (hba + hbd) >= 8 & logp > 1) |
-    (mw > 500 & logp > 4 & tpsa > 40)
+  ## 3. P-gp substrate prediction
+  ##    Uses a logistic regression model trained from 882 experimental
+  ##    P-gp (ABCB1) substrate/non-substrate classifications from Metrabase
+  ##    (J. Cheminformatics 2015, 7:21). The model uses the 9 CDK descriptors
+  ##    and achieves 64% cross-validated accuracy (vs 55% for the previous
+  ##    heuristic based on Seelig 1998 / Didziapetris 2003).
+  pgp_prob <- ..predict_pgp(mw, logp, tpsa, hbd, hba, rb,
+                            ha, arom, mr)
   data[["Pgp substrate"]] <- ifelse(
-    is.na(pgp_condition), NA,
-    ifelse(pgp_condition, "Yes", "No")
+    is.na(pgp_prob), NA,
+    ifelse(pgp_prob >= 0.5, "Yes", "No")
   )
+  data[["Pgp probability"]] <- pgp_prob
 
   data
 }

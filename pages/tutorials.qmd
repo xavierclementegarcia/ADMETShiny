@@ -21,15 +21,11 @@ The UI is composed of independent tab modules (SwissADME, CDK, ADMETLab, Deep-PK
 
 ### Package Structure
 
-+----------------------+-----------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------+
-| Layer                | Files                                                                                               | Purpose                                                                  |
-+======================+=====================================================================================================+==========================================================================+
-| Core API             | `filters.R, data_fixers.R, cdk_webchem.R, plots.R, plots_cluster.R, plot_customization.R, report.R` | Exported functions for filtering normalization, visualization, reporting |
-+----------------------+-----------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------+
-| Shiny App            | `app_ui.R, app_server.R, ui.R, dark_mode.R, run_app.R`                                              | Interactive web application                                              |
-+----------------------+-----------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------+
-| Infrastructure       | `admetshiny-package.R, globals.R, utils-pipe.R, boiled_egg_data.R`                                  | Package metadata, constants, imports, data                               |
-+----------------------+-----------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------+
+| Layer | Files | Purpose |
+|---------------|---------------------------------|------------------------|
+| Core API | `filters.R, data_fixers.R, cdk_webchem.R, plots.R, plots_cluster.R, plot_customization.R, report.R` | Exported functions for filtering normalization, visualization, reporting |
+| Shiny App | `app_ui.R, app_server.R, ui.R, dark_mode.R, run_app.R` | Interactive web application |
+| Infrastructure | `admetshiny-package.R, globals.R, utils-pipe.R, boiled_egg_data.R` | Package metadata, constants, imports, data |
 
 This separation ensures that the computational functions can be used independently of the Shiny application, either in R scripts or embedded in other packages.
 
@@ -239,31 +235,19 @@ This harmonization enables identical downstream workflows for physicochemical de
 
 Each data source provides physicochemical descriptors and ADMET predictions computed with different algorithms and named with different conventions. ADMETShiny maps all of them to a unified internal schema.
 
-+-------------------+-------------------+----------------------------+---------------------------------------+-------------------------+
-| Standar column    | SwissADME         | ADMETLab 3.0               | Deep-pK                               | CDK & Webchem           |
-+:=================:+:=================:+:==========================:+:=====================================:+:=======================:+
-| MW                | MW                | MW                         | WeightDescriptor (CDK)                | WeightDescriptor        |
-+-------------------+-------------------+----------------------------+---------------------------------------+-------------------------+
-| LogP              | WLOGP             | logP                       | \[Log(P)\] Predictions or AlogP (CDK) | AlogP (Ghose-Crippen)   |
-+-------------------+-------------------+----------------------------+---------------------------------------+-------------------------+
-| TPSA              | TPSA              | TPSA                       | TPSADescriptor (CDK)                  | TPSADescriptor (CDK)    |
-+-------------------+-------------------+----------------------------+---------------------------------------+-------------------------+
-| #H Bond acceptors | #H bond acceptors | nHA                        | nHBAcc (CDK)                          | nHBAcc                  |
-+-------------------+-------------------+----------------------------+---------------------------------------+-------------------------+
-| #H Bond donors    | #H bond donors    | nHD                        | nHBDon (CDK)                          | nHBDon                  |
-+-------------------+-------------------+----------------------------+---------------------------------------+-------------------------+
-| #Rotatable bonds  | #Rotatable bonds  | nRot                       | nRotB (CDK)                           | nRotB                   |
-+-------------------+-------------------+----------------------------+---------------------------------------+-------------------------+
-| #Heavy atoms      | #Heavy atoms      | nAtom                      | nAtom (CDK)                           | nAtom                   |
-+-------------------+-------------------+----------------------------+---------------------------------------+-------------------------+
-| MR                | MR                | AMR                        | AMR (CDK)                             | AMR                     |
-+-------------------+-------------------+----------------------------+---------------------------------------+-------------------------+
-| GI absorption     | GI absorption     | hia\>=0.5 (binarized)      | Interpretation text (parsed)          | Boiled-Egg polygon test |
-+-------------------+-------------------+----------------------------+---------------------------------------+-------------------------+
-| BBB permeant      | BBB permeant      | BBB \>=0.5 (binarized)     | Intepretation text (parsed)           | Boiled-Egg polygon test |
-+-------------------+-------------------+----------------------------+---------------------------------------+-------------------------+
-| Pgp substrate     | Pgp substrate     | pgp_sub \>=0.5 (binarized) | Interpretation text (parsed)          | Heuristic               |
-+-------------------+-------------------+----------------------------+---------------------------------------+-------------------------+
+| Standar column | SwissADME | ADMETLab 3.0 | Deep-pK | CDK & Webchem |
+|:------------:|:------------:|:------------:|:---------------:|:------------:|
+| MW | MW | MW | WeightDescriptor (CDK) | WeightDescriptor |
+| LogP | WLOGP | logP | \[Log(P)\] Predictions or AlogP (CDK) | AlogP (Ghose-Crippen) |
+| TPSA | TPSA | TPSA | TPSADescriptor (CDK) | TPSADescriptor (CDK) |
+| #H Bond acceptors | #H bond acceptors | nHA | nHBAcc (CDK) | nHBAcc |
+| #H Bond donors | #H bond donors | nHD | nHBDon (CDK) | nHBDon |
+| #Rotatable bonds | #Rotatable bonds | nRot | nRotB (CDK) | nRotB |
+| #Heavy atoms | #Heavy atoms | nAtom | nAtom (CDK) | nAtom |
+| MR | MR | AMR | AMR (CDK) | AMR |
+| GI absorption | GI absorption | hia\>=0.5 (binarized) | Interpretation text (parsed) | Boiled-Egg polygon test |
+| BBB permeant | BBB permeant | BBB \>=0.5 (binarized) | Intepretation text (parsed) | Boiled-Egg polygon test |
+| Pgp substrate | Pgp substrate | pgp_sub \>=0.5 (binarized) | Interpretation text (parsed) | Heuristic |
 
 ### The BOILED-Egg model
 
@@ -303,13 +287,10 @@ The BBB polygon in the below table contains small negative TPSA value (-2.96). T
 .hia_polygon <- matrix(c(97.8055224368, -2.2270390475, ...), ncol = 2, byrow = TRUE) .bbb_polygon <- matrix(c(40.9701792513, 0.4062562900, ...), ncol = 2, byrow = TRUE) # Column 1 = TPSA (x-axis), Column 2 = LogP (y-axis)
 ```
 
-+--------------+---------------+--------------+--------+
 | Region       | TPSA Range    | WLOGP Range  | Points |
-+==============+===============+==============+========+
+|--------------|---------------|--------------|--------|
 | HIA (white)  | 0.02 - 142.03 | -2.25 - 6.84 | 101    |
-+--------------+---------------+--------------+--------+
 | BBB (yellow) | -2.96 - 79.10 | 0.41 - 5.96  | 101    |
-+--------------+---------------+--------------+--------+
 
 : Polygon points defined by 101 points
 
@@ -329,35 +310,23 @@ The classification logic correspond to:
 
 This package use a BOILED-Egg approximation LogP source was that calibrated with WLOGP (Wildman-Crippen). The accuracy of the classification depends on the LogP algorithm used:
 
-+---------------+-----------------------+---------------+--------------------+
-| Module        | LogP used             | Fidelity      | Recommendation     |
-+:=============:+:=====================:+:=============:+:==================:+
-| SwissADME     | WLOGP                 | Optimal       | Use for validation |
-+---------------+-----------------------+---------------+--------------------+
-| ADMETLab 3.0  | logP (ML model)       | Approximate   | Exploratory only   |
-+---------------+-----------------------+---------------+--------------------+
-| Deep-PK       | LogP (DL model)       | Approximate   | Exploratory only   |
-+---------------+-----------------------+---------------+--------------------+
-| CDK & Webchem | ALogP (Ghose-Crippen) | Approximate   | Exploratory only   |
-+---------------+-----------------------+---------------+--------------------+
+|    Module     |       LogP used       |  Fidelity   |   Recommendation   |
+|:-------------:|:---------------------:|:-----------:|:------------------:|
+|   SwissADME   |         WLOGP         |   Optimal   | Use for validation |
+| ADMETLab 3.0  |    logP (ML model)    | Approximate |  Exploratory only  |
+|    Deep-PK    |    LogP (DL model)    | Approximate |  Exploratory only  |
+| CDK & Webchem | ALogP (Ghose-Crippen) | Approximate |  Exploratory only  |
 
 In this SwissADME module, users can select which `LogP` variant to use for the BOILED-Egg plot (`WLOGP`, `Consensus` `LogP`, `MLOGP`, `XLOGP3`, `iLOGP` or `generic` `LogP`). For other modules, the platform's own `LogP` is used, which may introduce classification errors for compounds near the polygon boundaries.
 
-+--------------------------+-------------------------------------+--------------------------+-----------------------------+
-| Source                   | Algorithm                           | Method Type              | Typical difference vs WLOGP |
-+==========================+=====================================+==========================+=============================+
-| SwissADME WLOGP          | Wildman-Crippen                     | Atom-based fragmentation | Without difference          |
-+--------------------------+-------------------------------------+--------------------------+-----------------------------+
-| SwissADME Consensus LogP | Mean of iLOGP, XLOGP3, WLOGP, MLOGP | Ensemble                 | 0.3 - 0.8 units             |
-+--------------------------+-------------------------------------+--------------------------+-----------------------------+
-| SwissADME MLOGP          | Moriguchi                           | Topological indices      | 0.5 -1.5 units              |
-+--------------------------+-------------------------------------+--------------------------+-----------------------------+
-| ADMETLab LogP            | Proprietary ML model                | Machine Learning         | 0.5 - 1-5 units             |
-+--------------------------+-------------------------------------+--------------------------+-----------------------------+
-| Deep-pK LogP             | Proprietary DL model                | Deep learning            | 0.5 - 2.0 units             |
-+--------------------------+-------------------------------------+--------------------------+-----------------------------+
-| CDK AlogP                | Ghose-Crippen                       | Atom-based fragmentation | 0.5 - 1.5 units             |
-+--------------------------+-------------------------------------+--------------------------+-----------------------------+
+| Source | Algorithm | Method Type | Typical difference vs WLOGP |
+|-----------------|---------------------|-----------------|-----------------|
+| SwissADME WLOGP | Wildman-Crippen | Atom-based fragmentation | Without difference |
+| SwissADME Consensus LogP | Mean of iLOGP, XLOGP3, WLOGP, MLOGP | Ensemble | 0.3 - 0.8 units |
+| SwissADME MLOGP | Moriguchi | Topological indices | 0.5 -1.5 units |
+| ADMETLab LogP | Proprietary ML model | Machine Learning | 0.5 - 1-5 units |
+| Deep-pK LogP | Proprietary DL model | Deep learning | 0.5 - 2.0 units |
+| CDK AlogP | Ghose-Crippen | Atom-based fragmentation | 0.5 - 1.5 units |
 
 For SwissADME Manager, WLOGP is used as the default LogP (matching the BOILED-Egg calibration). For other sources, the platform's own LogP is used as an approximation. In the SwissADME module's BOILED-Egg plot, the user can select which LogP variant to use via a dropdown selecto (WLOGP, Consensus LogP, MLOGP, XLOGP3, iLOGP or generic Logp). Generic LogP is an equivalence to WLOGP with SwissADME dataset.
 
@@ -374,14 +343,13 @@ The plot in ADMETShiny package follow the SwissADME convention: X-axis = TPSA (0
 The Boiled-Egg uses P-gp substrate status only for point colouring (blue=PGP+, red=PGP-), not for GI/BBB classification. Each module obtais P-gp differently:
 
 | Modue | Method | Algorithm | Accuracy |
-|:--:|:--:|:--:|:--:|
+|:----------------:|:----------------:|:----------------:|:----------------:|
 | SwissADME | CSV | SVM | High (Validated) |
 | ADMETLab 3.0 | pgp\_\_sub\>0.5 | ML model probability threshold | High |
 | Deep-pK | Text parsing (Substrate/Non-substrate) | DL model interpretation | High |
 | CDK & Webchem | Heuristic formula | Literature-based [@seelig1998] | Medium-Low (approximation) |
 
-: 
-At the case of CDK, the heuristic equation correspond to the follow:
+: At the case of CDK, the heuristic equation correspond to the follow:
 
 ``` r
 Pgp = Yes if:     (MW > 400 AND TPSA > 40 AND (HBA + HBD) >= 8 AND LogP > 1)     OR     (MW > 500 AND LogP > 4 AND TPSA > 40) else: Pgp = No
@@ -401,15 +369,11 @@ The CDK (Chemistry Development Kit) descriptor calculation follows a three-stage
 
 The AlogPdescriptor is special because it returns three columns:
 
-+---------------+--------------------------------+--------------------------+
-| CDK Column    | Description                    | Mapped to                |
-+:=============:+:==============================:+:========================:+
-| AlogP         | Ghose-Crippen LogP             | LogP (generic)           |
-+---------------+--------------------------------+--------------------------+
-| AlogP2        | Second LogP model              | Dropped                  |
-+---------------+--------------------------------+--------------------------+
-| AMR           | Approximate Molar Refractivity | MR                       |
-+---------------+--------------------------------+--------------------------+
+| CDK Column |          Description           |   Mapped to    |
+|:----------:|:------------------------------:|:--------------:|
+|   AlogP    |       Ghose-Crippen LogP       | LogP (generic) |
+|   AlogP2   |       Second LogP model        |    Dropped     |
+|    AMR     | Approximate Molar Refractivity |       MR       |
 
 ### Statistical analysis
 
@@ -445,7 +409,7 @@ max_perplexity = floor((n - 1) / 3)  # Rtsne requirement perplexity = min(user_p
 
 ![](/images/32.png){width="600"}
 
-#### Cluster heatmap with dendrogram 
+#### Cluster heatmap with dendrogram
 
 Hierarchical clustering is performed using `stats::hclust` with user-selected linkage method. The heatmap is rendered using base R `heatmap()`, with couples the dendrogram directly to the heatmap cells.
 
@@ -484,7 +448,5 @@ Score categories:
 #### Case study
 
 The goal is for the user to find a quick design scheme for analyzing a molecule bank. This example will be performed with 200 molecules, attempting to respect the limit allowed by SwissADME. For more information on the user interface and workflow, please refer to the tutorials
-
-##### GUI workflow
 
 ### References

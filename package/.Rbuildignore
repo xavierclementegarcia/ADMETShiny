@@ -11,3 +11,10 @@
 ^appveyor\.yml$
 ^worklog\.md$
 ^admetshiny_technical_reference\.docx$
+^admetshiny_mathematical_foundations\.docx$
+^_build_math_doc$
+^train_ellipses\.py$
+^train_pgp.*\.py$
+^export_rf\.py$
+^alogp_ellipses\.json$
+^pgp_.*\.json$

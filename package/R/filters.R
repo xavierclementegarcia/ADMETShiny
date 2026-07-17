@@ -219,10 +219,12 @@ eganFilter <- function(
 ##   HBA <= 10 | HBD <= 5 | rotatable bonds <= 15.
 ## Note: the original Muegge rule also includes "pharmacophore points >= 4"
 ## (HBA + HBD + rings), but rings are not directly available from
-## SwissADME/ADMETlab/Deep-PK/CDK data. The aromatic heavy atoms
-## criterion was removed because it is NOT part of the original Muegge rule
-## and the threshold of <= 7 is far too restrictive (a single benzene ring
-## has 6 aromatic heavy atoms; two rings have 10-12).
+## SwissADME/ADMETlab/Deep-PK/CDK data. The pharmacophore-point criterion
+## is approximated as HBA + HBD (see computeViolationColumns).
+## The aromatic heavy atoms criterion was removed because it is NOT part
+## of the original Muegge rule and the threshold of <= 7 is far too
+## restrictive (a single benzene ring has 6 aromatic heavy atoms; two
+## rings have 10-12).
 
 #' Muegge drug-likeness filter
 #'

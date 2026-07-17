@@ -224,12 +224,12 @@ computeDruglikenessScore <- function(data) {
 
   list(
     per_compound = score,
-    mean   = round(mean(score, na.rm = TRUE), 1),
-    median = round(median(score, na.rm = TRUE), 1),
-    sd     = round(sd(score, na.rm = TRUE), 1),
-    excellent  = round(mean(score >= 80, na.rm = TRUE) * 100, 1),
-    acceptable = round(mean(score >= 60 & score < 80, na.rm = TRUE) * 100, 1),
-    poor       = round(mean(score < 60, na.rm = TRUE) * 100, 1)
+    mean   = if (all(is.na(score))) NA_real_ else round(mean(score, na.rm = TRUE), 1),
+    median = if (all(is.na(score))) NA_real_ else round(median(score, na.rm = TRUE), 1),
+    sd     = if (all(is.na(score))) NA_real_ else round(sd(score, na.rm = TRUE), 1),
+    excellent  = if (all(is.na(score))) NA_real_ else round(mean(score >= 80, na.rm = TRUE) * 100, 1),
+    acceptable = if (all(is.na(score))) NA_real_ else round(mean(score >= 60 & score < 80, na.rm = TRUE) * 100, 1),
+    poor       = if (all(is.na(score))) NA_real_ else round(mean(score < 60, na.rm = TRUE) * 100, 1)
   )
 }
 

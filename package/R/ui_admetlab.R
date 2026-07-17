@@ -29,7 +29,7 @@ admetlab_tab <- function() {
                          numericInput("admetlab_mw", "Max. Molecular Weight", 500),
                          numericInput("admetlab_logp", "Max. LogP", 5),
                          numericInput("admetlab_hba", "Max. H-bond acceptors", 10),
-                         numericInput("admetlab_hbd", "Max. H-bond donors", 5), #Laura Lasso, Thank you!
+                         numericInput("admetlab_hbd", "Max. H-bond donors", 5),
                          numericInput("admetlab_violations", "Maximum Lipinski Violations", 0)),
 
         conditionalPanel(condition = "input.admetlab_filters.includes('Veber')",
@@ -85,7 +85,8 @@ admetlab_tab <- function() {
                      "UMAP (Chemical space)",
                      "Cluster Heatmap (Dendrogram)",
                      "Parallel Coordinates",
-                     "Violin Plot"
+                     "Violin Plot",
+                     "Custom Histogram"
                    )),
 
                    conditionalPanel(condition = "input.admetlab_plot_type == 'Radar plot (Chemical profile)'",
@@ -159,6 +160,14 @@ admetlab_tab <- function() {
                                              "Branches close together indicate similar compounds; the color scale shows z-scored property values."),
                                     tags$hr(),
                                     uiOutput("admetlab_cluster_heatmap_controls")),
+
+                   conditionalPanel(condition = "input.admetlab_plot_type == 'Custom Histogram'",
+                                    tags$div(class = "alert-primary", icon("book-open"), tags$b(" Function: "),
+                                             "Highly customizable histogram of any numeric column in the dataset."),
+                                    tags$div(class = "alert-primary", icon("book-open"), tags$b(" Analysis: "),
+                                             "Reveals the distribution shape, modality and outliers of any descriptor or ADMET probability."),
+                                    tags$hr(),
+                                    uiOutput("admetlab_histogram_custom_controls")),
 
                    palette_selector_ui("admetlab_palette"),
                    br(),
