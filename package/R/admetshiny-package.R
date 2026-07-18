@@ -34,9 +34,7 @@
 #' @section Data normalization:
 #'
 #' \itemize{
-#'   \item \code{\link{fixSwissADME}} - Normalize SwissADME data
-#'   \item \code{\link{fixADMETlab}} - Normalize ADMETlab 3.0 data
-#'   \item \code{\link{fixDeepPK}} - Normalize Deep-PK data
+#'   \item \code{\link{mapADMETColumns}} - Map any user dataset to standard schema
 #'   \item \code{\link{mapCDKDescriptors}} - Map CDK descriptors to standard schema
 #' }
 #'
@@ -82,7 +80,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom DT DTOutput renderDT
 #' @importFrom stats prcomp cor complete.cases as.dist median sd setNames var dist hclust as.dendrogram heatmap
-#' @importFrom utils read.csv write.csv
+#' @importFrom utils read.csv write.csv head
 #' @importFrom grDevices rainbow colorRampPalette
 #' @importFrom graphics legend par layout image axis mtext
 #' @importFrom grid unit

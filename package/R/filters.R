@@ -68,8 +68,8 @@
 #' the SwissADME-specific MLOGP <= 4.15).
 #'
 #' @param data A data.frame with the standard column schema (processed by
-#'   \code{\link{fixSwissADME}}, \code{\link{fixADMETlab}},
-#'   \code{\link{fixDeepPK}}, or \code{\link{mapCDKDescriptors}}).
+#'   \code{\link{mapADMETColumns}},
+#'   \code{\link{mapCDKDescriptors}}).
 #' @param mw Numeric. Maximum molecular weight. Default 500.
 #' @param logp Numeric. Maximum LogP. Default 5.
 #' @param hba Numeric. Maximum number of H-bond acceptors. Default 10.
@@ -346,8 +346,8 @@ veberFilter <- function(
 #' filters are applied in the order Lipinski, Veber, Ghose, Egan, Muegge; only
 #' those named in \code{filters} are executed.
 #'
-#' @param data A data.frame already normalized (e.g. by \code{fixSwissADME},
-#'   \code{fixADMETlab}, \code{fixDeepPK}, or \code{mapCDKDescriptors}).
+#' @param data A data.frame already normalized (e.g. by \code{mapADMETColumns},
+#'   \code{mapCDKDescriptors}, or \code{mapCDKDescriptors}).
 #' @param filters Character vector with the names of the filters to apply. Any
 #'   subset of \code{c("Lipinski", "Veber", "Ghose", "Egan", "Muegge")}.
 #' @param lipinski,veber,ghose,egan,muegge Named lists of parameters forwarded

@@ -129,35 +129,6 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -417,15 +388,10 @@ window.Quarto = {
    
   <ul>
   <li><a href="#theory-documentation" id="toc-theory-documentation" class="nav-link active" data-scroll-target="#theory-documentation">Theory &amp; Documentation</a></li>
-  <li><a href="#introduction-and-architectural-overview" id="toc-introduction-and-architectural-overview" class="nav-link" data-scroll-target="#introduction-and-architectural-overview">Introduction and Architectural Overview</a></li>
-  <li><a href="#package-structure" id="toc-package-structure" class="nav-link" data-scroll-target="#package-structure">Package Structure</a></li>
-  <li><a href="#theoretical-background" id="toc-theoretical-background" class="nav-link" data-scroll-target="#theoretical-background">Theoretical background</a></li>
-  <li><a href="#drug-likeness-filters-mathematical-foundations" id="toc-drug-likeness-filters-mathematical-foundations" class="nav-link" data-scroll-target="#drug-likeness-filters-mathematical-foundations">Drug-likeness filters: Mathematical foundations</a></li>
-  <li><a href="#descriptor-harmonization" id="toc-descriptor-harmonization" class="nav-link" data-scroll-target="#descriptor-harmonization">Descriptor harmonization</a></li>
+  <li><a href="#two-working-modules" id="toc-two-working-modules" class="nav-link" data-scroll-target="#two-working-modules">Two working modules</a></li>
   <li><a href="#data-standardization-schema" id="toc-data-standardization-schema" class="nav-link" data-scroll-target="#data-standardization-schema">Data Standardization Schema</a></li>
-  <li><a href="#the-boiled-egg-model" id="toc-the-boiled-egg-model" class="nav-link" data-scroll-target="#the-boiled-egg-model">The BOILED-Egg model</a></li>
-  <li><a href="#validation-of-the-approximation" id="toc-validation-of-the-approximation" class="nav-link" data-scroll-target="#validation-of-the-approximation">Validation of the approximation</a></li>
-  <li><a href="#statistical-analysis" id="toc-statistical-analysis" class="nav-link" data-scroll-target="#statistical-analysis">Statistical analysis</a></li>
+  <li><a href="#the-mapadmetcolumns-algorithm" id="toc-the-mapadmetcolumns-algorithm" class="nav-link" data-scroll-target="#the-mapadmetcolumns-algorithm">The mapADMETColumns algorithm</a></li>
+  <li><a href="#physicochemical-descriptors" id="toc-physicochemical-descriptors" class="nav-link" data-scroll-target="#physicochemical-descriptors">Physicochemical Descriptors</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 </nav>
@@ -455,610 +421,164 @@ window.Quarto = {
 
 <section id="theory-documentation" class="level3">
 <h3 class="anchored" data-anchor-id="theory-documentation">Theory &amp; Documentation</h3>
-<section id="initial-considerations" class="level4">
-<h4 class="anchored" data-anchor-id="initial-considerations">Initial considerations</h4>
-<p>This ADMETShiny package contains four sections, each with its own independent workflow. The user will ultimately be able to generate a comprehensive report that includes the main characteristics of the applied filters (Executive Summary per model, Statistics of Key properties, Drug-likeness Filter Results, BOILED-Egg ADMET Classification, Additional Drug-likeness Metrics, Composite Drug-likeness Score &amp; graphs: BOILED-Egg, Distributions to MW, TPSA, LogP histograms, correlations between physicochemical properties &amp; cluster heatmaps per model).</p>
+<p>Admetshiny is an R package that provides an interactive Shiny application and a toolbox of R functions for the management, calculation, filtering, visualization and exploratory analysis of molecular descriptors and ADMET (Absorption, Distribution, Metabolism, Excretion and Toxicity) properties of small molecules.</p>
+<p>The package structure is organized into 24 R source files. The NAMESPACE declare 31 exports, the description 10 hard imports and 16 suggest, but we’ve recommended install all the packages with the guide script in the website.</p>
 </section>
-</section>
-<section id="introduction-and-architectural-overview" class="level3">
-<h3 class="anchored" data-anchor-id="introduction-and-architectural-overview">Introduction and Architectural Overview</h3>
-<p>ADMETShiny is an R package providing an interactive Shiny application and a programmatic API for the management, calculation, filtering, visualization, and exploratory analysis of molecular descriptors and ADMET properties. It integrates four data sources with fundamentally different algorithms and data schema, standardizing them into a unified pipeline.</p>
-<p>The <strong>Design Philosophy</strong> of this package include an architected around three core principles. For one hand a single generic LogP column is used across all modules, with thresholds from original publications (That’s include SwissADME values). This ensures that filters work identically regardless of data provenance.</p>
-<p><img src="..\images/9.png" class="img-fluid"></p>
-<p>The UI is composed of independent tab modules (SwissADME, CDK, ADMETLab, Deep-PK and report), each with its own UI builder, reactive values, and server logic, sharing a common set of computational functions.</p>
-</section>
-<section id="package-structure" class="level3">
-<h3 class="anchored" data-anchor-id="package-structure">Package Structure</h3>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 20%">
-<col style="width: 45%">
-<col style="width: 33%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Layer</th>
-<th>Files</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Core API</td>
-<td><code>filters.R, data_fixers.R, cdk_webchem.R, plots.R, plots_cluster.R, plot_customization.R, report.R</code></td>
-<td>Exported functions for filtering normalization, visualization, reporting</td>
-</tr>
-<tr class="even">
-<td>Shiny App</td>
-<td><code>app_ui.R, app_server.R, ui.R, dark_mode.R, run_app.R</code></td>
-<td>Interactive web application</td>
-</tr>
-<tr class="odd">
-<td>Infrastructure</td>
-<td><code>admetshiny-package.R, globals.R, utils-pipe.R, boiled_egg_data.R</code></td>
-<td>Package metadata, constants, imports, data</td>
-</tr>
-</tbody>
-</table>
-<p>This separation ensures that the computational functions can be used independently of the Shiny application, either in R scripts or embedded in other packages.</p>
-</section>
-<section id="theoretical-background" class="level3">
-<h3 class="anchored" data-anchor-id="theoretical-background">Theoretical background</h3>
-<section id="adme" class="level5">
-<h5 class="anchored" data-anchor-id="adme">ADME</h5>
-<p>ADME is the four-letter acronym for absorption, distribution, metabolism and excretion. That has described pharmacokinectics for 50 years <span class="citation" data-cites="doogue2013">(<a href="#ref-doogue2013" role="doc-biblioref">Doogue and Polasek 2013</a>)</span>. These terms were first presented together in English by Nelson in 1961, rephrasing resorption, distribution, consumption and elimination used by Teorell in 1937 <span class="citation" data-cites="nelson1961">(<a href="#ref-nelson1961" role="doc-biblioref">Nelson 1961</a>)</span>. ADME as originally used for the interpretation of behavior molecules: entering the body (A), moving about the body (D), changing within the body (M) and leaving the body (E). Currently the definition is important for the characterization of potential drugs.</p>
-<p>In the last years, a large variety of <em>in silico</em> methods share the objective of predicting ADME parameters form molecular structure. For this reason, the cheminformaticians and bioinformaticians developed different molecular descriptors mined from chemical structures <span class="citation" data-cites="daina2017">(<a href="#ref-daina2017" role="doc-biblioref">Daina et al. 2017</a>)</span>.</p>
-</section>
-<section id="drug-likeness" class="level5">
-<h5 class="anchored" data-anchor-id="drug-likeness">Drug-likeness</h5>
-<p>Drug development is difficult, not only because of complex process and long development cycles, but also because of the high rate of candidates at all stages <span class="citation" data-cites="wei2020">(<a href="#ref-wei2020" role="doc-biblioref">Wei et al. 2020</a>)</span>. That’s reason, the comprehensive data on the loss of candidates from the four largest pharmaceutical companies, showed that the control of physicochemical properties during compound optimization is beneficial in improving the quality of candidates <span class="citation" data-cites="waring2015">(<a href="#ref-waring2015" role="doc-biblioref">Waring et al. 2015</a>)</span>. The descriptors of drug-likeness have gradually been perfected over time.</p>
-</section>
-<section id="tpsa" class="level5">
-<h5 class="anchored" data-anchor-id="tpsa">TPSA</h5>
-<p>Topological polar surface area <code>(TPSA)</code>, which makes use of functional group contributions based on a large database of structures <span class="citation" data-cites="chuang2020">(<a href="#ref-chuang2020" role="doc-biblioref">Chuang et al. 2020</a>)</span>. This molecular descriptor (MD) calculated as the sum of surface contributions from polar atoms <span class="citation" data-cites="prasanna2009">(<a href="#ref-prasanna2009" role="doc-biblioref">Prasanna and Doerksen 2009</a>)</span>. TPSA is derived directly from the molecular topology, that the case correspond to SMILES <span class="citation" data-cites="beck2022">(<a href="#ref-beck2022" role="doc-biblioref">Beck et al. 2022</a>)</span>. Currently this MD is expressed in square angstroms <span class="math inline">\((Å²)\)</span> and are highly predictive of how a molecule behaves in the body.</p>
-</section>
-<section id="lipophilicity" class="level5">
-<h5 class="anchored" data-anchor-id="lipophilicity">Lipophilicity</h5>
-<p>Since experimental <code>LogP</code> measurements are unavailable for most virtual compounds, computational chemistry relies on predictive algorithms to estimate lipophilicity. Several approaches have been proposed, including atom-fragment methods, fragment-correction schemes <span class="citation" data-cites="morak-mlodawska2023">(<a href="#ref-morak-mlodawska2023" role="doc-biblioref">Morak-Młodawska et al. 2023</a>)</span>. Consequently, differents software platforms report different numerical estimations of LogP even when evaluating the same molecular structure. For example differents Web-servers for ADMET properties request several algorithms: Wildman-Crippen atom-fragment model <code>(WLOGP)</code>, Atom-fragment model with correction factors <code>(XLOGP)</code>, Ghose-Crippen atoms fragments <code>(ALOGP)</code> <span class="citation" data-cites="abramson2024">(<a href="#ref-abramson2024" role="doc-biblioref">Abramson et al. 2024</a>)</span>.</p>
-<p>The quantification lipohilicity are described with numerical estimators of the same physicochemical properties rather than interchangeable values.</p>
-<p><span class="math display">\[\mathrm{LogP}_{\mathrm{WLOGP}}
-\not\equiv
-\mathrm{LogP}_{\mathrm{XLOGP}}
-\not\equiv
-\mathrm{LogP}_{\mathrm{ALOGP}}
-\not\equiv
-\mathrm{LogP}_{\mathrm{ML}}\]</span></p>
-<p>For this package, it’s possible define a different representation for this equation. This equation could described with the next form:</p>
-<p><span class="math display">\[\mathrm{WLOGP}
-\not\equiv
-\mathrm{XLOGP}
-\not\equiv
-\mathrm{ML\text{-}LogP}
-\not\equiv
-\mathrm{DL\text{-}LogP}\]</span></p>
-<p>Differents model in ADMETShiny use a consensus liphophilicity. This package use a LogP as logical representation to the liphophilicity.</p>
-</section>
-</section>
-<section id="drug-likeness-filters-mathematical-foundations" class="level3">
-<h3 class="anchored" data-anchor-id="drug-likeness-filters-mathematical-foundations">Drug-likeness filters: Mathematical foundations</h3>
-<p>ADMETShiny implements five classical drug-likeness filters. Each filter is implemented as two-layer system:</p>
-<ol type="1">
-<li><p>Individual physicochemical property thresholds</p></li>
-<li><p>A pre-computed violations count. This approach provides redundant safety: a compound must pass both the explicit thresholds and have a violations count within tolerance.</p></li>
-</ol>
-<section id="lipinski-rule-of-five" class="level4">
-<h4 class="anchored" data-anchor-id="lipinski-rule-of-five">Lipinski Rule of Five</h4>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>V_Lipinski <span class="ot">=</span> <span class="fu">I</span>(MW <span class="sc">&gt;</span> <span class="dv">500</span>) <span class="sc">+</span> <span class="fu">I</span>(LogP <span class="sc">&gt;</span> <span class="dv">5</span>) <span class="sc">+</span> <span class="fu">I</span>(HBA <span class="sc">&gt;</span> <span class="dv">10</span>) <span class="sc">+</span> <span class="fu">I</span>(HBD <span class="sc">&gt;</span> <span class="dv">5</span>)  where <span class="fu">I</span>(condition) <span class="ot">=</span> <span class="dv">1</span> <span class="cf">if</span> condition is true, <span class="dv">0</span> otherwise  Filter<span class="sc">:</span> compound passes <span class="cf">if</span> V_Lipinski <span class="sc">&lt;=</span> <span class="fu">max_violations</span> (default<span class="sc">:</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The original Lipinski paper use <code>MLOGP &lt;=4.15</code><span class="citation" data-cites="lipinski1997">(<a href="#ref-lipinski1997" role="doc-biblioref">Lipinski et al. 1997</a>)</span>. ADMETShiny uses the generic <code>LogP &lt;=5</code> . This is bacause <code>MLOGP</code> is a specific algorithm (Moriguchi topological method) that is only available in SwissADME and R alternative versions with <code>reticulate</code>. Using <code>LogP &lt;=5</code> (The threshold stated in the original Rule-of-Five as <code>LogP &lt; 5</code>) makes the filter source-agnostic. The violations columns is recalculated by computeViolationColumns() consoles to use this threshold, overwriting SwissADME pre-computed values.</p>
-</section>
-<section id="veber-oral-bioavailability-rule" class="level4">
-<h4 class="anchored" data-anchor-id="veber-oral-bioavailability-rule">Veber oral bioavailability Rule</h4>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>V_Veber <span class="ot">=</span> <span class="fu">I</span>(RB <span class="sc">&gt;</span> <span class="dv">10</span> <span class="fu">OR</span> (TPSA <span class="sc">&gt;</span> <span class="dv">140</span> <span class="fu">AND</span> (HBA <span class="sc">+</span> HBD) <span class="sc">&gt;</span> <span class="dv">12</span>))  Note<span class="sc">:</span> This is a BINARY <span class="fu">violation</span> (<span class="dv">0</span> or <span class="dv">1</span>), not a sum. The two polarity <span class="fu">conditions</span> (TPSA and HBA<span class="sc">+</span>HBD) are <span class="fu">ALTERNATIVES</span> (OR), not <span class="fu">cumulative</span> (AND).  Filter<span class="sc">:</span> compound passes <span class="cf">if</span> V_Veber <span class="sc">==</span> <span class="dv">0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The original paper state that good oral bioavailability is associated with <code>RB&lt;=10 &amp; (TPSA&lt;=140 or HBA+HBD&lt;=12)</code><span class="citation" data-cites="veber2002">(<a href="#ref-veber2002" role="doc-biblioref">Veber et al. 2002</a>)</span>. Many implementations incorrectly use and between the polarity conditions. ADMETShiny correctly use OR, matching the original paper. The implementation creates a temporary column <code>.hb_sum = HBADconsolas</code> inside the filter pipeline, then removes it with <code>select(.hb_sum)consolas</code> to avoid polluting the output .</p>
-</section>
-<section id="ghose-qualifying-range" class="level4">
-<h4 class="anchored" data-anchor-id="ghose-qualifying-range">Ghose Qualifying Range</h4>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>V_Ghose <span class="ot">=</span> <span class="fu">I</span>(MW <span class="sc">&lt;</span> <span class="dv">160</span> OR MW <span class="sc">&gt;</span> <span class="dv">480</span>)       <span class="sc">+</span> <span class="fu">I</span>(MR <span class="sc">&lt;</span> <span class="dv">40</span> OR MR <span class="sc">&gt;</span> <span class="dv">130</span>)       <span class="sc">+</span> <span class="fu">I</span>(LogP <span class="sc">&lt;</span> <span class="sc">-</span><span class="fl">0.4</span> OR LogP <span class="sc">&gt;</span> <span class="fl">5.6</span>)       <span class="sc">+</span> <span class="fu">I</span>(<span class="co">#Heavy atoms &lt; 20 OR #Heavy atoms &gt; 70)  Filter: compound passes if V_Ghose &lt;= max_violations (default: 0)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The Ghose filter requires MR (Molar Refractivity) and #Heavy atoms . SwissADME provides both natively. ADMETLab 3.0 and Deep-pK do not, so <code>fixADMETLab()</code> and <code>fixDeepPK()</code> calculate them from SMILES using <code>CDK</code> before the filter can be applied. At the case of Deep-pK the calculate is execute in another option because the pK variables are independents, for this package that’s not optimize and limit the automatic workflow.</p>
-</section>
-<section id="egan-psa-logp-rule" class="level4">
-<h4 class="anchored" data-anchor-id="egan-psa-logp-rule">Egan PSA-LogP rule</h4>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>V_Egan <span class="ot">=</span> <span class="fu">I</span>(TPSA <span class="sc">&gt;</span> <span class="fl">131.6</span>) <span class="sc">+</span> <span class="fu">I</span>(LogP <span class="sc">&gt;</span> <span class="fl">5.88</span>)  Filter<span class="sc">:</span> compound passes <span class="cf">if</span> V_Egan <span class="sc">&lt;=</span> <span class="fu">max_violations</span> (default<span class="sc">:</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Two properties using this formula. The thresholds are derived from multivariate statistical analysis of oral bioavailability data <span class="citation" data-cites="egan2000">(<a href="#ref-egan2000" role="doc-biblioref">Egan et al. 2000</a>)</span>.</p>
-</section>
-<section id="muegge-pharmacophore-filter" class="level4">
-<h4 class="anchored" data-anchor-id="muegge-pharmacophore-filter">Muegge Pharmacophore filter</h4>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>V_Muegge <span class="ot">=</span> <span class="fu">I</span>(MW <span class="sc">&lt;</span> <span class="dv">200</span> OR MW <span class="sc">&gt;</span> <span class="dv">600</span>)         <span class="sc">+</span> <span class="fu">I</span>(LogP <span class="sc">&lt;</span> <span class="sc">-</span><span class="dv">2</span> OR LogP <span class="sc">&gt;</span> <span class="dv">5</span>)         <span class="sc">+</span> <span class="fu">I</span>(HBA <span class="sc">&gt;</span> <span class="dv">10</span>)         <span class="sc">+</span> <span class="fu">I</span>(HBD <span class="sc">&gt;</span> <span class="dv">5</span>)         <span class="sc">+</span> <span class="fu">I</span>(RB <span class="sc">&gt;</span> <span class="dv">15</span>)         <span class="sc">+</span> <span class="fu">I</span>(TPSA <span class="sc">&gt;</span> <span class="dv">150</span>)  Filter<span class="sc">:</span> compound passes <span class="cf">if</span> V_Muegge <span class="sc">&lt;=</span> <span class="fu">max_violations</span> (default<span class="sc">:</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The original Muegge rule include a pharmacophore points &gt;=4 criteria (HBA + HBD +rings + cations + anions&gt;=4). This is not available from any of the four data sources. For example, HBA y HBD is available in the four datasets that the user could report. Cations and anion are not available, that’s rule not considered. In the other hand, ADMETLab 3.0 dataset have <code>nRing</code>, but in SwissADME, Deep-pK and rCDK this category not. In the package that is a limitation.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Una molécula pasa si:</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Rotatable bonds &lt;= 15</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>AND  MW <span class="sc">&gt;=</span> <span class="dv">200</span> AND MW <span class="sc">&lt;=</span> <span class="dv">600</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>AND  LogP <span class="sc">&gt;=</span> <span class="sc">-</span><span class="dv">2</span> AND LogP <span class="sc">&lt;=</span> <span class="dv">5</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>AND  TPSA <span class="sc">&lt;=</span> <span class="dv">150</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>AND  <span class="co">#H-bond acceptors &lt;= 10</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>AND  <span class="co">#H-bond donors &lt;= 5</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>AND  Muegge <span class="co">#violations &lt;= 0  (configurable)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="applyfilters-dispatcher" class="level4">
-<h4 class="anchored" data-anchor-id="applyfilters-dispatcher">ApplyFilters() Dispatcher</h4>
-<p>The dispatcher applies selected filters in a fixed order <code>(Lipinski &gt; Veber &gt; Ghose &gt; Egan &gt; Muegge)</code>. Each filter is applied to the output of the previous one, so the result is the <strong>intersection</strong> of all selected rules. The fixed order ensures deterministic behavior.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>applyFilters <span class="ot">&lt;-</span> <span class="cf">function</span>(data, filters, <span class="at">lipinski =</span> <span class="fu">list</span>(), ...) {   resultado <span class="ot">&lt;-</span> data   <span class="cf">if</span> (<span class="st">"Lipinski"</span> <span class="sc">%in%</span> filters)     resultado <span class="ot">&lt;-</span> <span class="fu">do.call</span>(lipinskiFilter, <span class="fu">c</span>(<span class="fu">list</span>(<span class="at">data =</span> resultado), lipinski))   <span class="cf">if</span> (<span class="st">"Veber"</span> <span class="sc">%in%</span> filters)     resultado <span class="ot">&lt;-</span> <span class="fu">do.call</span>(veberFilter, <span class="fu">c</span>(<span class="fu">list</span>(<span class="at">data =</span> resultado), veber))   <span class="co"># ... (same for Ghose, Egan, Muegge)   resultado }</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The <code>do.call() + named parameter</code> list pattern allows the UI to pass a sparse parameter set per filter. Empty lists fall back to each filter’s defaults.</p>
-</section>
-</section>
-<section id="descriptor-harmonization" class="level3">
-<h3 class="anchored" data-anchor-id="descriptor-harmonization">Descriptor harmonization</h3>
-<p>The package use four prediction engines. The principal problem with them started with the several heterogeneous outputs doubt the differ in descriptor nomenclature, numerical estimators, and property availability. The first solution was resolve with <a href="https://tidyverse.org/">tidyverse</a> package. However was necessary ensure a unified downstream workflow and avoid possible errors in the input datasets and input calculate with rCDK. For this, this package resolved this with a harmonization process. This is performed before any visualization, drug-likeness assessment or BOILED-Egg classification, allowing all analytical modules to operate independently of the original prediction engine.</p>
-<p><span class="math display">\[\mathrm{LogP}_{\mathrm{backend}}
-\longrightarrow
-\mathrm{LogP}_{\mathrm{ADMETshiny}}\]</span></p>
-<p>For this, the internal descriptor schema is defined as:</p>
-<p><span class="math display">\[\mathcal{D}
-=
-\{
-MW,\,
-LogP,\,
-TPSA,\,
-HBA,\,
-HBD,\,
-RB,\,
-MR,\,
-HeavyAtoms,\,
-AromaticHeavyAtoms,\,
-GI,\,
-BBB,\,
-Pgp
-\}\]</span></p>
-<p>where every backend is transformed into this common representation.</p>
-<p>In the source code for the transformation in the building BOILED-Egg graph is represent as</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="st">"Consensus Log P"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  data<span class="sc">$</span>LogP <span class="ot">&lt;-</span> data[[<span class="st">"Consensus Log P"</span>]]</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (<span class="st">"WLOGP"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  data<span class="sc">$</span>LogP <span class="ot">&lt;-</span> data<span class="sc">$</span>WLOGP</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (<span class="st">"MLOGP"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  data<span class="sc">$</span>LogP <span class="ot">&lt;-</span> data<span class="sc">$</span>MLOGP</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A little example to this show in the block code above. Another example listed for ADMETLab 3.0 datasets as:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 1. Remove the molstr (SVG) column if it exists</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="st">"molstr"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    data<span class="sc">$</span>molstr <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 2. Remove the first index column if it exists</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  first_col_name <span class="ot">&lt;-</span> <span class="fu">names</span>(data)[<span class="dv">1</span>]</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (first_col_name <span class="sc">==</span> <span class="st">"0"</span> <span class="sc">||</span> first_col_name <span class="sc">==</span> <span class="st">""</span>) {</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> data[, <span class="sc">-</span><span class="dv">1</span>, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 3. Rename columns from ADMETlab names to the application's standard names</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  rename_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"smiles"</span> <span class="ot">=</span> <span class="st">"CanonicalSMILES"</span>,</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"MW"</span>     <span class="ot">=</span> <span class="st">"MW"</span>,</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"TPSA"</span>   <span class="ot">=</span> <span class="st">"TPSA"</span>,</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nHA"</span>    <span class="ot">=</span> <span class="st">"#H-bond acceptors"</span>,</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nHD"</span>    <span class="ot">=</span> <span class="st">"#H-bond donors"</span>,</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nRot"</span>   <span class="ot">=</span> <span class="st">"#Rotatable bonds"</span>,</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"logP"</span>   <span class="ot">=</span> <span class="st">"LogP"</span></span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>This package in fixADMETlab() are not only renaming columns, this too compute missing descriptors for the analysis</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 5. Calculate missing properties (MR, #Heavy atoms, #Aromatic heavy atoms)</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="do">##    from SMILES using CDK. ADMETlab 3.0 does not provide these natively,</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="do">##    but they are required by the Ghose and Muegge filters.</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  missing_props <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="st">"MR"</span>, <span class="st">"#Heavy atoms"</span>, <span class="st">"#Aromatic heavy atoms"</span>),</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">names</span>(data)</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>For this we used rCDK function:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">calcCDKDescriptors</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The workflows is define with the next steps:</p>
-<p><img src="..\images/28.png" class="img-fluid"></p>
-<p>This harmonization enables identical downstream workflows for physicochemical descriptors analysis, drug-likeness filters, statistical summaries, BOILED-Egg visualization and report generation. The objective is not to force numerical equivalence among different prediction models but to provide a consistent computational interface across heterogeneous software platforms.</p>
+<section id="two-working-modules" class="level3">
+<h3 class="anchored" data-anchor-id="two-working-modules">Two working modules</h3>
+<ul>
+<li><p><strong>CDK &amp; Webchem:</strong> a four step pipeline where: 1. obtain SMILES via PubChem identifiers, manual entry or CSV upload; 2. Calculate CDK descriptors; 3. apply drug-likeness filters; 4. visualize the results.</p></li>
+<li><p><strong>ADMET Master Manager:</strong> a four step wizard: 1. Upload &amp; Preview; 2. Map Columns; 3. Filter; 4. Plots</p></li>
+</ul>
+<p>Both modules feed their final filtered dataset into the shared Report tab, which uses rmarkdown to render a comprehensive analysis document in HTML, PDF or Word format.</p>
 </section>
 <section id="data-standardization-schema" class="level3">
 <h3 class="anchored" data-anchor-id="data-standardization-schema">Data Standardization Schema</h3>
-<p>Each data source provides physicochemical descriptors and ADMET predictions computed with different algorithms and named with different conventions. ADMETShiny maps all of them to a unified internal schema.</p>
+<p>The application uses a single canonical column schema regardless of the original data source.</p>
 <table class="caption-top table">
-<colgroup>
-<col style="width: 19%">
-<col style="width: 19%">
-<col style="width: 19%">
-<col style="width: 23%">
-<col style="width: 19%">
-</colgroup>
+<caption>The standardization column names</caption>
 <thead>
 <tr class="header">
-<th style="text-align: center;">Standar column</th>
-<th style="text-align: center;">SwissADME</th>
-<th style="text-align: center;">ADMETLab 3.0</th>
-<th style="text-align: center;">Deep-pK</th>
-<th style="text-align: center;">CDK &amp; Webchem</th>
+<th>Field code</th>
+<th>Standard column name</th>
+<th>Type</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: center;">MW</td>
-<td style="text-align: center;">MW</td>
-<td style="text-align: center;">MW</td>
-<td style="text-align: center;">WeightDescriptor (CDK)</td>
-<td style="text-align: center;">WeightDescriptor</td>
+<td>SMILES</td>
+<td>CanonicalSMILES</td>
+<td><code>string</code></td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">LogP</td>
-<td style="text-align: center;">WLOGP</td>
-<td style="text-align: center;">logP</td>
-<td style="text-align: center;">[Log(P)] Predictions or AlogP (CDK)</td>
-<td style="text-align: center;">AlogP (Ghose-Crippen)</td>
+<td>Name</td>
+<td>Name</td>
+<td><code>string</code></td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">TPSA</td>
-<td style="text-align: center;">TPSA</td>
-<td style="text-align: center;">TPSA</td>
-<td style="text-align: center;">TPSADescriptor (CDK)</td>
-<td style="text-align: center;">TPSADescriptor (CDK)</td>
+<td>LogP</td>
+<td>LogP</td>
+<td><code>numeric</code></td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">#H Bond acceptors</td>
-<td style="text-align: center;">#H bond acceptors</td>
-<td style="text-align: center;">nHA</td>
-<td style="text-align: center;">nHBAcc (CDK)</td>
-<td style="text-align: center;">nHBAcc</td>
+<td>WLOGP</td>
+<td>WLOGP</td>
+<td><code>numeric</code></td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">#H Bond donors</td>
-<td style="text-align: center;">#H bond donors</td>
-<td style="text-align: center;">nHD</td>
-<td style="text-align: center;">nHBDon (CDK)</td>
-<td style="text-align: center;">nHBDon</td>
+<td>TPSA</td>
+<td>TPSA</td>
+<td><code>numeric</code></td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">#Rotatable bonds</td>
-<td style="text-align: center;">#Rotatable bonds</td>
-<td style="text-align: center;">nRot</td>
-<td style="text-align: center;">nRotB (CDK)</td>
-<td style="text-align: center;">nRotB</td>
+<td>HBD</td>
+<td>#H-bond donors</td>
+<td><code>numeric</code></td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">#Heavy atoms</td>
-<td style="text-align: center;">#Heavy atoms</td>
-<td style="text-align: center;">nAtom</td>
-<td style="text-align: center;">nAtom (CDK)</td>
-<td style="text-align: center;">nAtom</td>
+<td>HBA</td>
+<td>#H bond acceptors</td>
+<td><code>numeric</code></td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">MR</td>
-<td style="text-align: center;">MR</td>
-<td style="text-align: center;">AMR</td>
-<td style="text-align: center;">AMR (CDK)</td>
-<td style="text-align: center;">AMR</td>
+<td>Rotatable Bonds</td>
+<td>#Rotatable bonds</td>
+<td><code>numeric</code></td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">GI absorption</td>
-<td style="text-align: center;">GI absorption</td>
-<td style="text-align: center;">hia&gt;=0.5 (binarized)</td>
-<td style="text-align: center;">Interpretation text (parsed)</td>
-<td style="text-align: center;">Boiled-Egg polygon test</td>
+<td>Molar Refractivity</td>
+<td>MR</td>
+<td><code>numeric</code></td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">BBB permeant</td>
-<td style="text-align: center;">BBB permeant</td>
-<td style="text-align: center;">BBB &gt;=0.5 (binarized)</td>
-<td style="text-align: center;">Intepretation text (parsed)</td>
-<td style="text-align: center;">Boiled-Egg polygon test</td>
+<td>Heavy Atoms</td>
+<td>#Heavy atoms</td>
+<td><code>numeric</code></td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">Pgp substrate</td>
-<td style="text-align: center;">Pgp substrate</td>
-<td style="text-align: center;">pgp_sub &gt;=0.5 (binarized)</td>
-<td style="text-align: center;">Interpretation text (parsed)</td>
-<td style="text-align: center;">Heuristic</td>
+<td>Aromatic Heavy Atoms</td>
+<td>#Aromatic heavy atoms</td>
+<td><code>numeric</code></td>
+</tr>
+<tr class="even">
+<td>GI Absorption</td>
+<td>GI absorption</td>
+<td><code>categorical</code></td>
+</tr>
+<tr class="odd">
+<td>Gi Absorption_num</td>
+<td>GI_absorption_num</td>
+<td><code>numeric</code></td>
+</tr>
+<tr class="even">
+<td>BBB Permeant</td>
+<td>BBB permeant</td>
+<td><code>categorical</code></td>
+</tr>
+<tr class="odd">
+<td>BBB Permeant_num</td>
+<td>BBB_num</td>
+<td><code>numeric</code></td>
+</tr>
+<tr class="even">
+<td>Pgp Substrate</td>
+<td>Pgp substrate</td>
+<td><code>categorical</code></td>
+</tr>
+<tr class="odd">
+<td>Pgp Substrate_num</td>
+<td>Pgp_num</td>
+<td><code>numeric</code></td>
+</tr>
+<tr class="even">
+<td>LogS</td>
+<td>LogS</td>
+<td><code>numeric</code></td>
+</tr>
+<tr class="odd">
+<td>LogD</td>
+<td>LogD</td>
+<td><code>numeric</code></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="the-boiled-egg-model" class="level3">
-<h3 class="anchored" data-anchor-id="the-boiled-egg-model">The BOILED-Egg model</h3>
-<section id="mathematical-implementation-of-the-boiled-egg-model" class="level5">
-<h5 class="anchored" data-anchor-id="mathematical-implementation-of-the-boiled-egg-model">Mathematical implementation of the BOILED-Egg model</h5>
-<p>The original BOILED-Egg model operates in the descriptor space:</p>
-<p><span class="math display">\[\mathcal{D}
-=
-\{
-WLogP,\,
-TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for this reason ADMETShiny introduces the practical mathematical approximation. THe approximation is list followed:</p>
-<p><span class="math display">\[\{WLOGP,\;TPSA\}
-\;\approx\;
-\{LogP,\;TPSA\}\]</span></p>
-<p>where the generic LogP corresponds to the lipophilicity estimator returned by the selected computational engine. Accordingly, the only approximation introduced in the ADMETshiny implementation concerns the lipophilicity descriptor itself. The geometric decision regions, polygon coordinates, and point-in-polygon classification algorithm remain identical to those defined in the original BOILED-Egg model.</p>
-</section>
-<section id="physical-chemical-space-in-the-boiled-egg" class="level5">
-<h5 class="anchored" data-anchor-id="physical-chemical-space-in-the-boiled-egg">Physical-chemical space in the BOILED-Egg</h5>
-<p>The BOILED-Egg model <span class="citation" data-cites="daina2016">(<a href="#ref-daina2016" role="doc-biblioref">Daina and Zoete 2016</a>)</span> is a visual and computational model that predicts gastrointestinal absorption (GI) and blood-brain barrier (BBB) permeability from two physicochemical properties, <code>TPSA</code> (x-axis) and <code>WLOGP</code> (y-axis). The model defines two regions:</p>
-<ul>
-<li><p>White region (HIA): high probability of gastrointestinal absorption</p></li>
-<li><p>Yellow yolk (BBB): high probability of crossing the blood-brain barrier</p></li>
-</ul>
-</section>
-</section>
-<section id="validation-of-the-approximation" class="level3">
-<h3 class="anchored" data-anchor-id="validation-of-the-approximation">Validation of the approximation</h3>
-<p>ADMETShiny uses the official polygon coordinates published as data S3 in the supplementary material of the original articles. Each polygon is defined by 101 <code>(x,y)</code> points where <code>x = TPSA and y = WLOGP</code>.</p>
-<p><img src="..\images/29.png" class="img-fluid"></p>
-<p>The BBB polygon in the below table contains small negative TPSA value (-2.96). This is intentional in the official polygon and reflects the model’s calibration; it does not represent a physical impossibility but rather the mathematical extension of the fitted boundary. That the case the coordinates are stored as internal R object in R/boiled_egg_data.R:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>.hia_polygon <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="fl">97.8055224368</span>, <span class="sc">-</span><span class="fl">2.2270390475</span>, ...), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>) .bbb_polygon <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="fl">40.9701792513</span>, <span class="fl">0.4062562900</span>, ...), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>) <span class="co"># Column 1 = TPSA (x-axis), Column 2 = LogP (y-axis)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<table class="caption-top table">
-<caption>Polygon points defined by 101 points</caption>
-<thead>
-<tr class="header">
-<th>Region</th>
-<th>TPSA Range</th>
-<th>WLOGP Range</th>
-<th>Points</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>HIA (white)</td>
-<td>0.02 - 142.03</td>
-<td>-2.25 - 6.84</td>
-<td>101</td>
-</tr>
-<tr class="even">
-<td>BBB (yellow)</td>
-<td>-2.96 - 79.10</td>
-<td>0.41 - 5.96</td>
-<td>101</td>
-</tr>
-</tbody>
-</table>
-<p>The BOILED-Egg is defined with 101 points for WLOGP <span class="citation" data-cites="daina2016">(<a href="#ref-daina2016" role="doc-biblioref">Daina and Zoete 2016</a>)</span>. These coordinates are stored as internal R objects <code>.hia_polygon</code>, <code>.bbb_polygon</code> in the file <code>R/boiled_egg_data.R</code> and are loaded once when the package is attached.</p>
-<p><img src="..\images/30.png" class="img-fluid"></p>
-<p>Point in polygon classification for each molecule with coordinates <code>(TPSA, LogP)</code>, the classification is performed using a point in polygon algorithm. ADMETShiny implements two approaches:</p>
+<section id="the-mapadmetcolumns-algorithm" class="level3">
+<h3 class="anchored" data-anchor-id="the-mapadmetcolumns-algorithm">The mapADMETColumns algorithm</h3>
+<p>The function executes seven sequential steps:</p>
 <ol type="1">
-<li><p><code>sp::point.in.polygon()</code> from the suggested package <code>"sp"</code>. This is a C-optimized implementation of the ray-casting algorithm.</p></li>
-<li><p>A pure-R implementation of the ray-casting algorithm. A ray is cast horizontally from the query point; if it crosses the polygon boundary an odd number of times, the point is inside.</p></li>
+<li><p><strong>Rename columns:</strong> For each user column pair in the mapping, the field code is looked up in code to standard. If a target name already exists and points to a different column, the old column is dropped first to prevent duplicated name confusion.</p></li>
+<li><p><strong>Numeric coercion:</strong> The standard numeric columns (<code>MW, LogP, WLOGP, TPSA, HBD, HBA, RB, MR, heavy atoms, aromatics atoms, LogS, LogD, GI_absorption_num, BBB_num_Pgp_num</code>) are coerced with suppress warnings.</p></li>
+<li><p><strong>ADMET numeric to categorical conversion:</strong> If the user supplied a numeric column mapped to GI Absorption and another, the corresponding categorical column is derived using a threshold of 0.5</p></li>
 </ol>
-<p>The classification logic correspond to:</p>
-<p><code>if point_in_polygon(TPSA, LogP, HIA_polygon): GI_absorption = 'High' else: GI_absorption = 'Low'&nbsp; if point_in_polygon(TPSA, LogP, BBB_polygon): BBB_permeant = 'Yes' else: BBB_permeant = 'No'</code></p>
-<p>This package use a BOILED-Egg approximation LogP source was that calibrated with WLOGP (Wildman-Crippen). The accuracy of the classification depends on the LogP algorithm used:</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 21%">
-<col style="width: 32%">
-<col style="width: 18%">
-<col style="width: 28%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: center;">Module</th>
-<th style="text-align: center;">LogP used</th>
-<th style="text-align: center;">Fidelity</th>
-<th style="text-align: center;">Recommendation</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: center;">SwissADME</td>
-<td style="text-align: center;">WLOGP</td>
-<td style="text-align: center;">Optimal</td>
-<td style="text-align: center;">Use for validation</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">ADMETLab 3.0</td>
-<td style="text-align: center;">logP (ML model)</td>
-<td style="text-align: center;">Approximate</td>
-<td style="text-align: center;">Exploratory only</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;">Deep-PK</td>
-<td style="text-align: center;">LogP (DL model)</td>
-<td style="text-align: center;">Approximate</td>
-<td style="text-align: center;">Exploratory only</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">CDK &amp; Webchem</td>
-<td style="text-align: center;">ALogP (Ghose-Crippen)</td>
-<td style="text-align: center;">Approximate</td>
-<td style="text-align: center;">Exploratory only</td>
-</tr>
-</tbody>
-</table>
-<p>In this SwissADME module, users can select which <code>LogP</code> variant to use for the BOILED-Egg plot (<code>WLOGP</code>, <code>Consensus</code> <code>LogP</code>, <code>MLOGP</code>, <code>XLOGP3</code>, <code>iLOGP</code> or <code>generic</code> <code>LogP</code>). For other modules, the platform’s own <code>LogP</code> is used, which may introduce classification errors for compounds near the polygon boundaries.</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 23%">
-<col style="width: 29%">
-<col style="width: 23%">
-<col style="width: 23%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Source</th>
-<th>Algorithm</th>
-<th>Method Type</th>
-<th>Typical difference vs WLOGP</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>SwissADME WLOGP</td>
-<td>Wildman-Crippen</td>
-<td>Atom-based fragmentation</td>
-<td>Without difference</td>
-</tr>
-<tr class="even">
-<td>SwissADME Consensus LogP</td>
-<td>Mean of iLOGP, XLOGP3, WLOGP, MLOGP</td>
-<td>Ensemble</td>
-<td>0.3 - 0.8 units</td>
-</tr>
-<tr class="odd">
-<td>SwissADME MLOGP</td>
-<td>Moriguchi</td>
-<td>Topological indices</td>
-<td>0.5 -1.5 units</td>
-</tr>
-<tr class="even">
-<td>ADMETLab LogP</td>
-<td>Proprietary ML model</td>
-<td>Machine Learning</td>
-<td>0.5 - 1-5 units</td>
-</tr>
-<tr class="odd">
-<td>Deep-pK LogP</td>
-<td>Proprietary DL model</td>
-<td>Deep learning</td>
-<td>0.5 - 2.0 units</td>
-</tr>
-<tr class="even">
-<td>CDK AlogP</td>
-<td>Ghose-Crippen</td>
-<td>Atom-based fragmentation</td>
-<td>0.5 - 1.5 units</td>
-</tr>
-</tbody>
-</table>
-<p>For SwissADME Manager, WLOGP is used as the default LogP (matching the BOILED-Egg calibration). For other sources, the platform’s own LogP is used as an approximation. In the SwissADME module’s BOILED-Egg plot, the user can select which LogP variant to use via a dropdown selecto (WLOGP, Consensus LogP, MLOGP, XLOGP3, iLOGP or generic Logp). Generic LogP is an equivalence to WLOGP with SwissADME dataset.</p>
-<section id="mathematical-implication" class="level5">
-<h5 class="anchored" data-anchor-id="mathematical-implication">Mathematical implication</h5>
-<p>If a molecule has <code>WLOGP = 2.0</code> and <code>ALogP = 1.3</code> , and the HIA polygon boundary at that <code>TPSA</code> is at <code>LogP = 1.5</code>, the molecule would be classified as <strong>high</strong> (inside) with <code>WLOGP</code> but <strong>low</strong> (outside) with <code>AlogP</code>. This boundary effect is the primary source of classification disagreement between modules.</p>
-</section>
-<section id="axis-convention" class="level5">
-<h5 class="anchored" data-anchor-id="axis-convention">Axis convention</h5>
-<p>The plot in ADMETShiny package follow the SwissADME convention: X-axis = TPSA (0 to 200), Y-axis = LogP (-2 to 7). The polygon coordinates are stored in this (TPSA, LogP) = (x,y) format, so no transposition is needed when passing to point_in_polygon or geom_polygon.</p>
-</section>
-<section id="p-glycoprotein-substrate-prediction" class="level5">
-<h5 class="anchored" data-anchor-id="p-glycoprotein-substrate-prediction">P-glycoprotein substrate prediction</h5>
-<p>The Boiled-Egg uses P-gp substrate status only for point colouring (blue=PGP+, red=PGP-), not for GI/BBB classification. Each module obtais P-gp differently:</p>
-<table class="caption-top table">
-<caption>At the case of CDK, the heuristic equation correspond to the follow:</caption>
-<colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: center;">Modue</th>
-<th style="text-align: center;">Method</th>
-<th style="text-align: center;">Algorithm</th>
-<th style="text-align: center;">Accuracy</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: center;">SwissADME</td>
-<td style="text-align: center;">CSV</td>
-<td style="text-align: center;">SVM</td>
-<td style="text-align: center;">High (Validated)</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">ADMETLab 3.0</td>
-<td style="text-align: center;">pgp__sub&gt;0.5</td>
-<td style="text-align: center;">ML model probability threshold</td>
-<td style="text-align: center;">High</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;">Deep-pK</td>
-<td style="text-align: center;">Text parsing (Substrate/Non-substrate)</td>
-<td style="text-align: center;">DL model interpretation</td>
-<td style="text-align: center;">High</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">CDK &amp; Webchem</td>
-<td style="text-align: center;">Heuristic formula</td>
-<td style="text-align: center;">Literature-based <span class="citation" data-cites="seelig1998">(<a href="#ref-seelig1998" role="doc-biblioref">Seelig 1998a</a>)</span></td>
-<td style="text-align: center;">Medium-Low (approximation)</td>
-</tr>
-</tbody>
-</table>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>Pgp <span class="ot">=</span> Yes <span class="cf">if</span><span class="sc">:</span>     (MW <span class="sc">&gt;</span> <span class="dv">400</span> AND TPSA <span class="sc">&gt;</span> <span class="dv">40</span> <span class="fu">AND</span> (HBA <span class="sc">+</span> HBD) <span class="sc">&gt;=</span> <span class="dv">8</span> AND LogP <span class="sc">&gt;</span> <span class="dv">1</span>)     <span class="fu">OR</span>     (MW <span class="sc">&gt;</span> <span class="dv">500</span> AND LogP <span class="sc">&gt;</span> <span class="dv">4</span> AND TPSA <span class="sc">&gt;</span> <span class="dv">40</span>) <span class="cf">else</span><span class="sc">:</span> Pgp <span class="ot">=</span> No</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>This heuristic is more selective than the original Seeling criteria (Which only required MW&gt;400) to avoid classifying nearly all drug-like compounds as P-gp substrates <span class="citation" data-cites="seelig1998a">(<a href="#ref-seelig1998a" role="doc-biblioref">Seelig 1998b</a>)</span>. The additional LogP&gt;1 condition was added because the original criteria produced 80% false positive rate on typical drug-like datasets.</p>
-</section>
-<section id="data-sources-and-computational-backends" class="level4">
-<h4 class="anchored" data-anchor-id="data-sources-and-computational-backends">Data sources and computational backends</h4>
-<section id="cdk-webchem" class="level5">
-<h5 class="anchored" data-anchor-id="cdk-webchem">CDK &amp; WebChem</h5>
-<p>The CDK (Chemistry Development Kit) descriptor calculation follows a three-stage pipeline:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fl">1.</span> SMILES parsing<span class="sc">:</span> rcdk<span class="sc">::</span><span class="fu">parse.smiles</span>(smiles) <span class="ot">-&gt;</span> IAtomContainer objects <span class="fl">2.</span> Molecule configuration<span class="sc">:</span>    <span class="sc">-</span> <span class="fu">convert.implicit.to.explicit</span>(m)  <span class="co"># add explicit hydrogens    - do.aromaticity(m)                 # perceive aromatic systems    - set.atom.types(m)                 # set atom types (modern API) 3. Descriptor evaluation: rcdk::eval.desc(mols, classes) -&gt; data.frame</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The AlogPdescriptor is special because it returns three columns:</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th style="text-align: center;">CDK Column</th>
-<th style="text-align: center;">Description</th>
-<th style="text-align: center;">Mapped to</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: center;">AlogP</td>
-<td style="text-align: center;">Ghose-Crippen LogP</td>
-<td style="text-align: center;">LogP (generic)</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">AlogP2</td>
-<td style="text-align: center;">Second LogP model</td>
-<td style="text-align: center;">Dropped</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;">AMR</td>
-<td style="text-align: center;">Approximate Molar Refractivity</td>
-<td style="text-align: center;">MR</td>
-</tr>
-</tbody>
-</table>
-</section>
-</section>
-</section>
-<section id="statistical-analysis" class="level3">
-<h3 class="anchored" data-anchor-id="statistical-analysis">Statistical analysis</h3>
-<section id="pca-principal-component-analysis" class="level4">
-<h4 class="anchored" data-anchor-id="pca-principal-component-analysis">PCA (Principal Component Analysis)</h4>
-<p>Pca is computed using <code>stats::prcomp</code> with centering and optional scaling. The implementation handles several edge cases:</p>
-<ol type="1">
-<li><p>Zero-variance columns are removed before <code>prcomp</code> prevent scale division by zero.</p></li>
-<li><p>If <code>&lt;3</code> complete observations remain, the function stops with an informative error.</p></li>
-<li><p>95% confidence ellipses are only draw for groups with <code>&gt;=3</code> points <code>stat_ellipse()</code> requirement.</p></li>
-<li><p>Loading arrows are scaled to fit the plot; the scaling factor handles the edge case where all loadings are identical for a PC.</p></li>
-<li><p><code>prcomp</code>is wrapped in <code>tryCatch</code> if scaling fails, it retries without scaling.</p></li>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="st">"GI_absorption_num"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a> v <span class="ot">&lt;-</span> data<span class="sc">$</span>GI_absorption_num</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a> data[[<span class="st">"GI absorption"</span>]] <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a> <span class="fu">is.na</span>(v), <span class="cn">NA</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a> <span class="fu">ifelse</span>(v <span class="sc">&gt;=</span> <span class="fl">0.5</span>, <span class="st">"High"</span>, <span class="st">"Low"</span>))</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a> data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ol start="4" type="1">
+<li><strong>Optional CDK calculation for missing descriptors:</strong> When the function <code>calculate_cdk = TRUE</code>, and a CanonicalSMILES column exists, the function computes the set of missing standard descriptors via <code>setdiff()</code>, MAPS each to its CDK short code. <strong>For more information about to this function, you could read the technical documentation.</strong></li>
+<li><strong>WLOGP/LogP precedence logic:</strong> WLOGP is the BOILED-Egg’s original calibration axis <span class="citation" data-cites="daina2016a">(<a href="#ref-daina2016a" role="doc-biblioref">Daina and Zoete 2016</a>)</span>. When the user has explicitly mapped a column to WLOGP but has not mapped another column to LogP, the generic LogP column is silently set to the WLOGP values:</li>
 </ol>
-<p>This PCA function is retrieved with the follow mathematical approximation:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>X_scaled <span class="ot">=</span> <span class="fu">scale</span>(X, <span class="at">center =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> scale_data) <span class="co"># If scale_data, each column is divided by its standard deviation  pca = prcomp(X_scaled, center = TRUE, scale. = scale_data) # SVD decomposition: X = U * S * V^T # Scores: pca$x = U * S (n x k matrix) # Loadings: pca$rotation = V (k x k matrix) # Variance explained: (pca$sdev)^2 / sum((pca$sdev)^2)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><img src="..\images/31.png" class="img-fluid" width="598"></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">## ----- 5. If WLOGP present and LogP not mapped, set LogP = WLOGP -----</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="do">## WLOGP is preferred for BOILED-Egg (official calibration), but only</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="do">## if the user didn't explicitly map a different column to LogP.</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="st">"WLOGP"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data) <span class="sc">&amp;&amp;</span> <span class="sc">!</span><span class="st">"LogP"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data)) {</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a> data<span class="sc">$</span>LogP <span class="ot">&lt;-</span> data<span class="sc">$</span>WLOGP</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>History note. An earlier version of this <span class="fu">step</span> (Issue <span class="dv">7</span> <span class="cf">in</span> worklog.md) used the simpler condition <span class="st">"WLOGP"</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="sc">%in%</span> <span class="fu">names</span>(data) and silently overwrote a user<span class="sc">-</span>mapped LogP column. The current guarded condition</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>respects an explicit LogP mapping.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ol start="6" type="1">
+<li><strong>Compute violation columns:</strong> The standardized data is passed through <code>computeViolationColumns()</code> to add the five “#Violations” columns used by the filters.</li>
+<li>Compute ADMET properties: If any of GI absorption, BBB permeant or Pgp substrate is missing, <code>computeADMETProperties()</code> is called. To honour user-provided categorical columns, the function temporarily stashes any pre-existing categorical ADMET column runs <code>computeADMETProperties()</code>, then restores the stashed values.</li>
+</ol>
 </section>
-<section id="t-distributed-stochastic-neighbor-embedding-t-sne" class="level4">
-<h4 class="anchored" data-anchor-id="t-distributed-stochastic-neighbor-embedding-t-sne">T-distributed stochastic neighbor embedding (T-SNE)</h4>
-<p>TSNE are good representations for chemical spaces and another categories. This maps are high dimensional images into the two axis for visualization <span class="citation" data-cites="zhu2022">(<a href="#ref-zhu2022" role="doc-biblioref">Zhu et al. 2022</a>)</span>. T-SNE is computed using the <code>rtsne</code> package with automatic perplexity adjustment:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>max_perplexity <span class="ot">=</span> <span class="fu">floor</span>((n <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">3</span>)  <span class="co"># Rtsne requirement perplexity = min(user_perplexity, max_perplexity) # Zero-variance columns removed, NaN/Inf replaced with 0 after scaling</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><img src="..\images/32.png" class="img-fluid" width="600"></p>
-</section>
-<section id="cluster-heatmap-with-dendrogram" class="level4">
-<h4 class="anchored" data-anchor-id="cluster-heatmap-with-dendrogram">Cluster heatmap with dendrogram</h4>
-<p>Hierarchical clustering is performed using <code>stats::hclust</code> with user-selected linkage method. The heatmap is rendered using base R <code>heatmap()</code>, with couples the dendrogram directly to the heatmap cells.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>row_dist <span class="ot">=</span> <span class="fu">dist</span>(mat, <span class="at">method =</span> <span class="st">'euclidean'</span>) row_hclust <span class="ot">=</span> <span class="fu">hclust</span>(row_dist, <span class="at">method =</span> method)  <span class="co"># default: ward.D2 col_dist = dist(t(mat), method = 'euclidean') col_hclust = hclust(col_dist, method = method)  heatmap(mat, Rowv = as.dendrogram(row_hclust),              Colv = as.dendrogram(col_hclust), ...)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Base R option is used instead of <code>pheatmap</code> or <code>ComplexHeatmap</code> to minimize dependencies. The function pre-computes both dendograms so the user can pick any linkage, method, then passes them as guaranteeing alignment.</p>
-</section>
-<section id="radar-plot" class="level4">
-<h4 class="anchored" data-anchor-id="radar-plot">Radar Plot</h4>
-<p>The radar plot compares up to 5 molecules on 6 physicochemical properties. Properties are normalized 0-1 against the full dataset range (not just the selected subset) to ensure comparability across selections:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">norm</span>(p) <span class="ot">=</span> (value <span class="sc">-</span> min_full) <span class="sc">/</span> (max_full <span class="sc">-</span> min_full) <span class="co"># If max_full == min_full, norm = 0.5 (avoids division by zero)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The normalized values are passed to <code>fmsb::radarchart</code>, which requires two header rows <code>(max=1, min=0)</code> followed by the data rows.</p>
-</section>
-<section id="composite-drug-likeness-score" class="level4">
-<h4 class="anchored" data-anchor-id="composite-drug-likeness-score">Composite Drug-Likeness Score</h4>
-<p>The composite score (0-100) is the proportion of the five drug-likeness rules that each compound satisfies:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>passes[i, rule] <span class="ot">=</span> <span class="dv">1</span> <span class="cf">if</span> (violations[rule] <span class="sc">==</span> <span class="dv">0</span>), <span class="cf">else</span> <span class="dv">0</span> n_rules <span class="ot">=</span> <span class="fu">rowSums</span>(<span class="sc">!</span><span class="fu">is.na</span>(passes)) score <span class="ot">=</span> <span class="fu">rowSums</span>(passes, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">max</span>(n_rules, <span class="dv">1</span>) <span class="sc">*</span> <span class="dv">100</span> score[n_rules <span class="sc">==</span> <span class="dv">0</span>] <span class="ot">=</span> <span class="cn">NA</span>  <span class="co"># no data available</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Score categories:</p>
-<ul>
-<li><p>Excellent: <code>score&gt;=80</code> (passes at least 4 of 5 rules)</p></li>
-<li><p>Aceptable: <code>score 60-79</code> (passes 3 of 5 rules)</p></li>
-<li><p>Poor: <code>score&lt;60</code> (passes fewer than 3 rules)</p></li>
-</ul>
-</section>
-<section id="case-study" class="level4">
-<h4 class="anchored" data-anchor-id="case-study">Case study</h4>
-<p>The goal is for the user to find a quick design scheme for analyzing a molecule bank. This example will be performed with 200 molecules, attempting to respect the limit allowed by SwissADME. For more information on the user interface and workflow, please refer to the tutorials</p>
+<section id="physicochemical-descriptors" class="level3">
+<h3 class="anchored" data-anchor-id="physicochemical-descriptors">Physicochemical Descriptors</h3>
+<section id="molecular-weight-mw" class="level4">
+<h4 class="anchored" data-anchor-id="molecular-weight-mw">Molecular Weight (MW)</h4>
 </section>
 </section>
 <section id="references" class="level3">
@@ -1069,56 +589,8 @@ TPSA\}\]</span> Since WLOGP is unavailable in several supported backends, for th
 </section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
-<div id="ref-abramson2024" class="csl-entry" role="listitem">
-Abramson, Josh, Jonas Adler, Jack Dunger, et al. 2024. <span>“Accurate Structure Prediction of Biomolecular Interactions with AlphaFold 3.”</span> <em>Nature</em> 630 (8016): 493–500. <a href="https://doi.org/10.1038/s41586-024-07487-w">https://doi.org/10.1038/s41586-024-07487-w</a>.
-</div>
-<div id="ref-beck2022" class="csl-entry" role="listitem">
-Beck, Hartmut, Michael Härter, Bastian Haß, Carsten Schmeck, and Lars Baerfacker. 2022. <span>“Small Molecules and Their Impact in Drug Discovery: A Perspective on the Occasion of the 125th Anniversary of the Bayer Chemical Research Laboratory.”</span> <em>Drug Discovery Today</em> 27 (6): 1560–74. <a href="https://doi.org/10.1016/j.drudis.2022.02.015">https://doi.org/10.1016/j.drudis.2022.02.015</a>.
-</div>
-<div id="ref-chuang2020" class="csl-entry" role="listitem">
-Chuang, Kangway V., Laura M. Gunsalus, and Michael J. Keiser. 2020. <span>“Learning Molecular Representations for Medicinal Chemistry: Miniperspective.”</span> <em>Journal of Medicinal Chemistry</em> 63 (16): 8705–22. <a href="https://doi.org/10.1021/acs.jmedchem.0c00385">https://doi.org/10.1021/acs.jmedchem.0c00385</a>.
-</div>
-<div id="ref-daina2017" class="csl-entry" role="listitem">
-Daina, Antoine, Olivier Michielin, and Vincent Zoete. 2017. <span>“SwissADME: A Free Web Tool to Evaluate Pharmacokinetics, Drug-Likeness and Medicinal Chemistry Friendliness of Small Molecules.”</span> <em>Scientific Reports</em> 7 (1): 42717. <a href="https://doi.org/10.1038/srep42717">https://doi.org/10.1038/srep42717</a>.
-</div>
-<div id="ref-daina2016" class="csl-entry" role="listitem">
+<div id="ref-daina2016a" class="csl-entry" role="listitem">
 Daina, Antoine, and Vincent Zoete. 2016. <span>“A BOILED<span>-</span>Egg to Predict Gastrointestinal Absorption and Brain Penetration of Small Molecules.”</span> <em>Chemmedchem</em> 11 (11): 1117–21. <a href="https://doi.org/10.1002/cmdc.201600182">https://doi.org/10.1002/cmdc.201600182</a>.
-</div>
-<div id="ref-doogue2013" class="csl-entry" role="listitem">
-Doogue, Matthew P., and Thomas M. Polasek. 2013. <span>“The ABCD of Clinical Pharmacokinetics.”</span> <em>Therapeutic Advances in Drug Safety</em> 4 (1): 5–7. <a href="https://doi.org/10.1177/2042098612469335">https://doi.org/10.1177/2042098612469335</a>.
-</div>
-<div id="ref-egan2000" class="csl-entry" role="listitem">
-Egan, William J., Kenneth M. Merz, and John J. Baldwin. 2000. <span>“Prediction of Drug Absorption Using Multivariate Statistics.”</span> <em>Journal of Medicinal Chemistry</em> 43 (21): 3867–77. <a href="https://doi.org/10.1021/jm000292e">https://doi.org/10.1021/jm000292e</a>.
-</div>
-<div id="ref-lipinski1997" class="csl-entry" role="listitem">
-Lipinski, Christopher A., Franco Lombardo, Beryl W. Dominy, and Paul J. Feeney. 1997. <span>“Experimental and Computational Approaches to Estimate Solubility and Permeability in Drug Discovery and Development Settings.”</span> <em>Advanced Drug Delivery Reviews</em>, In vitro models for selection of development candidates, vol. 23 (1): 3–25. <a href="https://doi.org/10.1016/S0169-409X(96)00423-1">https://doi.org/10.1016/S0169-409X(96)00423-1</a>.
-</div>
-<div id="ref-morak-mlodawska2023" class="csl-entry" role="listitem">
-Morak-Młodawska, Beata, Małgorzata Jeleń, Emilia Martula, and Rafał Korlacki. 2023. <span>“Study of Lipophilicity and ADME Properties of 1,9-Diazaphenothiazines with Anticancer Action.”</span> <em>International Journal of Molecular Sciences</em> 24 (8): 6970. <a href="https://doi.org/10.3390/ijms24086970">https://doi.org/10.3390/ijms24086970</a>.
-</div>
-<div id="ref-nelson1961" class="csl-entry" role="listitem">
-Nelson, E. 1961. <span>“Kinetics of drug absorption, distribution, metabolism, and excretion.”</span> <em>Journal of Pharmaceutical Sciences</em> 50 (March): 181–92. <a href="https://doi.org/10.1002/jps.2600500302">https://doi.org/10.1002/jps.2600500302</a>.
-</div>
-<div id="ref-prasanna2009" class="csl-entry" role="listitem">
-Prasanna, S., and R. J. Doerksen. 2009. <span>“Topological Polar Surface Area: A Useful Descriptor in 2D-QSAR.”</span> <em>Current Medicinal Chemistry</em> 16 (1): 21–41. <a href="https://doi.org/10.2174/092986709787002817">https://doi.org/10.2174/092986709787002817</a>.
-</div>
-<div id="ref-seelig1998" class="csl-entry" role="listitem">
-Seelig, Anna. 1998a. <span>“A General Pattern for Substrate Recognition by p-Glycoprotein.”</span> <em>European Journal of Biochemistry</em> 251 (1-2): 252–61. <a href="https://doi.org/10.1046/j.1432-1327.1998.2510252.x">https://doi.org/10.1046/j.1432-1327.1998.2510252.x</a>.
-</div>
-<div id="ref-seelig1998a" class="csl-entry" role="listitem">
-Seelig, Anna. 1998b. <span>“A General Pattern for Substrate Recognition by p-Glycoprotein.”</span> <em>European Journal of Biochemistry</em> 251 (1-2): 252–61. <a href="https://doi.org/10.1046/j.1432-1327.1998.2510252.x">https://doi.org/10.1046/j.1432-1327.1998.2510252.x</a>.
-</div>
-<div id="ref-veber2002" class="csl-entry" role="listitem">
-Veber, Daniel F., Stephen R. Johnson, Hung-Yuan Cheng, Brian R. Smith, Keith W. Ward, and Kenneth D. Kopple. 2002. <span>“Molecular Properties That Influence the Oral Bioavailability of Drug Candidates.”</span> <em>Journal of Medicinal Chemistry</em> 45 (12): 2615–23. <a href="https://doi.org/10.1021/jm020017n">https://doi.org/10.1021/jm020017n</a>.
-</div>
-<div id="ref-waring2015" class="csl-entry" role="listitem">
-Waring, Michael J., John Arrowsmith, Andrew R. Leach, et al. 2015. <span>“An Analysis of the Attrition of Drug Candidates from Four Major Pharmaceutical Companies.”</span> <em>Nature Reviews Drug Discovery</em> 14 (7): 475–86. <a href="https://doi.org/10.1038/nrd4609">https://doi.org/10.1038/nrd4609</a>.
-</div>
-<div id="ref-wei2020" class="csl-entry" role="listitem">
-Wei, Wenxiu, Srinivasulu Cherukupalli, Lanlan Jing, Xinyong Liu, and Peng Zhan. 2020. <span>“Fsp3: A New Parameter for Drug-Likeness.”</span> <em>Drug Discovery Today</em> 25 (10): 1839–45. <a href="https://doi.org/10.1016/j.drudis.2020.07.017">https://doi.org/10.1016/j.drudis.2020.07.017</a>.
-</div>
-<div id="ref-zhu2022" class="csl-entry" role="listitem">
-Zhu, Qiqi, Xi Guo, Weihuan Deng, et al. 2022. <span>“Land-Use/Land-Cover Change Detection Based on a Siamese Global Learning Framework for High Spatial Resolution Remote Sensing Imagery.”</span> <em>ISPRS Journal of Photogrammetry and Remote Sensing</em> 184 (February): 63–78. <a href="https://doi.org/10.1016/j.isprsjprs.2021.12.005">https://doi.org/10.1016/j.isprsjprs.2021.12.005</a>.
 </div>
 </div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

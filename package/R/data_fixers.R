@@ -1,466 +1,350 @@
 # ---------------------------------------------------------------------------
 # data_fixers.R
-# Normalization of datasets exported from SwissADME, ADMETlab 3.0 and
-# Deep-PK to the standard column schema used by the application.
-#
-# The standard schema uses a single generic `LogP` column for lipophilicity,
-# regardless of the source. SwissADME-specific LogP variants (MLOGP, WLOGP,
-# XLOGP3) are NOT created for non-SwissADME sources. When a source does not
-# provide a required property (e.g. MR, #Heavy atoms, #Aromatic heavy atoms in
-# ADMETlab 3.0), it is calculated from the SMILES using CDK.
+# Column mapping and dataset normalization for the ADMET Master Manager.
+# The generic mapADMETColumns() function replaces the former platform-specific
+# (replaces the former fixSwissADME/fixADMETlab/fixDeepPK functions).
 # ---------------------------------------------------------------------------
 
-#' Normalize a SwissADME dataset
+## ---------------------------------------------------------------------------
+## ADMET Master Manager helpers
+## ---------------------------------------------------------------------------
+
+#' Detect column types in a data.frame
 #'
-#' Cleans and standardizes a data.frame exported from SwissADME: coerces
-#' the known numeric and character columns to the correct type, converts empty
-#' strings to \code{NA}, and creates a generic \code{LogP} column from
-#' \code{Consensus Log P} (or \code{WLOGP} as fallback) so that the
-#' drug-likeness filters and plots work with a single lipophilicity column
-#' across all data sources.
+#' Returns a compact summary of every column in a data.frame, with its
+#' inferred type (numeric / string), the number of unique non-NA values and
+#' a small sample of the first few values. Used by the ADMET Master Manager
+#' to help the user pick the right column mapping.
 #'
-#' @param data A data.frame read with \code{read.csv(..., check.names = FALSE)}.
-#' @return A data.frame with numeric and categorical columns correctly typed,
-#'   plus a \code{LogP} column.
-#' @examples
-#' \dontrun{
-#' d <- read.csv("swissadme.csv", check.names = FALSE)
-#' d <- fixSwissADME(d)
-#' }
-#' @export
-#' @seealso \code{\link{fixADMETlab}}, \code{\link{fixDeepPK}},
-#'   \code{\link{applyFilters}}.
-fixSwissADME <- function(data) {
+#' @param data A data.frame.
+#' @return A data.frame with columns: \code{column_name}, \code{detected_type},
+#'   \code{n_unique}, \code{sample_values}.
+#' @keywords internal
+#' @seealso \code{\link{detectSMILESColumn}}, \code{\link{mapADMETColumns}}.
+detectColumnTypes <- function(data) {
 
   stopifnot(is.data.frame(data))
 
-  numeric_columns <- c(
-    "MW",
-    "#Heavy atoms",
-    "#Aromatic heavy atoms",
-    "#Rotatable bonds",
-    "#H-bond acceptors",
-    "#H-bond donors",
-    "MR",
-    "TPSA",
-    "iLOGP",
-    "XLOGP3",
-    "WLOGP",
-    "MLOGP",
-    "Silicos-IT Log P",
-    "Consensus Log P",
-    "ESOL Log S",
-    "ESOL Solubility (mg/ml)",
-    "ESOL Solubility (mol/l)",
-    "Ali Log S",
-    "Ali Solubility (mg/ml)",
-    "Ali Solubility (mol/l)",
-    "Silicos-IT LogSw",
-    "Silicos-IT Solubility (mg/ml)",
-    "Silicos-IT Solubility (mol/l)",
-    "Log Kp (cm/s)",
-    "Lipinski #violations",
-    "Ghose #violations",
-    "Veber #violations",
-    "Egan #violations",
-    "Muegge #violations",
-    "Bioavailability Score",
-    "PAINS #alerts",
-    "Brenk #alerts",
-    "Leadlikeness #violations",
-    "Synthetic Accessibility"
-  )
-
-  character_columns <- c(
-    "ESOL Class",
-    "Ali Class",
-    "Silicos-IT class",
-    "GI absorption",
-    "BBB permeant",
-    "Pgp substrate",
-    "CYP1A2 inhibitor",
-    "CYP2C19 inhibitor",
-    "CYP2C9 inhibitor",
-    "CYP2D6 inhibitor",
-    "CYP3A4 inhibitor"
-  )
-
-  numeric_columns <- intersect(numeric_columns, names(data))
-  character_columns <- intersect(character_columns, names(data))
-
-  data[numeric_columns] <- lapply(
-    data[numeric_columns],
-    function(x) {
-      x <- trimws(x)
-      x[x == ""] <- NA
-      as.numeric(x)
-    }
-  )
-
-  data[character_columns] <- lapply(data[character_columns], as.character)
-
-  ## Create the generic LogP column from WLOGP (preferred, as this is what
-  ## the BOILED-Egg model was calibrated with) or Consensus Log P as fallback.
-  if ("WLOGP" %in% names(data)) {
-    data$LogP <- data$WLOGP
-  } else if ("Consensus Log P" %in% names(data)) {
-    data$LogP <- data[["Consensus Log P"]]
-  } else if ("MLOGP" %in% names(data)) {
-    data$LogP <- data$MLOGP
+  if (ncol(data) == 0) {
+    return(data.frame(
+      column_name    = character(0),
+      detected_type  = character(0),
+      n_unique       = integer(0),
+      sample_values  = character(0),
+      stringsAsFactors = FALSE
+    ))
   }
 
-  ## Recalculate the #violations columns using the application's standard
-  ## thresholds.
-  data <- computeViolationColumns(data)
+  res <- data.frame(
+    column_name   = names(data),
+    detected_type = vapply(data, function(col) {
+      ## Try to coerce to numeric: if more than half of the non-NA values
+      ## parse successfully, treat the column as numeric.
+      if (is.numeric(col)) return("numeric")
+      x <- suppressWarnings(as.numeric(as.character(col)))
+      non_na <- sum(!is.na(x))
+      total  <- sum(!is.na(col))
+      if (total > 0 && non_na / total >= 0.5) return("numeric")
+      "string"
+    }, character(1)),
+    n_unique = vapply(data, function(col) {
+      length(unique(as.character(col)[!is.na(as.character(col))]))
+    }, integer(1)),
+    sample_values = vapply(data, function(col) {
+      vals <- as.character(col)[!is.na(as.character(col))]
+      if (length(vals) == 0) return("")
+      samp <- head(vals, 3)
+      paste(samp, collapse = ", ")
+    }, character(1)),
+    stringsAsFactors = FALSE
+  )
 
-  required_base <- c("MW", "LogP", "#H-bond acceptors", "#H-bond donors")
-  missing_cols <- setdiff(required_base, names(data))
-  if (length(missing_cols) > 0) {
-    warning("Missing expected columns: ",
-            paste(missing_cols, collapse = ", "))
-  }
-
-  data
+  res
 }
 
 ## ---------------------------------------------------------------------------
 
-#' Normalize an ADMETlab 3.0 dataset
+#' Auto-detect SMILES column in a data.frame
 #'
-#' Cleans and maps a data.frame exported from ADMETlab 3.0 to the application's
-#' standard column schema: drops the SVG column, renames descriptor columns,
-#' converts ADMET probabilities into categorical labels, and computes
-#' drug-likeness violation columns.
+#' Tries to identify the column that contains SMILES strings. It first looks
+#' for column names matching common conventions (\code{smiles},
+#' \code{SMILES}, \code{CanonicalSMILES}, \code{canonical_smiles},
+#' \code{IsomericSMILES}, etc.). If no name matches, it inspects the values
+#' of every string column and picks the one whose values look most like
+#' SMILES (contain carbon / aromatic / bracket / bond characters).
 #'
-#' ADMETlab 3.0 does not natively provide Molar Refractivity (MR), the number
-#' of heavy atoms, or the number of aromatic heavy atoms, which are required
-#' by the Ghose and Muegge filters. These properties are calculated on-the-fly
-#' from the SMILES using CDK (\code{\link{calcCDKDescriptors}}). Requires the
-#' suggested package \pkg{rcdk} and a working Java JDK.
+#' @param data A data.frame.
+#' @return Character name of the detected SMILES column, or \code{NULL} if
+#'   none found.
+#' @keywords internal
+#' @seealso \code{\link{detectColumnTypes}}, \code{\link{mapADMETColumns}}.
+detectSMILESColumn <- function(data) {
+
+  stopifnot(is.data.frame(data))
+  if (ncol(data) == 0) return(NULL)
+
+  ## 1. Look for SMILES-like column names first.
+  smiles_names <- c("smiles", "SMILES", "CanonicalSMILES", "canonical_smiles",
+                    "canonical_smiles_can", "IsomericSMILES", "isomeric_smiles",
+                    "MOL", "mol", "molstr", "structure", "Structure",
+                    "canonical_smiles ")
+  hit <- intersect(smiles_names, names(data))
+  if (length(hit) > 0) return(hit[1])
+
+  ## Fuzzy match: any column name containing "smiles" (case-insensitive).
+  guess <- names(data)[grepl("smiles", names(data), ignore.case = TRUE)]
+  if (length(guess) > 0) return(guess[1])
+
+  ## 2. Inspect values: pick the string column whose values look most like
+  ##    SMILES. A value "looks like SMILES" if it contains at least one
+  ##    carbon-letter (C/c) and at least one bond / bracket / ring digit
+  ##    character.
+  score_col <- function(col) {
+    vals <- as.character(col)[!is.na(as.character(col))]
+    if (length(vals) == 0) return(0)
+    vals <- head(vals, 100)
+    looks_smiles <- vapply(vals, function(v) {
+      has_carbon <- grepl("[Cc]", v)
+      has_bond_or_bracket <-
+        grepl("[\\[\\]\\(\\)=#\\\\/\\d]", v) ||
+        grepl("c[1-9]", v) ||
+        grepl("C[1-9]", v)
+      has_carbon && has_bond_or_bracket
+    }, logical(1))
+    mean(looks_smiles, na.rm = TRUE)
+  }
+
+  scores <- vapply(data, score_col, numeric(1))
+  best <- which.max(scores)
+  if (length(best) == 0 || scores[best] < 0.3) return(NULL)
+  names(data)[best]
+}
+
+## ---------------------------------------------------------------------------
+
+#' Map user columns to standard ADMET schema
 #'
-#' The source's \code{logP} column is mapped to the generic \code{LogP}
-#' column. No artificial \code{MLOGP}/\code{WLOGP}/\code{XLOGP3} columns are
-#' created.
+#' Takes a raw data.frame and a user-specified column mapping, renames
+#' columns to the application's standard schema, converts types, optionally
+#' calculates missing descriptors with CDK, and computes violation columns
+#' and ADMET properties.
 #'
-#' @param data A data.frame read from an ADMETlab 3.0 CSV file.
-#' @return A data.frame ready for filtering and plotting.
-#' @examples
-#' \dontrun{
-#' d <- read.csv("admetlab.csv", check.names = FALSE)
-#' d <- fixADMETlab(d)
-#' }
+#' The \code{mapping} argument is a named character vector where each name
+#' is the name of a column in \code{data} and each value is one of the
+#' standard short field codes used by the ADMET Master Manager:
+#' \code{"None"}, \code{"SMILES"}, \code{"Name"}, \code{"MW"},
+#' \code{"LogP"}, \code{"WLOGP"}, \code{"TPSA"}, \code{"HBD"},
+#' \code{"HBA"}, \code{"Rotatable Bonds"}, \code{"Molar Refractivity"},
+#' \code{"Heavy Atoms"}, \code{"Aromatic Heavy Atoms"},
+#' \code{"GI Absorption"}, \code{"GI Absorption_num"},
+#' \code{"BBB Permeant"}, \code{"BBB Permeant_num"},
+#' \code{"Pgp Substrate"}, \code{"Pgp Substrate_num"},
+#' \code{"LogS"}, \code{"LogD"}.
+#'
+#' @param data A data.frame as uploaded by the user (CSV or Excel).
+#' @param mapping A named character vector where names are user column names
+#'   and values are standard field names. Use "None" for columns to skip.
+#'   Example: c("mol_weight" = "MW", "logp" = "LogP", "smiles" = "SMILES")
+#' @param calculate_cdk Logical. If TRUE and SMILES column is available,
+#'   calculate missing descriptors (MW, LogP, TPSA, HBD, HBA, RB, MR,
+#'   HeavyAtoms, AromAtoms) using CDK. Default TRUE.
+#' @return A data.frame with standardized column names, violation columns,
+#'   and ADMET properties.
 #' @export
-#' @seealso \code{\link{fixSwissADME}}, \code{\link{fixDeepPK}},
-#'   \code{\link{computeViolationColumns}}, \code{\link{calcCDKDescriptors}}.
-fixADMETlab <- function(data) {
+#' @seealso \code{\link{computeViolationColumns}}, \code{\link{computeADMETProperties}},
+#'   \code{\link{calcCDKDescriptors}}.
+mapADMETColumns <- function(data, mapping, calculate_cdk = TRUE) {
 
-  ## 1. Remove the molstr (SVG) column if it exists
-  if ("molstr" %in% names(data)) {
-    data$molstr <- NULL
+  stopifnot(is.data.frame(data))
+  if (is.null(mapping) || length(mapping) == 0) {
+    warning("No column mapping was provided; returning the data as-is.")
+    return(data)
   }
 
-  ## 2. Remove the first index column if it exists
-  first_col_name <- names(data)[1]
-  if (first_col_name == "0" || first_col_name == "") {
-    data <- data[, -1, drop = FALSE]
-  }
-
-  ## 2b. Remove the raw_smiles column (duplicate of the renamed CanonicalSMILES)
-  if ("raw_smiles" %in% names(data)) {
-    data$raw_smiles <- NULL
-  }
-
-  ## 2c. Parse toxicology alert columns from Python-literal strings to binary.
-  ##     ADMETlab outputs alerts as "['-']" (no alert) or "[(1, 2, 3)]" (alert
-  ##     found with atom indices). Convert to 0/1 so they display cleanly.
-  alert_cols <- c("Alarm_NMR", "BMS", "Chelating", "PAINS", "SureChEMBL",
-                  "NonBiodegradable", "NonGenotoxic_Carcinogenicity",
-                  "LD50_oral", "Skin_Sensitization", "Acute_Aquatic_Toxicity",
-                  "FAF-Drugs4 Rule", "Genotoxic_Carcinogenicity_Mutagenicity",
-                  "Aggregators", "Fluc", "Blue_fluorescence",
-                  "Green_fluorescence", "Reactive", "Other_assay_interference",
-                  "Promiscuous")
-  for (col in alert_cols) {
-    if (col %in% names(data)) {
-      val <- as.character(data[[col]])
-      data[[col]] <- ifelse(is.na(val) | grepl("^\\['-'\\]$", val), 0L, 1L)
-    }
-  }
-
-  ## 2d. Drop redundant drug-likeness columns that ADMETlab computes itself.
-  ##     The app computes its own violation columns (Lipinski #violations,
-  ##     etc.) with different semantics, so keeping ADMETlab's binary versions
-  ##     would confuse the user.
-  redundant_cols <- c("Lipinski", "Pfizer", "GSK", "GoldenTriangle")
-  for (col in redundant_cols) {
-    if (col %in% names(data)) {
-      data[[col]] <- NULL
-    }
-  }
-
-  ## 2e. Drop unused physicochemical descriptors that no plot or filter
-  ##     references. These would clutter the DT preview without adding value.
-  unused_descriptors <- c("Vol", "Dense", "nRing", "MaxRing", "nHet",
-                          "fChar", "nRig", "Flex", "nStereo", "gasa",
-                          "QED", "Synth", "Fsp3", "MCE-18",
-                          "Natural Product-likeness")
-  for (col in unused_descriptors) {
-    if (col %in% names(data)) {
-      data[[col]] <- NULL
-    }
-  }
-
-  ## 3. Rename columns from ADMETlab names to the application's standard names
-  rename_map <- c(
-    "smiles" = "CanonicalSMILES",
-    "MW"     = "MW",
-    "TPSA"   = "TPSA",
-    "nHA"    = "#H-bond acceptors",
-    "nHD"    = "#H-bond donors",
-    "nRot"   = "#Rotatable bonds",
-    "logP"   = "LogP"
+  ## ----- 1. Rename columns based on mapping ----------------------------
+  ## Translate the short field codes to the application's standard column
+  ## names (matching the schema used by mapADMETColumns, mapCDKDescriptors 
+  ## mapCDKDescriptors).
+  code_to_standard <- c(
+    "SMILES"                  = "SMILES",
+    "Name"                    = "Name",
+    "MW"                      = "MW",
+    "LogP"                    = "LogP",
+    "WLOGP"                   = "WLOGP",
+    "TPSA"                    = "TPSA",
+    "HBD"                     = "#H-bond donors",
+    "HBA"                     = "#H-bond acceptors",
+    "Rotatable Bonds"         = "#Rotatable bonds",
+    "Molar Refractivity"      = "MR",
+    "Heavy Atoms"             = "#Heavy atoms",
+    "Aromatic Heavy Atoms"    = "#Aromatic heavy atoms",
+    "GI Absorption"           = "GI absorption",
+    "GI Absorption_num"       = "GI_absorption_num",
+    "BBB Permeant"            = "BBB permeant",
+    "BBB Permeant_num"        = "BBB_num",
+    "Pgp Substrate"           = "Pgp substrate",
+    "Pgp Substrate_num"       = "Pgp_num",
+    "LogS"                    = "LogS",
+    "LogD"                    = "LogD"
   )
 
-  for (old in names(rename_map)) {
-    if (old %in% names(data)) {
-      names(data)[names(data) == old] <- rename_map[[old]]
+  for (user_col in names(mapping)) {
+    code <- mapping[[user_col]]
+    if (is.na(code) || code == "None" || code == "") next
+    new_name <- code_to_standard[[code]]
+    if (is.na(new_name)) {
+      warning("Unknown mapping code '", code, "' for column '", user_col,
+              "'; skipping.")
+      next
+    }
+    if (user_col %in% names(data)) {
+      ## If the target name already exists and points to a different column,
+      ## drop the old column first to avoid duplicate-name confusion.
+      if (new_name %in% names(data) && new_name != user_col) {
+        data[[new_name]] <- NULL
+      }
+      names(data)[names(data) == user_col] <- new_name
     }
   }
 
-  ## 4. Convert key columns to numeric
-  numeric_cols <- c("MW", "TPSA", "#H-bond acceptors", "#H-bond donors",
-                    "#Rotatable bonds", "LogP", "logS", "logD",
-                    "hia", "BBB", "pgp_sub")
-  for (col in numeric_cols) {
-    if (col %in% names(data)) {
-      data[[col]] <- suppressWarnings(as.numeric(data[[col]]))
-    }
-  }
-
-  ## 5. Calculate missing properties (MR, #Heavy atoms, #Aromatic heavy atoms)
-  ##    from SMILES using CDK if available.
-  missing_props <- setdiff(
-    c("MR", "#Heavy atoms", "#Aromatic heavy atoms"),
+  ## ----- 2. Convert numeric fields ------------------------------------
+  numeric_cols <- intersect(
+    c("MW", "LogP", "WLOGP", "TPSA",
+      "#H-bond donors", "#H-bond acceptors", "#Rotatable bonds",
+      "MR", "#Heavy atoms", "#Aromatic heavy atoms",
+      "LogS", "LogD",
+      "GI_absorption_num", "BBB_num", "Pgp_num"),
     names(data)
   )
-
-  if (length(missing_props) > 0 && "CanonicalSMILES" %in% names(data)) {
-    if (!requireNamespace("rcdk", quietly = TRUE)) {
-      warning("The 'rcdk' package is required to calculate MR, #Heavy atoms, ",
-              "and #Aromatic heavy atoms from SMILES for ADMETlab 3.0 data. ",
-              "Install it with: install.packages('rcdk')")
-    } else {
-      tryCatch({
-        smiles <- as.character(data$CanonicalSMILES)
-        cdk_desc <- calcCDKDescriptors(smiles,
-          which = c("mr", "heavy", "aroma"))
-
-        cdk_rename <- c(
-          AMR = "MR", nAtom = "#Heavy atoms",
-          naAromAtom = "#Aromatic heavy atoms"
-        )
-        for (old in names(cdk_rename)) {
-          if (old %in% names(cdk_desc)) {
-            names(cdk_desc)[names(cdk_desc) == old] <- cdk_rename[[old]]
-          }
-        }
-
-        ## Use lookup to avoid row duplication
-        cdk_lookup <- split(cdk_desc, cdk_desc$SMILES)
-        for (col in missing_props) {
-          if (col %in% names(cdk_desc)) {
-            data[[col]] <- sapply(smiles, function(s) {
-              if (!is.na(s) && s %in% names(cdk_lookup)) {
-                cdk_lookup[[s]][[col]][1]
-              } else {
-                NA
-              }
-            })
-          }
-        }
-      }, error = function(e) {
-        warning("Could not calculate CDK descriptors for ADMETlab: ", e$message)
-      })
-    }
+  for (col in numeric_cols) {
+    data[[col]] <- suppressWarnings(as.numeric(data[[col]]))
   }
 
-  ## 6. Compute ADMET categorical properties from ADMETlab probabilities
-  data <- computeADMETlabProperties(data)
-
-  ## 7. Compute drug-likeness violation columns
-  computeViolationColumns(data)
-}
-
-#' Compute ADMET categorical properties from ADMETlab probabilities
-#'
-#' Converts the numeric ADMETlab probabilities (0 to 1) into the categorical
-#' labels used by the application (\code{"High"}/\code{"Low"} for GI
-#' absorption, \code{"Yes"}/\code{"No"} for BBB permeability and P-gp
-#' substrate) using a 0.5 threshold.
-#'
-#' @param data A data.frame with ADMETlab probability columns.
-#' @return A data.frame with the added categorical columns.
-#' @keywords internal
-computeADMETlabProperties <- function(data) {
-
-  if ("hia" %in% names(data)) {
+  ## ----- 3. Handle ADMET numeric -> categorical -----------------------
+  if ("GI_absorption_num" %in% names(data)) {
+    v <- data$GI_absorption_num
     data[["GI absorption"]] <- ifelse(
-      is.na(data$hia), NA,
-      ifelse(data$hia >= 0.5, "High", "Low")
+      is.na(v), NA,
+      ifelse(v >= 0.5, "High", "Low")
     )
+    data$GI_absorption_num <- NULL
   }
-
-  if ("BBB" %in% names(data)) {
+  if ("BBB_num" %in% names(data)) {
+    v <- data$BBB_num
     data[["BBB permeant"]] <- ifelse(
-      is.na(data$BBB), NA,
-      ifelse(data$BBB >= 0.5, "Yes", "No")
+      is.na(v), NA,
+      ifelse(v >= 0.5, "Yes", "No")
     )
+    data$BBB_num <- NULL
   }
-
-  if ("pgp_sub" %in% names(data)) {
+  if ("Pgp_num" %in% names(data)) {
+    v <- data$Pgp_num
     data[["Pgp substrate"]] <- ifelse(
-      is.na(data$pgp_sub), NA,
-      ifelse(data$pgp_sub >= 0.5, "Yes", "No")
+      is.na(v), NA,
+      ifelse(v >= 0.5, "Yes", "No")
     )
+    data$Pgp_num <- NULL
   }
 
-  data
-}
-
-## ---------------------------------------------------------------------------
-
-#' Normalize a Deep-PK dataset
-#'
-#' Cleans and maps a data.frame exported from Deep-PK Learning to the
-#' application's standard column schema. Because Deep-PK CSVs do not contain
-#' physicochemical descriptors natively, all descriptors (MW, TPSA, LogP, MR,
-#' HBA, HBD, rotatable bonds, heavy atoms, aromatic heavy atoms) are
-#' calculated on-the-fly from the SMILES using CDK
-#' (\code{\link{calcCDKDescriptors}}). If the Deep-PK CSV contains its own
-#' LogP prediction, that value takes precedence over the CDK-calculated ALogP.
-#' Requires the suggested package \pkg{rcdk} and a working Java JDK.
-#'
-#' @param data A data.frame read from a Deep-PK CSV file.
-#' @return A data.frame ready for filtering and plotting.
-#' @examples
-#' \dontrun{
-#' d <- read.csv("deeppk.csv", check.names = FALSE)
-#' d <- fixDeepPK(d)
-#' }
-#' @export
-#' @seealso \code{\link{fixSwissADME}}, \code{\link{fixADMETlab}},
-#'   \code{\link{calcCDKDescriptors}}, \code{\link{mapCDKDescriptors}}.
-fixDeepPK <- function(data) {
-
-  ## 1. Remove the first index column if it exists
-  first_col_name <- names(data)[1]
-  if (first_col_name == "0" || first_col_name == "") {
-    data <- data[, -1, drop = FALSE]
-  }
-
-  ## 2. Rename SMILES -> CanonicalSMILES
-  if ("SMILES" %in% names(data)) {
-    names(data)[names(data) == "SMILES"] <- "CanonicalSMILES"
-  }
-
-  ## 3. Extract LogP from Deep-PK's own prediction column (if present)
-  cols <- names(data)
-  logp_col <- cols[grepl("Log\\(P\\)\\] Predictions", cols, ignore.case = TRUE)]
-  has_deepkp_logp <- length(logp_col) > 0
-  if (has_deepkp_logp) {
-    data$LogP <- suppressWarnings(as.numeric(data[[logp_col[1]]]))
-  }
-
-  ## 4. Calculate ALL physicochemical descriptors from SMILES using CDK
-  if (!requireNamespace("rcdk", quietly = TRUE)) {
-    stop("The 'rcdk' package is required to process Deep-PK datasets.",
-         call. = FALSE)
-  }
-
-  smiles <- as.character(data$CanonicalSMILES)
-
-  tryCatch({
-    cdk_desc <- calcCDKDescriptors(
-      smiles,
-      which = c("mw", "alogp", "tpsa", "hbd", "hba", "rotb", "heavy", "aroma",
-                "mr")
+  ## ----- 4. Optionally calculate missing descriptors with CDK --------
+  if (calculate_cdk && "SMILES" %in% names(data)) {
+    missing_desc <- setdiff(
+      c("MW", "LogP", "TPSA", "#H-bond donors", "#H-bond acceptors",
+        "#Rotatable bonds", "MR", "#Heavy atoms", "#Aromatic heavy atoms"),
+      names(data)
     )
-    mapped <- mapCDKDescriptors(cdk_desc)
+    if (length(missing_desc) > 0) {
+      if (!requireNamespace("rcdk", quietly = TRUE)) {
+        warning("The 'rcdk' package is required to calculate missing ",
+                "descriptors with CDK. Install it with: ",
+                "install.packages('rcdk').")
+      } else {
+        tryCatch({
+          smiles <- as.character(data$SMILES)
+          ## Map missing standard names -> CDK "which" short codes.
+          std_to_cdk <- c(
+            "MW"                     = "mw",
+            "LogP"                   = "alogp",
+            "TPSA"                   = "tpsa",
+            "#H-bond donors"         = "hbd",
+            "#H-bond acceptors"      = "hba",
+            "#Rotatable bonds"       = "rotb",
+            "MR"                     = "mr",
+            "#Heavy atoms"           = "heavy",
+            "#Aromatic heavy atoms"  = "aroma"
+          )
+          cdk_which <- unique(std_to_cdk[missing_desc])
+          cdk_desc <- calcCDKDescriptors(smiles, which = cdk_which)
 
-    mapped$CanonicalSMILES <- mapped$SMILES
-    mapped$SMILES <- NULL
-
-    if (has_deepkp_logp) {
-      mapped$LogP <- NULL
-    }
-
-    keep_cols <- c("CanonicalSMILES", "MW", "LogP", "TPSA", "#H-bond donors",
-                   "#H-bond acceptors", "#Rotatable bonds", "#Heavy atoms",
-                   "#Aromatic heavy atoms", "MR")
-    mapped <- mapped[, intersect(keep_cols, names(mapped)), drop = FALSE]
-
-    ## Use lookup instead of merge to avoid row duplication
-    cdk_lookup <- split(mapped, mapped$CanonicalSMILES)
-    for (col in names(mapped)) {
-      if (col != "CanonicalSMILES") {
-        data[[col]] <- sapply(smiles, function(s) {
-          if (!is.na(s) && s %in% names(cdk_lookup)) {
-            cdk_lookup[[s]][[col]][1]
-          } else {
-            NA
+          ## Rename CDK columns to standard names
+          cdk_rename <- c(
+            MW            = "MW",
+            ALogP         = "LogP",
+            AMR           = "MR",
+            TopoPSA       = "TPSA",
+            nHBDon        = "#H-bond donors",
+            nHBAcc        = "#H-bond acceptors",
+            nRotB         = "#Rotatable bonds",
+            nAtom         = "#Heavy atoms",
+            naAromAtom    = "#Aromatic heavy atoms"
+          )
+          for (old in names(cdk_rename)) {
+            if (old %in% names(cdk_desc)) {
+              names(cdk_desc)[names(cdk_desc) == old] <- cdk_rename[[old]]
+            }
           }
+          if ("ALogP2" %in% names(cdk_desc)) {
+            cdk_desc$ALogP2 <- NULL
+          }
+
+          ## Use lookup to avoid row duplication
+          cdk_lookup <- split(cdk_desc, cdk_desc$SMILES)
+          for (col in missing_desc) {
+            if (col %in% names(cdk_desc)) {
+              data[[col]] <- sapply(smiles, function(s) {
+                if (!is.na(s) && nchar(s) > 0 && s %in% names(cdk_lookup)) {
+                  cdk_lookup[[s]][[col]][1]
+                } else {
+                  NA
+                }
+              })
+            }
+          }
+        }, error = function(e) {
+          warning("Could not calculate CDK descriptors: ", e$message)
         })
       }
     }
-  }, error = function(e) {
-    warning("Could not calculate CDK descriptors for Deep-PK: ", e$message)
-  })
-
-  ## 5. Map Deep-PK ADMET predictions to categorical labels
-  clean_text <- function(x) gsub("<br/>|&nbsp;|<.*?>", " ", x)
-
-  hia_col <- cols[grepl("Human Intestinal Absorption\\] Interpretation",
-                        cols, ignore.case = TRUE)]
-  if (length(hia_col) > 0) {
-    hia <- clean_text(data[[hia_col[1]]])
-    ## Deep-PK returns "Absorbed" or "Not absorbed".
-    ## grepl("Absorbed", "Not absorbed") returns TRUE (substring match),
-    ## so we must exclude "Not" explicitly.
-    data[["GI absorption"]] <- ifelse(
-      grepl("Absorbed", hia, ignore.case = TRUE) &
-        !grepl("Not", hia, ignore.case = TRUE),
-      "High", "Low"
-    )
   }
 
-  bbb_col <- cols[grepl("Blood-Brain Barrier\\] Interpretation",
-                        cols, ignore.case = TRUE)]
-  if (length(bbb_col) > 0) {
-    bbb <- clean_text(data[[bbb_col[1]]])
-    ## Deep-PK returns "Penetrable" or "Non-penetrable".
-    ## grepl("Penetrable", "Non-penetrable") returns TRUE (substring match),
-    ## so we must exclude "Non" explicitly.
-    data[["BBB permeant"]] <- ifelse(
-      grepl("Penetrable", bbb, ignore.case = TRUE) &
-        !grepl("Non", bbb, ignore.case = TRUE),
-      "Yes", "No"
-    )
+  ## ----- 5. If WLOGP present and LogP not mapped, set LogP = WLOGP -----
+  ## WLOGP is preferred for BOILED-Egg (official calibration), but only
+  ## if the user didn't explicitly map a different column to LogP.
+  if ("WLOGP" %in% names(data) && !"LogP" %in% names(data)) {
+    data$LogP <- data$WLOGP
   }
 
-  pgp_col <- cols[grepl("P-Glycoprotein Substrate\\] Interpretation",
-                        cols, ignore.case = TRUE)]
-  if (length(pgp_col) > 0) {
-    pgp <- clean_text(data[[pgp_col[1]]])
-    ## Deep-PK returns "Substrate" or "Non-substrate".
-    ## grepl("Substrate", "Non-substrate") returns TRUE (substring match),
-    ## so we must exclude "Non" explicitly.
-    data[["Pgp substrate"]] <- ifelse(
-      grepl("Substrate", pgp, ignore.case = TRUE) &
-        !grepl("Non", pgp, ignore.case = TRUE),
-      "Yes", "No"
-    )
+  ## ----- 6. Compute drug-likeness violation columns -------------------
+  data <- computeViolationColumns(data)
+
+  ## ----- 7. Compute ADMET properties (only if not provided) -----------
+  ## Don't overwrite user-provided GI / BBB / Pgp columns.
+  need_admet <- (!"GI absorption" %in% names(data)) ||
+                (!"BBB permeant"   %in% names(data)) ||
+                (!"Pgp substrate"  %in% names(data))
+  if (need_admet) {
+    ## Temporarily stash any user-provided categorical columns so that
+    ## computeADMETProperties doesn't overwrite them.
+    stash_gi  <- if ("GI absorption" %in% names(data)) data[["GI absorption"]] else NULL
+    stash_bbb <- if ("BBB permeant"  %in% names(data)) data[["BBB permeant"]]  else NULL
+    stash_pgp <- if ("Pgp substrate" %in% names(data)) data[["Pgp substrate"]] else NULL
+
+    data <- computeADMETProperties(data)
+
+    if (!is.null(stash_gi))  data[["GI absorption"]] <- stash_gi
+    if (!is.null(stash_bbb)) data[["BBB permeant"]]  <- stash_bbb
+    if (!is.null(stash_pgp)) data[["Pgp substrate"]] <- stash_pgp
   }
 
-  ## 6. Compute drug-likeness violation columns
-  computeViolationColumns(data)
+  data
 }

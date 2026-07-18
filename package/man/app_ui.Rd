@@ -11,9 +11,9 @@ A \code{shiny.tag.list} suitable for \code{shiny::shinyApp()}.
 }
 \description{
 Builds the full Shiny UI for the ADMETShiny application: a collapsible
-\code{navbarPage} with the Home, SwissADME, CDK & webchem, ADMETlab 3.0,
-Deep-PK, Report, About, First Steps and Documentation tabs, plus the
-floating dark-mode toggle button.
+\code{navbarPage} with the Home, CDK & webchem, ADMET Master Manager,
+Report, Documentation, Tutorial and About tabs, plus the floating
+dark-mode toggle button.
 }
 \details{
 This function is intended for internal use; end users should launch the app

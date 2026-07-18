@@ -47,7 +47,7 @@ visualizations and references.
 \dontrun{
 ## Generate a report from a single dataset
 d <- read.csv("swissadme.csv", check.names = FALSE)
-d <- fixSwissADME(d)
+d <- mapADMETColumns(d, mapping)
 generateReport(d, filters = c("Lipinski", "Veber"), format = "html")
 
 ## Generate a report from multiple datasets

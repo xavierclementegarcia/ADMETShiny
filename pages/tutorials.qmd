@@ -5,448 +5,85 @@ bibliography: references.bib
 
 ### Theory & Documentation
 
-#### Initial considerations
+Admetshiny is an R package that provides an interactive Shiny application and a toolbox of R functions for the management, calculation, filtering, visualization and exploratory analysis of molecular descriptors and ADMET (Absorption, Distribution, Metabolism, Excretion and Toxicity) properties of small molecules.
 
-This ADMETShiny package contains four sections, each with its own independent workflow. The user will ultimately be able to generate a comprehensive report that includes the main characteristics of the applied filters (Executive Summary per model, Statistics of Key properties, Drug-likeness Filter Results, BOILED-Egg ADMET Classification, Additional Drug-likeness Metrics, Composite Drug-likeness Score & graphs: BOILED-Egg, Distributions to MW, TPSA, LogP histograms, correlations between physicochemical properties & cluster heatmaps per model).
+The package structure is organized into 24 R source files. The NAMESPACE declare 31 exports, the description 10 hard imports and 16 suggest, but we've recommended install all the packages with the guide script in the website.
 
-### Introduction and Architectural Overview
+### Two working modules
 
-ADMETShiny is an R package providing an interactive Shiny application and a programmatic API for the management, calculation, filtering, visualization, and exploratory analysis of molecular descriptors and ADMET properties. It integrates four data sources with fundamentally different algorithms and data schema, standardizing them into a unified pipeline.
+- **CDK & Webchem:** a four step pipeline where: 1. obtain SMILES via PubChem identifiers, manual entry or CSV upload; 2. Calculate CDK descriptors; 3. apply drug-likeness filters; 4. visualize the results.
 
-The **Design Philosophy** of this package include an architected around three core principles. For one hand a single generic LogP column is used across all modules, with thresholds from original publications (That's include SwissADME values). This ensures that filters work identically regardless of data provenance.
+- **ADMET Master Manager:** a four step wizard: 1. Upload & Preview; 2. Map Columns; 3. Filter; 4. Plots
 
-![](/images/9.png)
-
-The UI is composed of independent tab modules (SwissADME, CDK, ADMETLab, Deep-PK and report), each with its own UI builder, reactive values, and server logic, sharing a common set of computational functions.
-
-### Package Structure
-
-| Layer | Files | Purpose |
-|---------------|---------------------------------|------------------------|
-| Core API | `filters.R, data_fixers.R, cdk_webchem.R, plots.R, plots_cluster.R, plot_customization.R, report.R` | Exported functions for filtering normalization, visualization, reporting |
-| Shiny App | `app_ui.R, app_server.R, ui.R, dark_mode.R, run_app.R` | Interactive web application |
-| Infrastructure | `admetshiny-package.R, globals.R, utils-pipe.R, boiled_egg_data.R` | Package metadata, constants, imports, data |
-
-This separation ensures that the computational functions can be used independently of the Shiny application, either in R scripts or embedded in other packages.
-
-### Theoretical background
-
-##### ADME
-
-ADME is the four-letter acronym for absorption, distribution, metabolism and excretion. That has described pharmacokinectics for 50 years [@doogue2013]. These terms were first presented together in English by Nelson in 1961, rephrasing resorption, distribution, consumption and elimination used by Teorell in 1937 [@nelson1961]. ADME as originally used for the interpretation of behavior molecules: entering the body (A), moving about the body (D), changing within the body (M) and leaving the body (E). Currently the definition is important for the characterization of potential drugs.
-
-In the last years, a large variety of *in silico* methods share the objective of predicting ADME parameters form molecular structure. For this reason, the cheminformaticians and bioinformaticians developed different molecular descriptors mined from chemical structures [@daina2017].
-
-##### Drug-likeness
-
-Drug development is difficult, not only because of complex process and long development cycles, but also because of the high rate of candidates at all stages [@wei2020]. That's reason, the comprehensive data on the loss of candidates from the four largest pharmaceutical companies, showed that the control of physicochemical properties during compound optimization is beneficial in improving the quality of candidates [@waring2015]. The descriptors of drug-likeness have gradually been perfected over time.
-
-##### TPSA
-
-Topological polar surface area `(TPSA)`, which makes use of functional group contributions based on a large database of structures [@chuang2020]. This molecular descriptor (MD) calculated as the sum of surface contributions from polar atoms [@prasanna2009]. TPSA is derived directly from the molecular topology, that the case correspond to SMILES [@beck2022]. Currently this MD is expressed in square angstroms $(Å²)$ and are highly predictive of how a molecule behaves in the body.
-
-##### Lipophilicity
-
-Since experimental `LogP` measurements are unavailable for most virtual compounds, computational chemistry relies on predictive algorithms to estimate lipophilicity. Several approaches have been proposed, including atom-fragment methods, fragment-correction schemes [@morak-mlodawska2023]. Consequently, differents software platforms report different numerical estimations of LogP even when evaluating the same molecular structure. For example differents Web-servers for ADMET properties request several algorithms: Wildman-Crippen atom-fragment model `(WLOGP)`, Atom-fragment model with correction factors `(XLOGP)`, Ghose-Crippen atoms fragments `(ALOGP)` [@abramson2024].
-
-The quantification lipohilicity are described with numerical estimators of the same physicochemical properties rather than interchangeable values.
-
-$$\mathrm{LogP}_{\mathrm{WLOGP}}
-\not\equiv
-\mathrm{LogP}_{\mathrm{XLOGP}}
-\not\equiv
-\mathrm{LogP}_{\mathrm{ALOGP}}
-\not\equiv
-\mathrm{LogP}_{\mathrm{ML}}$$
-
-For this package, it's possible define a different representation for this equation. This equation could described with the next form:
-
-$$\mathrm{WLOGP}
-\not\equiv
-\mathrm{XLOGP}
-\not\equiv
-\mathrm{ML\text{-}LogP}
-\not\equiv
-\mathrm{DL\text{-}LogP}$$
-
-Differents model in ADMETShiny use a consensus liphophilicity. This package use a LogP as logical representation to the liphophilicity.
-
-### Drug-likeness filters: Mathematical foundations
-
-ADMETShiny implements five classical drug-likeness filters. Each filter is implemented as two-layer system:
-
-1.  Individual physicochemical property thresholds
-
-2.  A pre-computed violations count. This approach provides redundant safety: a compound must pass both the explicit thresholds and have a violations count within tolerance.
-
-#### Lipinski Rule of Five
-
-``` r
-V_Lipinski = I(MW > 500) + I(LogP > 5) + I(HBA > 10) + I(HBD > 5)  where I(condition) = 1 if condition is true, 0 otherwise  Filter: compound passes if V_Lipinski <= max_violations (default: 0)
-```
-
-The original Lipinski paper use `MLOGP <=4.15`[@lipinski1997]. ADMETShiny uses the generic `LogP <=5` . This is bacause `MLOGP` is a specific algorithm (Moriguchi topological method) that is only available in SwissADME and R alternative versions with `reticulate`. Using `LogP <=5` (The threshold stated in the original Rule-of-Five as `LogP < 5`) makes the filter source-agnostic. The violations columns is recalculated by computeViolationColumns() consoles to use this threshold, overwriting SwissADME pre-computed values.
-
-#### Veber oral bioavailability Rule
-
-``` r
-V_Veber = I(RB > 10 OR (TPSA > 140 AND (HBA + HBD) > 12))  Note: This is a BINARY violation (0 or 1), not a sum. The two polarity conditions (TPSA and HBA+HBD) are ALTERNATIVES (OR), not cumulative (AND).  Filter: compound passes if V_Veber == 0
-```
-
-The original paper state that good oral bioavailability is associated with `RB<=10 & (TPSA<=140 or HBA+HBD<=12)`[@veber2002]. Many implementations incorrectly use and between the polarity conditions. ADMETShiny correctly use OR, matching the original paper. The implementation creates a temporary column `.hb_sum = HBADconsolas` inside the filter pipeline, then removes it with `select(.hb_sum)consolas` to avoid polluting the output .
-
-#### Ghose Qualifying Range
-
-``` r
-V_Ghose = I(MW < 160 OR MW > 480)       + I(MR < 40 OR MR > 130)       + I(LogP < -0.4 OR LogP > 5.6)       + I(#Heavy atoms < 20 OR #Heavy atoms > 70)  Filter: compound passes if V_Ghose <= max_violations (default: 0)
-```
-
-The Ghose filter requires MR (Molar Refractivity) and #Heavy atoms . SwissADME provides both natively. ADMETLab 3.0 and Deep-pK do not, so `fixADMETLab()` and `fixDeepPK()` calculate them from SMILES using `CDK` before the filter can be applied. At the case of Deep-pK the calculate is execute in another option because the pK variables are independents, for this package that's not optimize and limit the automatic workflow.
-
-#### Egan PSA-LogP rule
-
-``` r
-V_Egan = I(TPSA > 131.6) + I(LogP > 5.88)  Filter: compound passes if V_Egan <= max_violations (default: 0)
-```
-
-Two properties using this formula. The thresholds are derived from multivariate statistical analysis of oral bioavailability data [@egan2000].
-
-#### Muegge Pharmacophore filter
-
-``` r
-V_Muegge = I(MW < 200 OR MW > 600)         + I(LogP < -2 OR LogP > 5)         + I(HBA > 10)         + I(HBD > 5)         + I(RB > 15)         + I(TPSA > 150)  Filter: compound passes if V_Muegge <= max_violations (default: 0)
-```
-
-The original Muegge rule include a pharmacophore points \>=4 criteria (HBA + HBD +rings + cations + anions\>=4). This is not available from any of the four data sources. For example, HBA y HBD is available in the four datasets that the user could report. Cations and anion are not available, that's rule not considered. In the other hand, ADMETLab 3.0 dataset have `nRing`, but in SwissADME, Deep-pK and rCDK this category not. In the package that is a limitation.
-
-``` r
-# Una molécula pasa si:
-#Rotatable bonds <= 15
-AND  MW >= 200 AND MW <= 600
-AND  LogP >= -2 AND LogP <= 5
-AND  TPSA <= 150
-AND  #H-bond acceptors <= 10
-AND  #H-bond donors <= 5
-AND  Muegge #violations <= 0  (configurable)
-```
-
-#### ApplyFilters() Dispatcher
-
-The dispatcher applies selected filters in a fixed order `(Lipinski > Veber > Ghose > Egan > Muegge)`. Each filter is applied to the output of the previous one, so the result is the **intersection** of all selected rules. The fixed order ensures deterministic behavior.
-
-``` r
-applyFilters <- function(data, filters, lipinski = list(), ...) {   resultado <- data   if ("Lipinski" %in% filters)     resultado <- do.call(lipinskiFilter, c(list(data = resultado), lipinski))   if ("Veber" %in% filters)     resultado <- do.call(veberFilter, c(list(data = resultado), veber))   # ... (same for Ghose, Egan, Muegge)   resultado }
-```
-
-The `do.call() + named parameter` list pattern allows the UI to pass a sparse parameter set per filter. Empty lists fall back to each filter's defaults.
-
-### Descriptor harmonization
-
-The package use four prediction engines. The principal problem with them started with the several heterogeneous outputs doubt the differ in descriptor nomenclature, numerical estimators, and property availability. The first solution was resolve with [tidyverse](https://tidyverse.org/) package. However was necessary ensure a unified downstream workflow and avoid possible errors in the input datasets and input calculate with rCDK. For this, this package resolved this with a harmonization process. This is performed before any visualization, drug-likeness assessment or BOILED-Egg classification, allowing all analytical modules to operate independently of the original prediction engine.
-
-$$\mathrm{LogP}_{\mathrm{backend}}
-\longrightarrow
-\mathrm{LogP}_{\mathrm{ADMETshiny}}$$
-
-For this, the internal descriptor schema is defined as:
-
-$$\mathcal{D}
-=
-\{
-MW,\,
-LogP,\,
-TPSA,\,
-HBA,\,
-HBD,\,
-RB,\,
-MR,\,
-HeavyAtoms,\,
-AromaticHeavyAtoms,\,
-GI,\,
-BBB,\,
-Pgp
-\}$$
-
-where every backend is transformed into this common representation.
-
-In the source code for the transformation in the building BOILED-Egg graph is represent as
-
-``` r
-if ("Consensus Log P" %in% names(data)) {
-  data$LogP <- data[["Consensus Log P"]]
-} else if ("WLOGP" %in% names(data)) {
-  data$LogP <- data$WLOGP
-} else if ("MLOGP" %in% names(data)) {
-  data$LogP <- data$MLOGP
-}
-```
-
-A little example to this show in the block code above. Another example listed for ADMETLab 3.0 datasets as:
-
-``` r
-  ## 1. Remove the molstr (SVG) column if it exists
-  if ("molstr" %in% names(data)) {
-    data$molstr <- NULL
-  }
-
-  ## 2. Remove the first index column if it exists
-  first_col_name <- names(data)[1]
-  if (first_col_name == "0" || first_col_name == "") {
-    data <- data[, -1, drop = FALSE]
-  }
-
-  ## 3. Rename columns from ADMETlab names to the application's standard names
-  rename_map <- c(
-    "smiles" = "CanonicalSMILES",
-    "MW"     = "MW",
-    "TPSA"   = "TPSA",
-    "nHA"    = "#H-bond acceptors",
-    "nHD"    = "#H-bond donors",
-    "nRot"   = "#Rotatable bonds",
-    "logP"   = "LogP"
-  )
-```
-
-This package in fixADMETlab() are not only renaming columns, this too compute missing descriptors for the analysis
-
-``` r
-  ## 5. Calculate missing properties (MR, #Heavy atoms, #Aromatic heavy atoms)
-  ##    from SMILES using CDK. ADMETlab 3.0 does not provide these natively,
-  ##    but they are required by the Ghose and Muegge filters.
-  missing_props <- setdiff(
-    c("MR", "#Heavy atoms", "#Aromatic heavy atoms"),
-    names(data)
-  )
-```
-
-For this we used rCDK function:
-
-``` r
-calcCDKDescriptors()
-```
-
-The workflows is define with the next steps:
-
-![](/images/28.png)
-
-This harmonization enables identical downstream workflows for physicochemical descriptors analysis, drug-likeness filters, statistical summaries, BOILED-Egg visualization and report generation. The objective is not to force numerical equivalence among different prediction models but to provide a consistent computational interface across heterogeneous software platforms.
+Both modules feed their final filtered dataset into the shared Report tab, which uses rmarkdown to render a comprehensive analysis document in HTML, PDF or Word format.
 
 ### Data Standardization Schema
 
-Each data source provides physicochemical descriptors and ADMET predictions computed with different algorithms and named with different conventions. ADMETShiny maps all of them to a unified internal schema.
+The application uses a single canonical column schema regardless of the original data source.
 
-| Standar column | SwissADME | ADMETLab 3.0 | Deep-pK | CDK & Webchem |
-|:------------:|:------------:|:------------:|:---------------:|:------------:|
-| MW | MW | MW | WeightDescriptor (CDK) | WeightDescriptor |
-| LogP | WLOGP | logP | \[Log(P)\] Predictions or AlogP (CDK) | AlogP (Ghose-Crippen) |
-| TPSA | TPSA | TPSA | TPSADescriptor (CDK) | TPSADescriptor (CDK) |
-| #H Bond acceptors | #H bond acceptors | nHA | nHBAcc (CDK) | nHBAcc |
-| #H Bond donors | #H bond donors | nHD | nHBDon (CDK) | nHBDon |
-| #Rotatable bonds | #Rotatable bonds | nRot | nRotB (CDK) | nRotB |
-| #Heavy atoms | #Heavy atoms | nAtom | nAtom (CDK) | nAtom |
-| MR | MR | AMR | AMR (CDK) | AMR |
-| GI absorption | GI absorption | hia\>=0.5 (binarized) | Interpretation text (parsed) | Boiled-Egg polygon test |
-| BBB permeant | BBB permeant | BBB \>=0.5 (binarized) | Intepretation text (parsed) | Boiled-Egg polygon test |
-| Pgp substrate | Pgp substrate | pgp_sub \>=0.5 (binarized) | Interpretation text (parsed) | Heuristic |
+| Field code           | Standard column name  | Type          |
+|----------------------|-----------------------|---------------|
+| SMILES               | CanonicalSMILES       | `string`      |
+| Name                 | Name                  | `string`      |
+| LogP                 | LogP                  | `numeric`     |
+| WLOGP                | WLOGP                 | `numeric`     |
+| TPSA                 | TPSA                  | `numeric`     |
+| HBD                  | #H-bond donors        | `numeric`     |
+| HBA                  | #H bond acceptors     | `numeric`     |
+| Rotatable Bonds      | #Rotatable bonds      | `numeric`     |
+| Molar Refractivity   | MR                    | `numeric`     |
+| Heavy Atoms          | #Heavy atoms          | `numeric`     |
+| Aromatic Heavy Atoms | #Aromatic heavy atoms | `numeric`     |
+| GI Absorption        | GI absorption         | `categorical` |
+| Gi Absorption_num    | GI_absorption_num     | `numeric`     |
+| BBB Permeant         | BBB permeant          | `categorical` |
+| BBB Permeant_num     | BBB_num               | `numeric`     |
+| Pgp Substrate        | Pgp substrate         | `categorical` |
+| Pgp Substrate_num    | Pgp_num               | `numeric`     |
+| LogS                 | LogS                  | `numeric`     |
+| LogD                 | LogD                  | `numeric`     |
 
-### The BOILED-Egg model
+: The standardization column names
 
-##### Mathematical implementation of the BOILED-Egg model
+### The mapADMETColumns algorithm
 
-The original BOILED-Egg model operates in the descriptor space:
+The function executes seven sequential steps:
 
-$$\mathcal{D}
-=
-\{
-WLogP,\,
-TPSA\}$$ Since WLOGP is unavailable in several supported backends, for this reason ADMETShiny introduces the practical mathematical approximation. THe approximation is list followed:
+1.  **Rename columns:** For each user column pair in the mapping, the field code is looked up in code to standard. If a target name already exists and points to a different column, the old column is dropped first to prevent duplicated name confusion.
 
-$$\{WLOGP,\;TPSA\}
-\;\approx\;
-\{LogP,\;TPSA\}$$
+2.  **Numeric coercion:** The standard numeric columns (`MW, LogP, WLOGP, TPSA, HBD, HBA, RB, MR, heavy atoms, aromatics atoms, LogS, LogD, GI_absorption_num, BBB_num_Pgp_num`) are coerced with suppress warnings.
 
-where the generic LogP corresponds to the lipophilicity estimator returned by the selected computational engine. Accordingly, the only approximation introduced in the ADMETshiny implementation concerns the lipophilicity descriptor itself. The geometric decision regions, polygon coordinates, and point-in-polygon classification algorithm remain identical to those defined in the original BOILED-Egg model.
-
-##### Physical-chemical space in the BOILED-Egg
-
-The BOILED-Egg model [@daina2016] is a visual and computational model that predicts gastrointestinal absorption (GI) and blood-brain barrier (BBB) permeability from two physicochemical properties, `TPSA` (x-axis) and `WLOGP` (y-axis). The model defines two regions:
-
-- White region (HIA): high probability of gastrointestinal absorption
-
-- Yellow yolk (BBB): high probability of crossing the blood-brain barrier
-
-### Validation of the approximation
-
-ADMETShiny uses the official polygon coordinates published as data S3 in the supplementary material of the original articles. Each polygon is defined by 101 `(x,y)` points where `x = TPSA and y = WLOGP`.
-
-![](/images/29.png)
-
-The BBB polygon in the below table contains small negative TPSA value (-2.96). This is intentional in the official polygon and reflects the model's calibration; it does not represent a physical impossibility but rather the mathematical extension of the fitted boundary. That the case the coordinates are stored as internal R object in R/boiled_egg_data.R:
+3.  **ADMET numeric to categorical conversion:** If the user supplied a numeric column mapped to GI Absorption and another, the corresponding categorical column is derived using a threshold of 0.5
 
 ``` r
-.hia_polygon <- matrix(c(97.8055224368, -2.2270390475, ...), ncol = 2, byrow = TRUE) .bbb_polygon <- matrix(c(40.9701792513, 0.4062562900, ...), ncol = 2, byrow = TRUE) # Column 1 = TPSA (x-axis), Column 2 = LogP (y-axis)
+if ("GI_absorption_num" %in% names(data)) {
+ v <- data$GI_absorption_num
+ data[["GI absorption"]] <- ifelse(
+ is.na(v), NA,
+ ifelse(v >= 0.5, "High", "Low"))
+ data
 ```
 
-| Region       | TPSA Range    | WLOGP Range  | Points |
-|--------------|---------------|--------------|--------|
-| HIA (white)  | 0.02 - 142.03 | -2.25 - 6.84 | 101    |
-| BBB (yellow) | -2.96 - 79.10 | 0.41 - 5.96  | 101    |
-
-: Polygon points defined by 101 points
-
-The BOILED-Egg is defined with 101 points for WLOGP [@daina2016]. These coordinates are stored as internal R objects `.hia_polygon`, `.bbb_polygon` in the file `R/boiled_egg_data.R` and are loaded once when the package is attached.
-
-![](/images/30.png)
-
-Point in polygon classification for each molecule with coordinates `(TPSA, LogP)`, the classification is performed using a point in polygon algorithm. ADMETShiny implements two approaches:
-
-1.  `sp::point.in.polygon()` from the suggested package `"sp"`. This is a C-optimized implementation of the ray-casting algorithm.
-
-2.  A pure-R implementation of the ray-casting algorithm. A ray is cast horizontally from the query point; if it crosses the polygon boundary an odd number of times, the point is inside.
-
-The classification logic correspond to:
-
-`if point_in_polygon(TPSA, LogP, HIA_polygon): GI_absorption = 'High' else: GI_absorption = 'Low'  if point_in_polygon(TPSA, LogP, BBB_polygon): BBB_permeant = 'Yes' else: BBB_permeant = 'No'`
-
-This package use a BOILED-Egg approximation LogP source was that calibrated with WLOGP (Wildman-Crippen). The accuracy of the classification depends on the LogP algorithm used:
-
-|    Module     |       LogP used       |  Fidelity   |   Recommendation   |
-|:-------------:|:---------------------:|:-----------:|:------------------:|
-|   SwissADME   |         WLOGP         |   Optimal   | Use for validation |
-| ADMETLab 3.0  |    logP (ML model)    | Approximate |  Exploratory only  |
-|    Deep-PK    |    LogP (DL model)    | Approximate |  Exploratory only  |
-| CDK & Webchem | ALogP (Ghose-Crippen) | Approximate |  Exploratory only  |
-
-In this SwissADME module, users can select which `LogP` variant to use for the BOILED-Egg plot (`WLOGP`, `Consensus` `LogP`, `MLOGP`, `XLOGP3`, `iLOGP` or `generic` `LogP`). For other modules, the platform's own `LogP` is used, which may introduce classification errors for compounds near the polygon boundaries.
-
-| Source | Algorithm | Method Type | Typical difference vs WLOGP |
-|-----------------|---------------------|-----------------|-----------------|
-| SwissADME WLOGP | Wildman-Crippen | Atom-based fragmentation | Without difference |
-| SwissADME Consensus LogP | Mean of iLOGP, XLOGP3, WLOGP, MLOGP | Ensemble | 0.3 - 0.8 units |
-| SwissADME MLOGP | Moriguchi | Topological indices | 0.5 -1.5 units |
-| ADMETLab LogP | Proprietary ML model | Machine Learning | 0.5 - 1-5 units |
-| Deep-pK LogP | Proprietary DL model | Deep learning | 0.5 - 2.0 units |
-| CDK AlogP | Ghose-Crippen | Atom-based fragmentation | 0.5 - 1.5 units |
-
-For SwissADME Manager, WLOGP is used as the default LogP (matching the BOILED-Egg calibration). For other sources, the platform's own LogP is used as an approximation. In the SwissADME module's BOILED-Egg plot, the user can select which LogP variant to use via a dropdown selecto (WLOGP, Consensus LogP, MLOGP, XLOGP3, iLOGP or generic Logp). Generic LogP is an equivalence to WLOGP with SwissADME dataset.
-
-##### Mathematical implication
-
-If a molecule has `WLOGP = 2.0` and `ALogP = 1.3` , and the HIA polygon boundary at that `TPSA` is at `LogP = 1.5`, the molecule would be classified as **high** (inside) with `WLOGP` but **low** (outside) with `AlogP`. This boundary effect is the primary source of classification disagreement between modules.
-
-##### Axis convention
-
-The plot in ADMETShiny package follow the SwissADME convention: X-axis = TPSA (0 to 200), Y-axis = LogP (-2 to 7). The polygon coordinates are stored in this (TPSA, LogP) = (x,y) format, so no transposition is needed when passing to point_in_polygon or geom_polygon.
-
-##### P-glycoprotein substrate prediction
-
-The Boiled-Egg uses P-gp substrate status only for point colouring (blue=PGP+, red=PGP-), not for GI/BBB classification. Each module obtais P-gp differently:
-
-| Modue | Method | Algorithm | Accuracy |
-|:----------------:|:----------------:|:----------------:|:----------------:|
-| SwissADME | CSV | SVM | High (Validated) |
-| ADMETLab 3.0 | pgp\_\_sub\>0.5 | ML model probability threshold | High |
-| Deep-pK | Text parsing (Substrate/Non-substrate) | DL model interpretation | High |
-| CDK & Webchem | Heuristic formula | Literature-based [@seelig1998] | Medium-Low (approximation) |
-
-: At the case of CDK, the heuristic equation correspond to the follow:
+4.  **Optional CDK calculation for missing descriptors:** When the function `calculate_cdk = TRUE`, and a CanonicalSMILES column exists, the function computes the set of missing standard descriptors via `setdiff()`, MAPS each to its CDK short code. **For more information about to this function, you could read the technical documentation.**
+5.  **WLOGP/LogP precedence logic:** WLOGP is the BOILED-Egg's original calibration axis [@daina2016a]. When the user has explicitly mapped a column to WLOGP but has not mapped another column to LogP, the generic LogP column is silently set to the WLOGP values:
 
 ``` r
-Pgp = Yes if:     (MW > 400 AND TPSA > 40 AND (HBA + HBD) >= 8 AND LogP > 1)     OR     (MW > 500 AND LogP > 4 AND TPSA > 40) else: Pgp = No
+## ----- 5. If WLOGP present and LogP not mapped, set LogP = WLOGP -----
+## WLOGP is preferred for BOILED-Egg (official calibration), but only
+## if the user didn't explicitly map a different column to LogP.
+if ("WLOGP" %in% names(data) && !"LogP" %in% names(data)) {
+ data$LogP <- data$WLOGP
+}
+History note. An earlier version of this step (Issue 7 in worklog.md) used the simpler condition "WLOGP"
+%in% names(data) and silently overwrote a user-mapped LogP column. The current guarded condition
+respects an explicit LogP mapping.
 ```
 
-This heuristic is more selective than the original Seeling criteria (Which only required MW\>400) to avoid classifying nearly all drug-like compounds as P-gp substrates [@seelig1998a]. The additional LogP\>1 condition was added because the original criteria produced 80% false positive rate on typical drug-like datasets.
+6.  **Compute violation columns:** The standardized data is passed through `computeViolationColumns()` to add the five "#Violations" columns used by the filters.
+7.  Compute ADMET properties: If any of GI absorption, BBB permeant or Pgp substrate is missing, `computeADMETProperties()` is called. To honour user-provided categorical columns, the function temporarily stashes any pre-existing categorical ADMET column runs `computeADMETProperties()`, then restores the stashed values.
 
-#### Data sources and computational backends
+### Physicochemical Descriptors
 
-##### CDK & WebChem
-
-The CDK (Chemistry Development Kit) descriptor calculation follows a three-stage pipeline:
-
-``` r
-1. SMILES parsing: rcdk::parse.smiles(smiles) -> IAtomContainer objects 2. Molecule configuration:    - convert.implicit.to.explicit(m)  # add explicit hydrogens    - do.aromaticity(m)                 # perceive aromatic systems    - set.atom.types(m)                 # set atom types (modern API) 3. Descriptor evaluation: rcdk::eval.desc(mols, classes) -> data.frame
-```
-
-The AlogPdescriptor is special because it returns three columns:
-
-| CDK Column |          Description           |   Mapped to    |
-|:----------:|:------------------------------:|:--------------:|
-|   AlogP    |       Ghose-Crippen LogP       | LogP (generic) |
-|   AlogP2   |       Second LogP model        |    Dropped     |
-|    AMR     | Approximate Molar Refractivity |       MR       |
-
-### Statistical analysis
-
-#### PCA (Principal Component Analysis)
-
-Pca is computed using `stats::prcomp` with centering and optional scaling. The implementation handles several edge cases:
-
-1.  Zero-variance columns are removed before `prcomp` prevent scale division by zero.
-
-2.  If `<3` complete observations remain, the function stops with an informative error.
-
-3.  95% confidence ellipses are only draw for groups with `>=3` points `stat_ellipse()` requirement.
-
-4.  Loading arrows are scaled to fit the plot; the scaling factor handles the edge case where all loadings are identical for a PC.
-
-5.  `prcomp`is wrapped in `tryCatch` if scaling fails, it retries without scaling.
-
-This PCA function is retrieved with the follow mathematical approximation:
-
-``` r
-X_scaled = scale(X, center = TRUE, scale = scale_data) # If scale_data, each column is divided by its standard deviation  pca = prcomp(X_scaled, center = TRUE, scale. = scale_data) # SVD decomposition: X = U * S * V^T # Scores: pca$x = U * S (n x k matrix) # Loadings: pca$rotation = V (k x k matrix) # Variance explained: (pca$sdev)^2 / sum((pca$sdev)^2)
-```
-
-![](/images/31.png){width="598"}
-
-#### T-distributed stochastic neighbor embedding (T-SNE)
-
-TSNE are good representations for chemical spaces and another categories. This maps are high dimensional images into the two axis for visualization [@zhu2022]. T-SNE is computed using the `rtsne` package with automatic perplexity adjustment:
-
-``` r
-max_perplexity = floor((n - 1) / 3)  # Rtsne requirement perplexity = min(user_perplexity, max_perplexity) # Zero-variance columns removed, NaN/Inf replaced with 0 after scaling
-```
-
-![](/images/32.png){width="600"}
-
-#### Cluster heatmap with dendrogram
-
-Hierarchical clustering is performed using `stats::hclust` with user-selected linkage method. The heatmap is rendered using base R `heatmap()`, with couples the dendrogram directly to the heatmap cells.
-
-``` r
-row_dist = dist(mat, method = 'euclidean') row_hclust = hclust(row_dist, method = method)  # default: ward.D2 col_dist = dist(t(mat), method = 'euclidean') col_hclust = hclust(col_dist, method = method)  heatmap(mat, Rowv = as.dendrogram(row_hclust),              Colv = as.dendrogram(col_hclust), ...)
-```
-
-Base R option is used instead of `pheatmap` or `ComplexHeatmap` to minimize dependencies. The function pre-computes both dendograms so the user can pick any linkage, method, then passes them as guaranteeing alignment.
-
-#### Radar Plot
-
-The radar plot compares up to 5 molecules on 6 physicochemical properties. Properties are normalized 0-1 against the full dataset range (not just the selected subset) to ensure comparability across selections:
-
-``` r
- norm(p) = (value - min_full) / (max_full - min_full) # If max_full == min_full, norm = 0.5 (avoids division by zero)
-```
-
-The normalized values are passed to `fmsb::radarchart`, which requires two header rows `(max=1, min=0)` followed by the data rows.
-
-#### Composite Drug-Likeness Score
-
-The composite score (0-100) is the proportion of the five drug-likeness rules that each compound satisfies:
-
-``` r
-passes[i, rule] = 1 if (violations[rule] == 0), else 0 n_rules = rowSums(!is.na(passes)) score = rowSums(passes, na.rm = TRUE) / max(n_rules, 1) * 100 score[n_rules == 0] = NA  # no data available
-```
-
-Score categories:
-
-- Excellent: `score>=80` (passes at least 4 of 5 rules)
-
-- Aceptable: `score 60-79` (passes 3 of 5 rules)
-
-- Poor: `score<60` (passes fewer than 3 rules)
-
-#### Case study
-
-The goal is for the user to find a quick design scheme for analyzing a molecule bank. This example will be performed with 200 molecules, attempting to respect the limit allowed by SwissADME. For more information on the user interface and workflow, please refer to the tutorials
+#### Molecular Weight (MW)
 
 ### References

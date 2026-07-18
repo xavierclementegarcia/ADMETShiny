@@ -8,8 +8,8 @@ lipinskiFilter(data, mw = 500, logp = 5, hba = 10, hbd = 5, violations = 0)
 }
 \arguments{
 \item{data}{A data.frame with the standard column schema (processed by
-\code{\link{fixSwissADME}}, \code{\link{fixADMETlab}},
-\code{\link{fixDeepPK}}, or \code{\link{mapCDKDescriptors}}).}
+\code{\link{mapADMETColumns}},
+\code{\link{mapCDKDescriptors}}).}
 
 \item{mw}{Numeric. Maximum molecular weight. Default 500.}
 

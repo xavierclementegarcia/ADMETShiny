@@ -15,8 +15,8 @@ applyFilters(
 )
 }
 \arguments{
-\item{data}{A data.frame already normalized (e.g. by \code{fixSwissADME},
-\code{fixADMETlab}, \code{fixDeepPK}, or \code{mapCDKDescriptors}).}
+\item{data}{A data.frame already normalized (e.g. by \code{mapADMETColumns},
+\code{mapCDKDescriptors}, or \code{mapCDKDescriptors}).}
 
 \item{filters}{Character vector with the names of the filters to apply. Any
 subset of \code{c("Lipinski", "Veber", "Ghose", "Egan", "Muegge")}.}

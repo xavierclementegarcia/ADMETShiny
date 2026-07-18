@@ -91,41 +91,20 @@ docs_tab <- function() {
                                    tags$div(class = "info-card accent-blue",
                                             tags$div(class = "info-card-header", icon("shield-virus"), " P-glycoprotein (P-gp)"),
                                             tags$div(class = "info-card-body",
-                                                     tags$p("SwissADME uses a proprietary SVM model for P-gp. Since this is not open-source, ADMETShiny uses context-aware heuristics depending on the data source:"),
+                                                     tags$p("admetshiny ships a Random Forest classifier that predicts whether a small molecule is a substrate of P-glycoprotein (P-gp/ABCB1). The model is stores as an R list of 100 decision trees."),
                                                      tags$hr(),
-                                                     tags$b("1. CDK & webchem Module:"),
-                                                     tags$p("Uses a literature heuristic (Seelig, 1998): Compounds are predicted as P-gp substrates if MW > 400, TPSA > 40, and (HBA + HBD) >= 8, or if MW > 500 and LogP > 4."),
+                                                     tags$b("Training data & feature importance"),
+                                                     tags$p("The 882 compound training set comes from Metrabase. The 9 CDK descriptors and their normalized Gini feature importances."),
                                                      tags$hr(),
-                                                     tags$b("2. ADMETlab 3.0 & Deep-PK Modules:"),
-                                                     tags$p("Extracts the raw AI probability from the uploaded CSV. A threshold of ", tags$code(">= 0.5"), " classifies the molecule as a P-gp substrate.")
+                                                     tags$b("The accuracy:"),
+                                                     tags$p("The Random Forest was built taking the reference of heuristics calculus based on Seeling (1998) and Didzpetris (2003). This Random Forest model accuracy reaches to 0.694 and sensitivity to 0.700.")
                                             )
                                    )
                             )
                           )
                         ),
 
-                        tabPanel(
-                          title = tagList(icon("database"), " Data Schemas & Mappings"),
-                          br(),
-                          tags$div(class = "info-card accent-green",
-                                   tags$div(class = "info-card-header", icon("database"), " Internal Column Mapping"),
-                                   tags$div(class = "info-card-body",
-                                            tags$p("To allow all modules (SwissADME, CDK, ADMETlab, Deep-PK) to work with the same plots and filters, the app standardizes column names under the hood. Here is how your data is transformed:"),
-                                            tags$table(class = "doc-table",
-                                                       tags$thead(tags$tr(tags$th("Source"), tags$th("Original Column"), tags$th("Internal Standard Column"))),
-                                                       tags$tbody(
-                                                         tags$tr(tags$td("SwissADME"), tags$td("Molecular Weight"), tags$td(tags$code("MW"))),
-                                                         tags$tr(tags$td("ADMETlab 3.0"), tags$td("nHA / nHD / nRot"), tags$td(tags$code("#H-bond acceptors / donors / Rotatable bonds"))),
-                                                         tags$tr(tags$td("Deep-PK"), tags$td("[General Properties/Log(P)] Predictions"), tags$td(tags$code("LogP"))),
-                                                         tags$tr(tags$td("CDK (Calculated)"), tags$td("ALogP / TopoPSA"), tags$td(tags$code("LogP / TPSA")))
-                                                       )
-                                            ),
-                                            tags$div(class = "alert-warning-dark",
-                                                     tags$b(icon("exclamation-triangle"), " Deep-PK Note: "), "Deep-PK CSVs do not contain physicochemical descriptors natively. When uploaded, ADMETShiny automatically parses the SMILES and calculates MW, TPSA, LogP, etc., locally using CDK to enable drug-likeness filtering."
-                                            )
-                                   )
-                          )
-                        )
+
                       )
              ),
              br(), br()

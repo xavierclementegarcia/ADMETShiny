@@ -94,19 +94,10 @@ home_tab <- function() {
       column(12, align = "center",
              tags$h3(style = "margin-bottom: 25px; color: #2c3e50;", "Quick Access")
       ),
-      column(3, actionButton("go_swissadme", label = tagList(icon("filter"), br(), "SwissADME Manager"), class = "nav-card-btn")),
-      column(3, actionButton("go_cdk", label = tagList(icon("flask"), br(), "CDK & webchem"), class = "nav-card-btn")),
-      column(3, actionButton("go_admetlab", label = tagList(icon("vials"), br(), "ADMETlab 3.0"), class = "nav-card-btn")),
-      column(3, actionButton("go_deeppk", label = tagList(icon("brain"), br(), "Deep-pK Manager"), class = "nav-card-btn"))
-    ),
-
-    fluidRow(
-      column(12, align = "center",
-             column(6, offset = 3,
-                    actionButton("go_report", label = tagList(icon("file-lines"), br(), "Generate Report"), class = "nav-card-btn",
-                                 style = "background-color: #4e73df; color: white; border-color: #4e73df;")
-             )
-      )
+      column(4, actionButton("go_cdk", label = tagList(icon("flask"), br(), "CDK & webchem"), class = "nav-card-btn")),
+      column(4, actionButton("go_master", label = tagList(icon("table"), br(), "ADMET Master Manager"), class = "nav-card-btn")),
+      column(4, actionButton("go_report", label = tagList(icon("file-lines"), br(), "Generate Report"), class = "nav-card-btn",
+                                 style = "background-color: #4e73df; color: white; border-color: #4e73df;"))
     ),
 
     br(), br()

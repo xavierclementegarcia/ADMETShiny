@@ -44,9 +44,7 @@ By Xavier Clemente Garcia Cevallos :3 "Hecho con amor para la ciencia"
 
 
 \itemize{
-\item \code{\link{fixSwissADME}} - Normalize SwissADME data
-\item \code{\link{fixADMETlab}} - Normalize ADMETlab 3.0 data
-\item \code{\link{fixDeepPK}} - Normalize Deep-PK data
+\item \code{\link{mapADMETColumns}} - Map any user dataset to standard schema
 \item \code{\link{mapCDKDescriptors}} - Map CDK descriptors to standard schema
 }
 }

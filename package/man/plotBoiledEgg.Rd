@@ -4,12 +4,18 @@
 \alias{plotBoiledEgg}
 \title{BOILED-Egg plot}
 \usage{
-plotBoiledEgg(data)
+plotBoiledEgg(data, logp_source = NULL)
 }
 \arguments{
 \item{data}{A data.frame that must contain the columns \code{LogP} and
 \code{TPSA}. A \code{"Pgp substrate"} column (with values "Yes"/"No") is
 optional and used for point colouring.}
+
+\item{logp_source}{Character. Which LogP variant is being used for the
+BOILED-Egg. If \code{"WLOGP"}, use the official WLOGP polygons from
+Daina & Zoete (2016). If any other value (or \code{NULL}), use the
+ALogP-trained polygons. Defaults to auto-detection: if the data has
+a \code{WLOGP} column, WLOGP polygons are used; otherwise ALogP.}
 }
 \value{
 A \pkg{ggplot2} object.

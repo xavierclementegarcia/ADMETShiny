@@ -59,6 +59,11 @@
 #' @param data A data.frame that must contain the columns \code{LogP} and
 #'   \code{TPSA}. A \code{"Pgp substrate"} column (with values "Yes"/"No") is
 #'   optional and used for point colouring.
+#' @param logp_source Character. Which LogP variant is being used for the
+#'   BOILED-Egg. If \code{"WLOGP"}, use the official WLOGP polygons from
+#'   Daina & Zoete (2016). If any other value (or \code{NULL}), use the
+#'   ALogP-trained polygons. Defaults to auto-detection: if the data has
+#'   a \code{WLOGP} column, WLOGP polygons are used; otherwise ALogP.
 #' @return A \pkg{ggplot2} object.
 #' @export
 #' @references Daina, A., & Zoete, V. (2016). A boiled egg to predict
@@ -69,7 +74,7 @@
 #' d <- data.frame(LogP = c(2, 5), TPSA = c(50, 150))
 #' plotBoiledEgg(d)
 #' }
-plotBoiledEgg <- function(data) {
+plotBoiledEgg <- function(data, logp_source = NULL) {
 
   req_cols <- c("LogP", "TPSA")
   miss <- setdiff(req_cols, names(data))
@@ -79,11 +84,14 @@ plotBoiledEgg <- function(data) {
   }
 
   ## Select the appropriate BOILED-Egg polygon based on the LogP source.
-  ## If the data has a WLOGP column (SwissADME), use the official WLOGP
-  ## polygons. Otherwise (CDK/ADMETlab/Deep-PK), use ALogP-trained polygons.
-  use_alogp <- !"WLOGP" %in% names(data)
-  hia_poly <- if (use_alogp) .hia_polygon_alogp else .hia_polygon
-  bbb_poly <- if (use_alogp) .bbb_polygon_alogp else .bbb_polygon
+  ## Explicit logp_source takes priority; otherwise auto-detect from columns.
+  if (is.null(logp_source)) {
+    use_wlogp <- "WLOGP" %in% names(data)
+  } else {
+    use_wlogp <- (logp_source == "WLOGP")
+  }
+  hia_poly <- if (use_wlogp) .hia_polygon else .hia_polygon_alogp
+  bbb_poly <- if (use_wlogp) .bbb_polygon else .bbb_polygon_alogp
 
   ## Classify points using point-in-polygon
   ## Polygons are stored as (TPSA, LogP) = (x, y)
@@ -582,7 +590,7 @@ plotPCA <- function(data, variables = NULL, color_by = "None",
   ## (input selects can return NA before a choice is made)
   if (!is.null(color_by) && !is.na(color_by) && color_by != "None" &&
       color_by %in% names(df_aux)) {
-    scores$Colour <- as.factor(df_aux[[color_by]])
+    scores$Colour <- df_aux[[color_by]]
   } else {
     scores$Colour <- factor("Compounds")
   }
@@ -967,7 +975,7 @@ plotParallel <- function(data, variables, color_by = NULL,
 
   if (!is.null(color_by) && !is.na(color_by) && color_by != "None" &&
       color_by %in% names(data)) {
-    df$Group <- as.factor(data[[color_by]][cc])
+    df$Group <- data[[color_by]][cc]
     p <- GGally::ggparcoord(
       data = df, columns = seq_along(variables),
       groupColumn = "Group", scale = scale_type, alphaLines = 0.5

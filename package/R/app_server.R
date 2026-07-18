@@ -35,10 +35,8 @@ app_server <- function(input, output, session) {
   })
 
   ## ------------------------- Navbar navigation ---------------------------
-  observeEvent(input$go_swissadme,  updateNavbarPage(session, "main_nav", selected = "swissadme"))
   observeEvent(input$go_cdk,        updateNavbarPage(session, "main_nav", selected = "cdk"))
-  observeEvent(input$go_admetlab,   updateNavbarPage(session, "main_nav", selected = "admetlab"))
-  observeEvent(input$go_deeppk,     updateNavbarPage(session, "main_nav", selected = "deeppk"))
+  observeEvent(input$go_master,     updateNavbarPage(session, "main_nav", selected = "master"))
   observeEvent(input$go_report,     updateNavbarPage(session, "main_nav", selected = "report"))
   observeEvent(input$back_home_cdk, updateNavbarPage(session, "main_nav", selected = "home"))
 
@@ -775,952 +773,715 @@ app_server <- function(input, output, session) {
     }
   )
 
-  ## ---- Step 4: send CDK dataset to SwissADME module ----
-  observeEvent(input$send_to_filter, {
-    req(cdk_results_rv())
-    datos_rv(cdk_results_rv())
-    updateNavbarPage(session, "main_nav", selected = "swissadme")
-    showNotification("CDK/webchem dataset loaded into the SwissADME Filtering module.",
-                     type = "message", duration = 6)
-  })
+  ## ============================ ADMET Master ============================
+  ## Four-step wizard module: upload any CSV/Excel dataset, map its columns
+  ## to the application's standard schema, optionally calculate missing
+  ## descriptors with CDK, apply the standard drug-likeness filters and
+  ## produce the same plot catalogue as the other modules.
+  master_raw_rv    <- reactiveVal(NULL)   ## raw uploaded data
+  master_mapped_rv <- reactiveVal(NULL)   ## after mapping + standardization
+  master_smiles_col_rv <- reactiveVal(NULL)  ## detected SMILES column (raw)
 
-  ## ============================ SwissADME ================================
-  datos_rv <- reactiveVal(NULL)
+  ## Helper: convert a column name to a valid Shiny input id.
+  .master_input_id <- function(idx) paste0("master_map_", idx)
 
-  observeEvent(input$archivo, {
-    req(input$archivo)
+  ## Helper: try to auto-map a user column name to a standard field code.
+  .master_auto_select <- function(col_name) {
+    lc <- tolower(trimws(col_name))
+    if (lc %in% c("smiles", "canonicalsmiles", "isomericsmiles",
+                  "mol", "molstr", "structure")) return("SMILES")
+    if (lc %in% c("name", "id", "compound", "molecule", "title",
+                  "molecule_name", "compound_name", "drug", "drug_name"))
+      return("Name")
+    if (lc == "mw" || lc == "molecular_weight" ||
+        grepl("molecular.*weight", lc) || lc == "molwt") return("MW")
+    if (lc == "wlogp") return("WLOGP")
+    if (lc == "mlogp" || lc == "xlogp3" || lc == "ilogp") return("LogP")
+    if (lc == "logp" || grepl("^log[\\s_.-]*p", lc) || lc == "clogp")
+      return("LogP")
+    if (lc == "tpsa" || lc == "topological_polar_surface_area")
+      return("TPSA")
+    if (lc %in% c("hbd", "nhd", "h_donors", "hdon", "nhd",
+                  "h-bond donors", "h_bond_donors", "donors"))
+      return("HBD")
+    if (lc %in% c("hba", "nha", "h_acceptors", "hac", "nha",
+                  "h-bond acceptors", "h_bond_acceptors", "acceptors"))
+      return("HBA")
+    if (grepl("rotat", lc)) return("Rotatable Bonds")
+    if (lc %in% c("mr", "molar_refractivity", "molar refractivity",
+                  "amr")) return("Molar Refractivity")
+    if (grepl("arom", lc) && grepl("atom|heavy", lc))
+      return("Aromatic Heavy Atoms")
+    if (grepl("heavy", lc) && grepl("atom", lc)) return("Heavy Atoms")
+    if (grepl("log[\\s_.-]*s", lc) || lc == "logs" || lc == "esol_log_s")
+      return("LogS")
+    if (grepl("log[\\s_.-]*d", lc) || lc == "logd") return("LogD")
+    if (grepl("gi[\\s_.-]*abs", lc) || lc == "hia" ||
+        lc == "absorption") return("GI Absorption")
+    if (grepl("bbb", lc)) return("BBB Permeant")
+    if (grepl("pgp", lc) || grepl("p-gp", lc) ||
+        grepl("p.glycoprotein", lc)) return("Pgp Substrate")
+    "None"
+  }
+
+  ## ---------------- Step 1: file upload ----------------
+  observeEvent(input$master_file, {
+    req(input$master_file)
     tryCatch({
-      d <- read.csv(input$archivo$datapath, check.names = FALSE)
-      datos_rv(fixSwissADME(d))
+      ext <- tolower(tools::file_ext(input$master_file$name))
+      if (ext == "csv") {
+        d <- read.csv(input$master_file$datapath,
+                      check.names = FALSE, stringsAsFactors = FALSE)
+      } else if (ext %in% c("xlsx", "xls")) {
+        if (!requireNamespace("openxlsx", quietly = TRUE)) {
+          stop("The 'openxlsx' package is required to read Excel files. ",
+               "Install it with: install.packages('openxlsx').",
+               call. = FALSE)
+        }
+        d <- openxlsx::read.xlsx(input$master_file$datapath, sheet = 1)
+      } else {
+        stop("Unsupported file format. Please upload a CSV or Excel file.")
+      }
+      ## Drop completely empty columns (often an artifact of CSV export)
+      keep <- vapply(d, function(col) {
+        !all(is.na(col)) && !all(as.character(col) == "")
+      }, logical(1))
+      d <- d[, keep, drop = FALSE]
+
+      master_raw_rv(d)
+      master_mapped_rv(NULL)
+      master_smiles_col_rv(detectSMILESColumn(d))
+      showNotification(sprintf("Loaded %d rows and %d columns.",
+                               nrow(d), ncol(d)),
+                       type = "message", duration = 5)
     }, error = function(e) {
       showNotification(paste("Error reading the file:", e$message),
-                       type = "error", duration = 8)
+                       type = "error", duration = 10)
+      master_raw_rv(NULL)
+      master_mapped_rv(NULL)
+      master_smiles_col_rv(NULL)
     })
   })
 
-  datos <- reactive({ datos_rv() })
+  ## Step 1 outputs: preview, column info, SMILES detection banner
+  output$master_preview <- renderDT({
+    req(master_raw_rv())
+    master_raw_rv()
+  }, options = list(pageLength = 10, scrollX = TRUE))
 
-  output$preview <- renderDT({ req(datos()); datos() })
+  output$master_column_info <- renderDT({
+    req(master_raw_rv())
+    info <- detectColumnTypes(master_raw_rv())
+    info
+  }, options = list(pageLength = 25, scrollX = TRUE))
 
-  resultado <- eventReactive(input$run, {
-    req(datos())
+  output$master_smiles_detection <- renderUI({
+    req(master_raw_rv())
+    col <- master_smiles_col_rv()
+    if (is.null(col)) {
+      tags$div(
+        class = "alert alert-warning",
+        icon("triangle-exclamation"),
+        tags$b(" No SMILES column detected automatically. "),
+        "You can still map a column to SMILES manually in Step 2."
+      )
+    } else {
+      tags$div(
+        class = "alert alert-success",
+        icon("check-circle"),
+        tags$b(" SMILES column detected: "),
+        tags$code(col),
+        " (you can override this in Step 2)."
+      )
+    }
+  })
+
+  ## ---------------- Step 2: column mapping UI ----------------
+  output$master_mapping_ui <- renderUI({
+    req(master_raw_rv())
+    cols <- names(master_raw_rv())
+    detect_smiles <- master_smiles_col_rv()
+
+    field_choices <- c(
+      "None (skip)"                                = "None",
+      "SMILES (string) - for CDK/Tanimoto"         = "SMILES",
+      "Name/ID (string)"                           = "Name",
+      "MW (numeric) - Lipinski/Ghose/Muegge"       = "MW",
+      "LogP (numeric) - All filters, BOILED-Egg"   = "LogP",
+      "WLOGP (numeric) - Official BOILED-Egg"      = "WLOGP",
+      "TPSA (numeric) - Veber/Egan/BOILED-Egg"     = "TPSA",
+      "HBD (numeric) - Lipinski/Veber/Muegge"      = "HBD",
+      "HBA (numeric) - Lipinski/Veber/Muegge"      = "HBA",
+      "Rotatable Bonds (numeric) - Veber/Muegge"   = "Rotatable Bonds",
+      "Molar Refractivity (numeric) - Ghose"       = "Molar Refractivity",
+      "Heavy Atoms (numeric) - Ghose"              = "Heavy Atoms",
+      "Aromatic Heavy Atoms (numeric)"             = "Aromatic Heavy Atoms",
+      "GI Absorption (categorical)"                = "GI Absorption",
+      "GI Absorption (numeric 0-1)"                = "GI Absorption_num",
+      "BBB Permeant (categorical)"                 = "BBB Permeant",
+      "BBB Permeant (numeric 0-1)"                 = "BBB Permeant_num",
+      "Pgp Substrate (categorical)"                = "Pgp Substrate",
+      "Pgp Substrate (numeric 0-1)"                = "Pgp Substrate_num",
+      "LogS (numeric)"                             = "LogS",
+      "LogD (numeric)"                             = "LogD"
+    )
+
+    tagList(
+      lapply(seq_along(cols), function(i) {
+        col <- cols[i]
+        default_val <- .master_auto_select(col)
+        if ((is.null(default_val) || default_val == "None") &&
+            !is.null(detect_smiles) && col == detect_smiles) {
+          default_val <- "SMILES"
+        }
+        fluidRow(
+          column(4, tags$div(style = "padding-top: 8px;",
+                             tags$b(col))),
+          column(8, selectInput(.master_input_id(i), NULL,
+                                choices = field_choices,
+                                selected = default_val))
+        )
+      })
+    )
+  })
+
+  ## ---------------- Step 2: calculate button ----------------
+  observeEvent(input$master_calculate, {
+    req(master_raw_rv())
+    raw <- master_raw_rv()
+    cols <- names(raw)
+
+    ## Build mapping vector from the dynamic selectInputs.
+    mapping <- setNames(
+      vapply(seq_along(cols), function(i) {
+        val <- input[[.master_input_id(i)]]
+        if (is.null(val)) "None" else val
+      }, character(1)),
+      cols
+    )
+
+    ## At least one column must be mapped to something other than None.
+    if (all(mapping == "None")) {
+      showNotification("Please map at least one column to a standard field.",
+                       type = "error", duration = 6)
+      return(NULL)
+    }
+
+    calc_cdk <- isTRUE(input$master_calculate_cdk)
+    has_smiles <- "SMILES" %in% mapping
+    needs_cdk <- calc_cdk && has_smiles
+
+    tryCatch({
+      if (needs_cdk) {
+        withProgress(
+          message = "Calculating missing descriptors with CDK...",
+          detail  = "This may take a moment for large datasets.",
+          value   = 0.5, {
+            mapped <- mapADMETColumns(raw, mapping, calculate_cdk = TRUE)
+          }
+        )
+      } else {
+        mapped <- mapADMETColumns(raw, mapping, calculate_cdk = calc_cdk)
+      }
+      master_mapped_rv(mapped)
+      showNotification(
+        sprintf("Dataset standardized: %d rows, %d columns.",
+                nrow(mapped), ncol(mapped)),
+        type = "message", duration = 5
+      )
+    }, error = function(e) {
+      showNotification(paste("Error during standardization:", e$message),
+                       type = "error", duration = 10)
+      master_mapped_rv(NULL)
+    })
+  })
+
+  ## ---------------- Step 2: mapping summary table ----------------
+  output$master_mapping_summary <- renderDT({
+    req(master_mapped_rv())
+    d <- master_mapped_rv()
+    data.frame(
+      column     = names(d),
+      type       = vapply(d, function(col) {
+                     if (is.numeric(col)) "numeric" else "string"
+                   }, character(1)),
+      n_non_NA   = vapply(d, function(col) {
+                     sum(!is.na(col))
+                   }, integer(1)),
+      stringsAsFactors = FALSE
+    )
+  }, options = list(pageLength = 25, scrollX = TRUE))
+
+  ## ---------------- Step 2: validation message ----------------
+  output$master_validation <- renderUI({
+    req(master_mapped_rv())
+    d <- master_mapped_rv()
+    cols <- names(d)
+
+    checks <- list(
+      list(name = "Lipinski filter",
+           needs = c("MW", "LogP", "#H-bond acceptors", "#H-bond donors")),
+      list(name = "Veber filter",
+           needs = c("#Rotatable bonds", "TPSA",
+                     "#H-bond acceptors", "#H-bond donors")),
+      list(name = "Ghose filter",
+           needs = c("MW", "MR", "LogP", "#Heavy atoms")),
+      list(name = "Egan filter",    needs = c("TPSA", "LogP")),
+      list(name = "Muegge filter",
+           needs = c("MW", "LogP", "#H-bond acceptors", "#H-bond donors",
+                     "#Rotatable bonds", "TPSA")),
+      list(name = "BOILED-Egg",     needs = c("LogP", "TPSA")),
+      list(name = "Tanimoto / AGNES", needs = c("SMILES")),
+      list(name = "Radar plot",
+           needs = c("MW", "LogP", "TPSA",
+                     "#H-bond acceptors", "#H-bond donors"))
+    )
+
+    items <- vapply(checks, function(chk) {
+      present <- chk$needs %in% cols
+      if (all(present)) {
+        paste0("<span style='color: #2e7d32;'>&#10004;</span> <b>",
+               chk$name, "</b> &mdash; ready")
+      } else {
+        missing <- chk$needs[!present]
+        paste0("<span style='color: #c62828;'>&#10006;</span> <b>",
+               chk$name, "</b> &mdash; missing: ",
+               paste(missing, collapse = ", "))
+      }
+    }, character(1))
+
+    HTML(paste(items, collapse = "<br>"))
+  })
+
+  ## ---------------- Step 3: filter ----------------
+  master_resultado <- eventReactive(input$master_run, {
+    req(master_mapped_rv())
     tryCatch({
       out <- applyFilters(
-        data = datos(), filters = input$filters,
-        lipinski = list(mw = input$mw, logp = input$logp, hba = input$hba, hbd = input$hbd, violations = input$violations),
-        veber = list(v_rb = input$v_rb, v_tpsa = input$v_tpsa, v_hb_sum = input$v_hb_sum, violations = input$veber_violations),
-        ghose = list(g_mw_min = input$g_mw[1], g_mw_max = input$g_mw[2], g_mr_min = input$g_mr[1], g_mr_max = input$g_mr[2], g_logp_min = input$g_logp[1], g_logp_max = input$g_logp[2], g_ha_min = input$g_ha[1], g_ha_max = input$g_ha[2], violations = input$ghose_violations),
-        egan = list(e_tpsa = input$e_tpsa, e_logp = input$e_logp, violations = input$egan_violations),
-        muegge = list(m_mw_min = input$m_mw[1], m_mw_max = input$m_mw[2], m_logp_min = input$m_logp[1], m_logp_max = input$m_logp[2], m_hba = input$m_hba, m_hbd = input$m_hbd, m_rb = input$m_rb, m_tpsa = input$m_tpsa, violations = input$muegge_violations)
+        data = master_mapped_rv(), filters = input$master_filters,
+        lipinski = list(mw = input$master_mw, logp = input$master_logp,
+                        hba = input$master_hba, hbd = input$master_hbd,
+                        violations = input$master_violations),
+        veber = list(v_rb = input$master_v_rb, v_tpsa = input$master_v_tpsa,
+                     v_hb_sum = input$master_v_hb_sum,
+                     violations = input$master_veber_violations),
+        ghose = list(g_mw_min = input$master_g_mw[1],
+                     g_mw_max = input$master_g_mw[2],
+                     g_mr_min = input$master_g_mr[1],
+                     g_mr_max = input$master_g_mr[2],
+                     g_logp_min = input$master_g_logp[1],
+                     g_logp_max = input$master_g_logp[2],
+                     g_ha_min = input$master_g_ha[1],
+                     g_ha_max = input$master_g_ha[2],
+                     violations = input$master_ghose_violations),
+        egan = list(e_tpsa = input$master_e_tpsa,
+                    e_logp = input$master_e_logp,
+                    violations = input$master_egan_violations),
+        muegge = list(m_mw_min = input$master_m_mw[1],
+                      m_mw_max = input$master_m_mw[2],
+                      m_logp_min = input$master_m_logp[1],
+                      m_logp_max = input$master_m_logp[2],
+                      m_hba = input$master_m_hba, m_hbd = input$master_m_hbd,
+                      m_rb = input$master_m_rb, m_tpsa = input$master_m_tpsa,
+                      violations = input$master_muegge_violations)
       )
-      if (nrow(out) == 0)
+      if (nrow(out) == 0) {
         showNotification("No compound meets the selected filters.",
                          type = "warning", duration = 6)
+      }
       out
     }, error = function(e) {
       showNotification(paste("Error applying filters:", e$message),
                        type = "error", duration = 8)
-      datos()[0, ]
+      master_mapped_rv()[0, ]
     })
   })
 
-  output$tabla <- renderDT({
-    req(resultado())
-    resultado()
+  output$master_tabla <- renderDT({
+    req(master_resultado())
+    master_resultado()
   }, options = list(pageLength = 10, scrollX = TRUE))
 
-  output$download <- downloadHandler(
-    filename = function() "Filtered_Dataset.csv",
-    content  = function(file) write.csv(resultado(), file, row.names = FALSE)
+  output$master_download <- downloadHandler(
+    filename = function() "ADMET_Master_Filtered.csv",
+    content  = function(file) write.csv(master_resultado(), file,
+                                        row.names = FALSE)
   )
 
-  ## ------------- Dynamic controls: Radar & Tanimoto -------------------
-  output$radar_id_selector <- renderUI({
-    req(resultado())
+  ## ---------------- Step 4: dynamic plot controls ----------------
+  output$master_radar_id_selector <- renderUI({
+    req(master_resultado())
+    cols <- names(master_resultado())
+    default <- if ("Name" %in% cols) "Name" else cols[1]
     tagList(
-      selectInput("radar_id_col", "Identifier column",
-                  choices = names(resultado()),
-                  selected = names(resultado())[1]),
-      selectizeInput("radar_ids", "Molecules to compare (max 5)",
+      selectInput("master_radar_id_col", "Identifier column",
+                  choices = cols, selected = default),
+      selectizeInput("master_radar_ids", "Molecules to compare (max 5)",
                      choices = NULL, multiple = TRUE,
-                     options = list(maxItems = 5, placeholder = "Select up to 5 molecules"))
+                     options = list(maxItems = 5,
+                                    placeholder = "Select up to 5 molecules"))
     )
   })
 
-  observeEvent(input$radar_id_col, {
-    req(resultado(), input$radar_id_col)
-    vals <- unique(as.character(resultado()[[input$radar_id_col]]))
-    updateSelectizeInput(session, "radar_ids", choices = vals, server = TRUE)
+  observeEvent(input$master_radar_id_col, {
+    req(master_resultado(), input$master_radar_id_col)
+    vals <- unique(as.character(
+      master_resultado()[[input$master_radar_id_col]]))
+    updateSelectizeInput(session, "master_radar_ids",
+                         choices = vals, server = TRUE)
   })
 
-  output$smiles_col_selector <- renderUI({
-    req(resultado())
-    cols <- names(resultado())
+  output$master_smiles_col_selector <- renderUI({
+    req(master_resultado())
+    cols <- names(master_resultado())
     guess <- cols[grepl("smiles", cols, ignore.case = TRUE)]
     default <- if (length(guess) > 0) guess[1] else cols[1]
-    selectInput("smiles_col", "SMILES column", choices = cols, selected = default)
+    selectInput("master_smiles_col", "SMILES column",
+                choices = cols, selected = default)
   })
 
-  output$label_col_selector <- renderUI({
-    req(resultado())
-    cols <- names(resultado())
-    default <- if ("Molecule" %in% cols) "Molecule" else cols[1]
-    selectInput("label_col", "Label column", choices = cols, selected = default)
+  output$master_label_col_selector <- renderUI({
+    req(master_resultado())
+    cols <- names(master_resultado())
+    default <- if ("Name" %in% cols) "Name" else cols[1]
+    selectInput("master_label_col", "Label column",
+                choices = cols, selected = default)
   })
 
-  ## ------------- Dynamic controls: PCA / t-SNE / Parallel / Violin -----
-  output$pca_controls <- renderUI({
-    req(resultado())
-    cols <- names(resultado())
-    numeric_cols <- cols[sapply(resultado(), is.numeric)]
+  ## Dynamic BOILED-Egg LogP selector — only show LogP variants that exist
+  output$master_boiled_egg_logp_ui <- renderUI({
+    req(master_resultado())
+    cols <- names(master_resultado())
+    logp_cols <- cols[grepl("logp|LogP|WLOGP|MLOGP|XLOGP|iLOGP|Consensus",
+                            cols, ignore.case = TRUE)]
+    if (length(logp_cols) == 0) logp_cols <- "LogP"
+    default <- if ("WLOGP" %in% logp_cols) "WLOGP" else logp_cols[1]
+    selectInput("master_boiled_egg_logp", "LogP source for BOILED-Egg",
+                choices = logp_cols, selected = default)
+  })
+
+  output$master_pca_controls <- renderUI({
+    req(master_resultado())
+    cols <- names(master_resultado())
+    numeric_cols <- cols[sapply(master_resultado(), is.numeric)]
     tagList(
-      selectInput("pca_variables", "Variables", choices = numeric_cols,
-                  selected = c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"),
+      selectInput("master_pca_variables", "Variables", choices = numeric_cols,
+                  selected = intersect(c("MW","TPSA","LogP","#H-bond acceptors",
+                                          "#H-bond donors","#Rotatable bonds"),
+                                        numeric_cols),
                   multiple = TRUE),
-      selectInput("pca_color", "Colour by", choices = c("None", cols), selected = "GI absorption"),
-      selectInput("pca_label", "Labels", choices = c("None", cols), selected = "Molecule"),
-      checkboxInput("pca_ellipse", "Show ellipses", TRUE),
-      checkboxInput("pca_scale", "Scale variables", TRUE)
+      selectInput("master_pca_color", "Colour by",
+                  choices = c("None", cols),
+                  selected = if ("GI absorption" %in% cols) "GI absorption" else "None"),
+      selectInput("master_pca_label", "Labels",
+                  choices = c("None", cols),
+                  selected = if ("Name" %in% cols) "Name" else "None"),
+      checkboxInput("master_pca_ellipse", "Show ellipses", TRUE),
+      checkboxInput("master_pca_scale", "Scale variables", TRUE)
     )
   })
 
-  output$tsne_controls <- renderUI({
-    req(resultado())
-    cols <- names(resultado())
-    numeric_cols <- cols[sapply(resultado(), is.numeric)]
+  output$master_tsne_controls <- renderUI({
+    req(master_resultado())
+    cols <- names(master_resultado())
+    numeric_cols <- cols[sapply(master_resultado(), is.numeric)]
     default_color <- if ("GI absorption" %in% cols) "GI absorption" else "None"
-    default_label <- if ("Molecule" %in% cols) "Molecule" else "None"
+    default_label <- if ("Name" %in% cols) "Name" else "None"
     tagList(
-      selectInput("tsne_variables", "Variables", choices = numeric_cols,
-                  selected = c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"),
+      selectInput("master_tsne_variables", "Variables", choices = numeric_cols,
+                  selected = intersect(c("MW","TPSA","LogP","#H-bond acceptors",
+                                          "#H-bond donors","#Rotatable bonds"),
+                                        numeric_cols),
                   multiple = TRUE),
-      sliderInput("tsne_perplexity", "Perplexity", min = 5, max = 50, value = 30),
-      sliderInput("tsne_iter", "Iterations", min = 500, max = 5000, value = 1000, step = 500),
-      selectInput("tsne_color", "Colour by", choices = c("None", cols), selected = default_color),
-      selectInput("tsne_label", "Labels", choices = c("None", cols), selected = default_label),
-      checkboxInput("tsne_scale", "Scale variables", TRUE)
+      sliderInput("master_tsne_perplexity", "Perplexity",
+                  min = 5, max = 50, value = 30),
+      sliderInput("master_tsne_iter", "Iterations",
+                  min = 500, max = 5000, value = 1000, step = 500),
+      selectInput("master_tsne_color", "Colour by",
+                  choices = c("None", cols), selected = default_color),
+      selectInput("master_tsne_label", "Labels",
+                  choices = c("None", cols), selected = default_label),
+      checkboxInput("master_tsne_scale", "Scale variables", TRUE)
     )
   })
 
-  output$umap_controls <- renderUI({
-    req(resultado())
-    cols <- names(resultado())
-    numeric_cols <- cols[sapply(resultado(), is.numeric)]
+  output$master_umap_controls <- renderUI({
+    req(master_resultado())
+    cols <- names(master_resultado())
+    numeric_cols <- cols[sapply(master_resultado(), is.numeric)]
     default_color <- if ("GI absorption" %in% cols) "GI absorption" else "None"
-    default_label <- if ("Molecule" %in% cols) "Molecule" else "None"
+    default_label <- if ("Name" %in% cols) "Name" else "None"
     tagList(
-      selectInput("umap_variables", "Variables", choices = numeric_cols,
-                  selected = c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"),
+      selectInput("master_umap_variables", "Variables", choices = numeric_cols,
+                  selected = intersect(c("MW","TPSA","LogP","#H-bond acceptors",
+                                          "#H-bond donors","#Rotatable bonds"),
+                                        numeric_cols),
                   multiple = TRUE),
-      sliderInput("umap_n_neighbors", "n_neighbors", min = 2, max = 50, value = 15),
-      sliderInput("umap_min_dist", "min_dist", min = 0, max = 1, value = 0.1, step = 0.05),
-      selectInput("umap_color", "Colour by", choices = c("None", cols), selected = default_color),
-      selectInput("umap_label", "Labels", choices = c("None", cols), selected = default_label),
-      checkboxInput("umap_scale", "Scale variables", TRUE)
+      sliderInput("master_umap_n_neighbors", "n_neighbors",
+                  min = 2, max = 50, value = 15),
+      sliderInput("master_umap_min_dist", "min_dist",
+                  min = 0, max = 1, value = 0.1, step = 0.05),
+      selectInput("master_umap_color", "Colour by",
+                  choices = c("None", cols), selected = default_color),
+      selectInput("master_umap_label", "Labels",
+                  choices = c("None", cols), selected = default_label),
+      checkboxInput("master_umap_scale", "Scale variables", TRUE)
     )
   })
 
-  output$parallel_controls <- renderUI({
-    req(resultado())
-    cols <- names(resultado())
-    numeric_cols <- cols[sapply(resultado(), is.numeric)]
+  output$master_parallel_controls <- renderUI({
+    req(master_resultado())
+    cols <- names(master_resultado())
+    numeric_cols <- cols[sapply(master_resultado(), is.numeric)]
     tagList(
-      selectInput("parallel_variables", "Variables", choices = numeric_cols,
-                  selected = c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"),
+      selectInput("master_parallel_variables", "Variables",
+                  choices = numeric_cols,
+                  selected = intersect(c("MW","TPSA","LogP","#H-bond acceptors",
+                                          "#H-bond donors","#Rotatable bonds"),
+                                        numeric_cols),
                   multiple = TRUE),
-      selectInput("parallel_color", "Colour by", choices = c("None", cols), selected = "GI absorption"),
-      checkboxInput("parallel_scale", "Scale variables", TRUE)
+      selectInput("master_parallel_color", "Colour by",
+                  choices = c("None", cols),
+                  selected = if ("GI absorption" %in% cols) "GI absorption" else "None"),
+      checkboxInput("master_parallel_scale", "Scale variables", TRUE)
     )
   })
 
-  output$cluster_heatmap_controls <- renderUI({
-    req(resultado())
-    cols <- names(resultado())
-    numeric_cols <- cols[sapply(resultado(), is.numeric)]
-    ## Look for a suitable label column: prefer text columns that could be IDs
-    char_cols <- cols[!sapply(resultado(), is.numeric)]
-    default_id <- if (any(c("Name", "name", "ID", "Compound", "Molecule") %in% cols)) {
-      intersect(c("Name", "name", "ID", "Compound", "Molecule"), cols)[1]
+  output$master_cluster_heatmap_controls <- renderUI({
+    req(master_resultado())
+    cols <- names(master_resultado())
+    numeric_cols <- cols[sapply(master_resultado(), is.numeric)]
+    char_cols <- cols[!sapply(master_resultado(), is.numeric)]
+    default_id <- if (any(c("Name","name","ID","Compound","Molecule") %in% cols)) {
+      intersect(c("Name","name","ID","Compound","Molecule"), cols)[1]
     } else if (length(char_cols) > 0) {
       char_cols[1]
     } else {
       "None"
     }
     tagList(
-      selectInput("cluster_heatmap_variables", "Variables", choices = numeric_cols,
-                  selected = c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"),
+      selectInput("master_cluster_heatmap_variables", "Variables",
+                  choices = numeric_cols,
+                  selected = intersect(c("MW","TPSA","LogP","#H-bond acceptors",
+                                          "#H-bond donors","#Rotatable bonds"),
+                                        numeric_cols),
                   multiple = TRUE),
-      selectInput("cluster_heatmap_id_col", "Label column (optional)", choices = c("None", cols),
-                  selected = default_id),
-      selectInput("cluster_heatmap_method", "Clustering method",
+      selectInput("master_cluster_heatmap_id_col", "Label column (optional)",
+                  choices = c("None", cols), selected = default_id),
+      selectInput("master_cluster_heatmap_method", "Clustering method",
                   choices = c("Ward D2" = "ward.D2", "Ward D" = "ward.D",
-                              "Complete" = "complete", "Average (UPGMA)" = "average",
+                              "Complete" = "complete",
+                              "Average (UPGMA)" = "average",
                               "Single" = "single", "McQuitty" = "mcquitty",
                               "Median" = "median", "Centroid" = "centroid"),
                   selected = "ward.D2"),
-      checkboxInput("cluster_heatmap_scale", "Scale variables (z-score)", TRUE)
+      checkboxInput("master_cluster_heatmap_scale",
+                    "Scale variables (z-score)", TRUE)
     )
   })
 
-  output$violin_controls <- renderUI({
-    req(resultado())
-    cols <- names(resultado())
-    numeric_cols <- cols[sapply(resultado(), is.numeric)]
-    categorical_cols <- cols[!sapply(resultado(), is.numeric)]
-    tagList(
-      selectInput("violin_variable", "Variable", choices = numeric_cols, selected = "MW"),
-      selectInput("violin_group", "Group by", choices = categorical_cols, selected = "GI absorption"),
-      checkboxInput("violin_box", "Show boxplot", TRUE),
-      checkboxInput("violin_points", "Show points", FALSE)
-    )
-  })
-
-  ## ---- SwissADME: renderUI blocks for the new plot types ----
-  output$histogram_custom_controls <- renderUI({
-    req(resultado())
-    cols <- names(resultado())
-    numeric_cols <- cols[sapply(resultado(), is.numeric)]
-    categorical_cols <- cols[!sapply(resultado(), is.numeric)]
-    tagList(
-      selectInput("hc_variable", "Variable", choices = numeric_cols, selected = "MW"),
-      sliderInput("hc_bins", "Number of bins", min = 5, max = 100, value = 30),
-      selectInput("hc_group", "Group by (overlay)", choices = c("None", categorical_cols),
-                  selected = "None"),
-      checkboxInput("hc_density", "Show density curve", TRUE),
-      checkboxInput("hc_rug", "Show rug plot", FALSE)
-    )
-  })
-
-  ## ----------------------------- SwissADME plot ------------------------
-  base_plot_types <- c("Radar plot (Chemical profile)",
-                       "Tanimoto / AGNES (Structural similarity)")
-
-  currentPlot <- reactive({
-    req(resultado())
-    validate(need(nrow(resultado()) > 0, "No data to plot."))
-    pt <- input$plot_type
-
-    if (pt %in% base_plot_types) {
-      if (pt == "Radar plot (Chemical profile)") {
-        req(input$radar_id_col)
-        validate(need(length(input$radar_ids) >= 1, "Select at least one molecule."))
-        function() plotRadar(resultado(),
-                             id_col = input$radar_id_col, ids = input$radar_ids)
-      } else {
-        req(input$smiles_col)
-        function() plotTanimoto(resultado(),
-                                smiles_col = input$smiles_col,
-                                label_col = input$label_col,
-                                max_n = input$tanimoto_max_n,
-                                method = input$agnes_method)
-      }
+  output$master_violin_controls <- renderUI({
+    req(master_resultado())
+    cols <- names(master_resultado())
+    numeric_cols <- cols[sapply(master_resultado(), is.numeric)]
+    categorical_cols <- cols[!sapply(master_resultado(), is.numeric)]
+    if (length(numeric_cols) == 0) return(helpText("No numeric columns available."))
+    default_group <- if ("GI absorption" %in% categorical_cols) {
+      "GI absorption"
+    } else if ("BBB permeant" %in% categorical_cols) {
+      "BBB permeant"
+    } else if (length(categorical_cols) > 0) {
+      categorical_cols[1]
     } else {
-      switch(pt,
-             "Boiled Egg" = {
-               logp_choice <- input$boiled_egg_logp
-               if (is.null(logp_choice) || logp_choice == "") logp_choice <- "LogP"
-               data_be <- resultado()
-               if (logp_choice %in% names(data_be) && logp_choice != "LogP") {
-                 data_be$LogP <- data_be[[logp_choice]]
-               }
-               plotBoiledEgg(data_be)
-             },
-             "Molecular Weight" = plotMW(resultado()),
-             "TPSA" = plotTPSA(resultado()),
-             "LogP" = plotLogP(resultado()),
-             "Correlation Heatmap" = plotCorrHeatmap(resultado()),
-             "Principal Component Analysys (PCA - Chemical space)" =
-               apply_palette(plotPCA(data = resultado(), variables = input$pca_variables,
-                                     color_by = input$pca_color, label_by = input$pca_label,
-                                     scale_data = input$pca_scale, ellipse = input$pca_ellipse),
-                             input$swiss_palette, resultado(), input$pca_color),
-             "t-SNE (Chemical space)" =
-               apply_palette(plotTSNE(data = resultado(), variables = input$tsne_variables,
-                                      color_by = input$tsne_color, label_by = input$tsne_label,
-                                      perplexity = input$tsne_perplexity, max_iter = input$tsne_iter,
-                                      scale_data = input$tsne_scale),
-                             input$swiss_palette, resultado(), input$tsne_color),
-             "UMAP (Chemical space)" =
-               apply_palette(plotUMAP(data = resultado(), variables = input$umap_variables,
-                                      color_by = input$umap_color, label_by = input$umap_label,
-                                      n_neighbors = input$umap_n_neighbors,
-                                      min_dist = input$umap_min_dist, scale_data = input$umap_scale),
-                             input$swiss_palette, resultado(), input$umap_color),
-             "Parallel Coordinates" =
-               apply_palette(plotParallel(data = resultado(), variables = input$parallel_variables,
-                                          color_by = input$parallel_color, scale_data = input$parallel_scale),
-                             input$swiss_palette, resultado(), input$parallel_color),
-             "Cluster Heatmap (Dendrogram)" =
-               function() plotClusterHeatmap(data = resultado(),
-                                             variables = input$cluster_heatmap_variables,
-                                             id_col = .safe_id_col(input$cluster_heatmap_id_col),
-                                             method = input$cluster_heatmap_method,
-                                             scale_data = input$cluster_heatmap_scale,
-                                             palette = input$swiss_palette),
-             "Violin Plot" =
-               apply_palette(plotViolin(data = resultado(), variable = input$violin_variable,
-                                         group_by = input$violin_group, show_box = input$violin_box,
-                                         show_points = input$violin_points),
-                             input$swiss_palette, resultado(), input$violin_group),
-             "Custom Histogram" =
-               plotHistogramCustom(data = resultado(),
-                                   variable = input$hc_variable,
-                                   bins = input$hc_bins,
-                                   group_by = input$hc_group,
-                                   show_density = input$hc_density,
-                                   show_rug = input$hc_rug)
-      )
-    }
-  })
-
-  output$plot <- renderPlot({
-    p <- currentPlot()
-    if (is.function(p)) p() else print(p)
-  })
-
-  output$downloadPlot <- downloadHandler(
-    filename = function() paste0(gsub("[^A-Za-z0-9]+", "_", input$plot_type), ".", input$format),
-    content = function(file) {
-      p <- currentPlot()
-      if (is.function(p)) {
-        open_device <- switch(input$format,
-          "png"  = function() grDevices::png(file, width = input$width, height = input$height, units = "in", res = as.numeric(input$dpi)),
-          "jpeg" = function() grDevices::jpeg(file, width = input$width, height = input$height, units = "in", res = as.numeric(input$dpi)),
-          "tiff" = function() grDevices::tiff(file, width = input$width, height = input$height, units = "in", res = as.numeric(input$dpi)),
-          "pdf"  = function() grDevices::pdf(file, width = input$width, height = input$height),
-          "svg"  = function() grDevices::svg(file, width = input$width, height = input$height),
-          function() grDevices::png(file, width = input$width, height = input$height, units = "in", res = as.numeric(input$dpi))
-        )
-        open_device()
-        p()
-        grDevices::dev.off()
-      } else {
-        ggplot2::ggsave(filename = file, plot = p, device = input$format,
-                        width = input$width, height = input$height,
-                        units = "in", dpi = as.numeric(input$dpi))
-      }
-    }
-  )
-
-  ## ============================ ADMETlab 3.0 =============================
-  admetlab_datos_rv <- reactiveVal(NULL)
-
-  observeEvent(input$admetlab_archivo, {
-    req(input$admetlab_archivo)
-    tryCatch({
-      d <- read.csv(input$admetlab_archivo$datapath, check.names = FALSE)
-      withProgress(message = "Processing ADMETlab dataset (calculating CDK descriptors)...",
-                   value = 0.5, {
-        admetlab_datos_rv(fixADMETlab(d))
-      })
-      showNotification("ADMETlab dataset loaded and processed.",
-                       type = "message", duration = 5)
-    }, error = function(e) {
-      showNotification(paste("Error reading ADMETlab:", e$message),
-                       type = "error", duration = 8)
-    })
-  })
-
-  admetlab_datos <- reactive({ admetlab_datos_rv() })
-
-  output$admetlab_preview <- renderDT({
-    req(admetlab_datos())
-    admetlab_datos()
-  }, options = list(pageLength = 10, scrollX = TRUE))
-
-  admetlab_resultado <- eventReactive(input$admetlab_run, {
-    req(admetlab_datos())
-    tryCatch({
-      out <- applyFilters(
-        data = admetlab_datos(), filters = input$admetlab_filters,
-        lipinski = list(mw = input$admetlab_mw, logp = input$admetlab_logp, hba = input$admetlab_hba, hbd = input$admetlab_hbd, violations = input$admetlab_violations),
-        veber = list(v_rb = input$admetlab_v_rb, v_tpsa = input$admetlab_v_tpsa, v_hb_sum = input$admetlab_v_hb_sum, violations = input$admetlab_veber_violations),
-        ghose = list(g_mw_min = input$admetlab_g_mw[1], g_mw_max = input$admetlab_g_mw[2], g_mr_min = input$admetlab_g_mr[1], g_mr_max = input$admetlab_g_mr[2], g_logp_min = input$admetlab_g_logp[1], g_logp_max = input$admetlab_g_logp[2], g_ha_min = input$admetlab_g_ha[1], g_ha_max = input$admetlab_g_ha[2], violations = input$admetlab_ghose_violations),
-        egan = list(e_tpsa = input$admetlab_e_tpsa, e_logp = input$admetlab_e_logp, violations = input$admetlab_egan_violations),
-        muegge = list(m_mw_min = input$admetlab_m_mw[1], m_mw_max = input$admetlab_m_mw[2], m_logp_min = input$admetlab_m_logp[1], m_logp_max = input$admetlab_m_logp[2], m_hba = input$admetlab_m_hba, m_hbd = input$admetlab_m_hbd, m_rb = input$admetlab_m_rb, m_tpsa = input$admetlab_m_tpsa, violations = input$admetlab_muegge_violations)
-      )
-      if (nrow(out) == 0) {
-        showNotification("No compound meets the selected filters.",
-                         type = "warning", duration = 6)
-      }
-      out
-    }, error = function(e) {
-      showNotification(paste("Error applying filters:", e$message),
-                       type = "error", duration = 8)
-      admetlab_datos()[0, ]
-    })
-  })
-
-  output$admetlab_tabla <- renderDT({
-    req(admetlab_resultado())
-    admetlab_resultado()
-  }, options = list(pageLength = 10, scrollX = TRUE))
-
-  output$admetlab_download <- downloadHandler(
-    filename = function() "ADMETlab_Filtered_Dataset.csv",
-    content = function(file) write.csv(admetlab_resultado(), file, row.names = FALSE)
-  )
-
-  ## ---- ADMETlab dynamic controls ----
-  output$admetlab_radar_id_selector <- renderUI({
-    req(admetlab_resultado())
-    tagList(
-      selectInput("admetlab_radar_id_col", "Identifier column",
-                  choices = names(admetlab_resultado()),
-                  selected = names(admetlab_resultado())[1]),
-      selectizeInput("admetlab_radar_ids", "Molecules to compare",
-                     choices = NULL, multiple = TRUE, options = list(maxItems = 5))
-    )
-  })
-
-  observeEvent(input$admetlab_radar_id_col, {
-    req(admetlab_resultado(), input$admetlab_radar_id_col)
-    updateSelectizeInput(session, "admetlab_radar_ids",
-                         choices = unique(as.character(admetlab_resultado()[[input$admetlab_radar_id_col]])),
-                         server = TRUE)
-  })
-
-  output$admetlab_smiles_col_selector <- renderUI({
-    req(admetlab_resultado())
-    cols <- names(admetlab_resultado())
-    guess <- cols[grepl("smiles", cols, ignore.case = TRUE)]
-    selectInput("admetlab_smiles_col", "SMILES column", choices = cols,
-                selected = if (length(guess) > 0) guess[1] else cols[1])
-  })
-
-  output$admetlab_label_col_selector <- renderUI({
-    req(admetlab_resultado())
-    cols <- names(admetlab_resultado())
-    selectInput("admetlab_label_col", "Label column", choices = cols, selected = cols[1])
-  })
-
-  output$admetlab_pca_controls <- renderUI({
-    req(admetlab_resultado())
-    cols <- names(admetlab_resultado())
-    numeric_cols <- cols[sapply(admetlab_resultado(), is.numeric)]
-    tagList(
-      selectInput("admetlab_pca_variables", "Variables", choices = numeric_cols,
-                  selected = intersect(c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"), numeric_cols),
-                  multiple = TRUE),
-      selectInput("admetlab_pca_color", "Colour by", choices = c("None", cols), selected = "None"),
-      selectInput("admetlab_pca_label", "Labels", choices = c("None", cols), selected = "None"),
-      checkboxInput("admetlab_pca_ellipse", "Ellipses", TRUE),
-      checkboxInput("admetlab_pca_scale", "Scale", TRUE)
-    )
-  })
-
-  output$admetlab_tsne_controls <- renderUI({
-    req(admetlab_resultado())
-    cols <- names(admetlab_resultado())
-    numeric_cols <- cols[sapply(admetlab_resultado(), is.numeric)]
-    tagList(
-      selectInput("admetlab_tsne_variables", "Variables", choices = numeric_cols,
-                  selected = intersect(c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"), numeric_cols),
-                  multiple = TRUE),
-      sliderInput("admetlab_tsne_perplexity", "Perplexity", min = 5, max = 50, value = 30),
-      sliderInput("admetlab_tsne_iter", "Iterations", min = 500, max = 5000, value = 1000, step = 500),
-      selectInput("admetlab_tsne_color", "Colour by", choices = c("None", cols), selected = "None"),
-      selectInput("admetlab_tsne_label", "Labels", choices = c("None", cols), selected = "None"),
-      checkboxInput("admetlab_tsne_scale", "Scale", TRUE)
-    )
-  })
-
-  output$admetlab_umap_controls <- renderUI({
-    req(admetlab_resultado())
-    cols <- names(admetlab_resultado())
-    numeric_cols <- cols[sapply(admetlab_resultado(), is.numeric)]
-    tagList(
-      selectInput("admetlab_umap_variables", "Variables", choices = numeric_cols,
-                  selected = intersect(c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"), numeric_cols),
-                  multiple = TRUE),
-      sliderInput("admetlab_umap_n_neighbors", "n_neighbors", min = 2, max = 50, value = 15),
-      sliderInput("admetlab_umap_min_dist", "min_dist", min = 0, max = 1, value = 0.1, step = 0.05),
-      selectInput("admetlab_umap_color", "Colour by", choices = c("None", cols), selected = "None"),
-      selectInput("admetlab_umap_label", "Labels", choices = c("None", cols), selected = "None"),
-      checkboxInput("admetlab_umap_scale", "Scale", TRUE)
-    )
-  })
-
-  output$admetlab_parallel_controls <- renderUI({
-    req(admetlab_resultado())
-    cols <- names(admetlab_resultado())
-    numeric_cols <- cols[sapply(admetlab_resultado(), is.numeric)]
-    tagList(
-      selectInput("admetlab_parallel_variables", "Variables", choices = numeric_cols,
-                  selected = intersect(c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"), numeric_cols),
-                  multiple = TRUE),
-      selectInput("admetlab_parallel_color", "Colour by", choices = c("None", cols), selected = "None"),
-      checkboxInput("admetlab_parallel_scale", "Scale variables", TRUE)
-    )
-  })
-
-  output$admetlab_cluster_heatmap_controls <- renderUI({
-    req(admetlab_resultado())
-    cols <- names(admetlab_resultado())
-    numeric_cols <- cols[sapply(admetlab_resultado(), is.numeric)]
-    ## Look for a suitable label column: prefer text columns that could be IDs
-    char_cols <- cols[!sapply(admetlab_resultado(), is.numeric)]
-    default_id <- if (any(c("Name", "name", "ID", "Compound", "Molecule") %in% cols)) {
-      intersect(c("Name", "name", "ID", "Compound", "Molecule"), cols)[1]
-    } else if (length(char_cols) > 0) {
-      char_cols[1]
-    } else {
-      "None"
+      character(0)
     }
     tagList(
-      selectInput("admetlab_cluster_heatmap_variables", "Variables", choices = numeric_cols,
-                  selected = c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"),
-                  multiple = TRUE),
-      selectInput("admetlab_cluster_heatmap_id_col", "Label column (optional)", choices = c("None", cols),
-                  selected = default_id),
-      selectInput("admetlab_cluster_heatmap_method", "Clustering method",
-                  choices = c("Ward D2" = "ward.D2", "Ward D" = "ward.D",
-                              "Complete" = "complete", "Average (UPGMA)" = "average",
-                              "Single" = "single", "McQuitty" = "mcquitty",
-                              "Median" = "median", "Centroid" = "centroid"),
-                  selected = "ward.D2"),
-      checkboxInput("admetlab_cluster_heatmap_scale", "Scale variables (z-score)", TRUE)
+      selectInput("master_violin_variable", "Variable",
+                  choices = numeric_cols,
+                  selected = if ("MW" %in% numeric_cols) "MW" else numeric_cols[1]),
+      selectInput("master_violin_group", "Group by",
+                  choices = categorical_cols, selected = default_group),
+      checkboxInput("master_violin_box", "Show boxplot", TRUE),
+      checkboxInput("master_violin_points", "Show points", FALSE)
     )
   })
 
-  output$admetlab_violin_controls <- renderUI({
-    req(admetlab_resultado())
-    cols <- names(admetlab_resultado())
-    numeric_cols <- cols[sapply(admetlab_resultado(), is.numeric)]
-    categorical_cols <- cols[!sapply(admetlab_resultado(), is.numeric)]
+  output$master_histogram_custom_controls <- renderUI({
+    req(master_resultado())
+    cols <- names(master_resultado())
+    numeric_cols <- cols[sapply(master_resultado(), is.numeric)]
+    categorical_cols <- cols[!sapply(master_resultado(), is.numeric)]
+    if (length(numeric_cols) == 0) return(helpText("No numeric columns available."))
     tagList(
-      selectInput("admetlab_violin_variable", "Variable", choices = numeric_cols, selected = "MW"),
-      selectInput("admetlab_violin_group", "Group by", choices = categorical_cols,
-                  selected = if ("BBB permeant" %in% categorical_cols) "BBB permeant" else categorical_cols[1]),
-      checkboxInput("admetlab_violin_box", "Boxplot", TRUE),
-      checkboxInput("admetlab_violin_points", "Points", FALSE)
+      selectInput("master_hc_variable", "Variable",
+                  choices = numeric_cols,
+                  selected = if ("MW" %in% numeric_cols) "MW" else numeric_cols[1]),
+      sliderInput("master_hc_bins", "Number of bins",
+                  min = 5, max = 100, value = 30),
+      selectInput("master_hc_group", "Group by (overlay)",
+                  choices = c("None", categorical_cols), selected = "None"),
+      checkboxInput("master_hc_density", "Show density curve", TRUE),
+      checkboxInput("master_hc_rug", "Show rug plot", FALSE)
     )
   })
 
-  ## ---- ADMETlab: renderUI blocks for the new plot types ----
-  output$admetlab_histogram_custom_controls <- renderUI({
-    req(admetlab_resultado())
-    cols <- names(admetlab_resultado())
-    numeric_cols <- cols[sapply(admetlab_resultado(), is.numeric)]
-    categorical_cols <- cols[!sapply(admetlab_resultado(), is.numeric)]
-    tagList(
-      selectInput("admetlab_hc_variable", "Variable", choices = numeric_cols, selected = "MW"),
-      sliderInput("admetlab_hc_bins", "Number of bins", min = 5, max = 100, value = 30),
-      selectInput("admetlab_hc_group", "Group by (overlay)", choices = c("None", categorical_cols), selected = "None"),
-      checkboxInput("admetlab_hc_density", "Show density curve", TRUE),
-      checkboxInput("admetlab_hc_rug", "Show rug plot", FALSE)
-    )
-  })
-
-  ## ---- ADMETlab plot rendering ----
-  admetlab_base_plot_types <- c("Radar plot (Chemical profile)",
-                                "Tanimoto / AGNES (Structural similarity)")
-
-  admetlab_currentPlot <- reactive({
-    req(admetlab_resultado())
-    validate(need(nrow(admetlab_resultado()) > 0, "No data."))
-    pt <- input$admetlab_plot_type
-
-    if (pt %in% admetlab_base_plot_types) {
-      if (pt == "Radar plot (Chemical profile)") {
-        req(input$admetlab_radar_id_col)
-        function() plotRadar(admetlab_resultado(),
-                             id_col = input$admetlab_radar_id_col,
-                             ids = input$admetlab_radar_ids)
-      } else {
-        req(input$admetlab_smiles_col)
-        function() plotTanimoto(admetlab_resultado(),
-                                smiles_col = input$admetlab_smiles_col,
-                                label_col = input$admetlab_label_col,
-                                max_n = input$admetlab_tanimoto_max_n,
-                                method = input$admetlab_agnes_method)
-      }
-    } else {
-      switch(pt,
-             "Boiled Egg" = plotBoiledEgg(admetlab_resultado()),
-             "TPSA" = plotTPSA(admetlab_resultado()),
-             "LogP" = plotLogP(admetlab_resultado()),
-             "Correlation Heatmap" = plotCorrHeatmap(admetlab_resultado()),
-             "Principal Component Analysys (PCA - Chemical space)" =
-               apply_palette(plotPCA(data = admetlab_resultado(), variables = input$admetlab_pca_variables,
-                                     color_by = input$admetlab_pca_color, label_by = input$admetlab_pca_label,
-                                     scale_data = input$admetlab_pca_scale, ellipse = input$admetlab_pca_ellipse),
-                             input$admetlab_palette, admetlab_resultado(), input$admetlab_pca_color),
-             "t-SNE (Chemical space)" =
-               apply_palette(plotTSNE(data = admetlab_resultado(), variables = input$admetlab_tsne_variables,
-                                      color_by = input$admetlab_tsne_color, label_by = input$admetlab_tsne_label,
-                                      perplexity = input$admetlab_tsne_perplexity, max_iter = input$admetlab_tsne_iter,
-                                      scale_data = input$admetlab_tsne_scale),
-                             input$admetlab_palette, admetlab_resultado(), input$admetlab_tsne_color),
-             "UMAP (Chemical space)" =
-               apply_palette(plotUMAP(data = admetlab_resultado(), variables = input$admetlab_umap_variables,
-                                      color_by = input$admetlab_umap_color, label_by = input$admetlab_umap_label,
-                                      n_neighbors = input$admetlab_umap_n_neighbors,
-                                      min_dist = input$admetlab_umap_min_dist,
-                                      scale_data = input$admetlab_umap_scale),
-                             input$admetlab_palette, admetlab_resultado(), input$admetlab_umap_color),
-             "Parallel Coordinates" =
-               apply_palette(plotParallel(data = admetlab_resultado(), variables = input$admetlab_parallel_variables,
-                                          color_by = input$admetlab_parallel_color, scale_data = input$admetlab_parallel_scale),
-                             input$admetlab_palette, admetlab_resultado(), input$admetlab_parallel_color),
-             "Cluster Heatmap (Dendrogram)" =
-               function() plotClusterHeatmap(data = admetlab_resultado(),
-                                             variables = input$admetlab_cluster_heatmap_variables,
-                                             id_col = .safe_id_col(input$admetlab_cluster_heatmap_id_col),
-                                             method = input$admetlab_cluster_heatmap_method,
-                                             scale_data = input$admetlab_cluster_heatmap_scale,
-                                             palette = input$admetlab_palette),
-             "Violin Plot" =
-               apply_palette(plotViolin(data = admetlab_resultado(), variable = input$admetlab_violin_variable,
-                                         group_by = input$admetlab_violin_group, show_box = input$admetlab_violin_box,
-                                         show_points = input$admetlab_violin_points),
-                             input$admetlab_palette, admetlab_resultado(), input$admetlab_violin_group),
-             "Custom Histogram" =
-               plotHistogramCustom(data = admetlab_resultado(),
-                                   variable = input$admetlab_hc_variable,
-                                   bins = input$admetlab_hc_bins,
-                                   group_by = input$admetlab_hc_group,
-                                   show_density = input$admetlab_hc_density,
-                                   show_rug = input$admetlab_hc_rug)
-      )
-    }
-  })
-
-  output$admetlab_plot <- renderPlot({
-    p <- admetlab_currentPlot()
-    if (is.function(p)) p() else print(p)
-  })
-
-  output$admetlab_downloadPlot <- downloadHandler(
-    filename = function() {
-      paste0("admetlab_", gsub("[^A-Za-z0-9]+", "_", input$admetlab_plot_type), ".", input$admetlab_format)
-    },
-    content = function(file) {
-      p <- admetlab_currentPlot()
-      if (is.function(p)) {
-        open_device <- switch(input$admetlab_format,
-          "png" = function() grDevices::png(file, width = input$admetlab_width, height = input$admetlab_height, units = "in", res = as.numeric(input$admetlab_dpi)),
-          "pdf" = function() grDevices::pdf(file, width = input$admetlab_width, height = input$admetlab_height),
-          function() grDevices::png(file, width = input$admetlab_width, height = input$admetlab_height, units = "in", res = as.numeric(input$admetlab_dpi))
-        )
-        open_device()
-        p()
-        grDevices::dev.off()
-      } else {
-        ggplot2::ggsave(filename = file, plot = p, device = input$admetlab_format,
-                        width = input$admetlab_width, height = input$admetlab_height,
-                        units = "in", dpi = as.numeric(input$admetlab_dpi))
-      }
-    }
-  )
-
-  ## ============================ Deep-PK ==================================
-  deeppk_datos_rv <- reactiveVal(NULL)
-
-  observeEvent(input$deeppk_archivo, {
-    req(input$deeppk_archivo)
-    tryCatch({
-      d <- read.csv(input$deeppk_archivo$datapath, check.names = FALSE)
-      withProgress(message = "Processing Deep-PK dataset (calculating CDK descriptors)...",
-                   value = 0.5, {
-        deeppk_datos_rv(fixDeepPK(d))
-      })
-      showNotification("Deep-PK dataset loaded and processed.",
-                       type = "message", duration = 5)
-    }, error = function(e) {
-      showNotification(paste("Error reading Deep-PK:", e$message),
-                       type = "error", duration = 8)
-    })
-  })
-
-  deeppk_datos <- reactive({ deeppk_datos_rv() })
-
-  output$deeppk_preview <- renderDT({
-    req(deeppk_datos())
-    deeppk_datos()
-  }, options = list(pageLength = 10, scrollX = TRUE))
-
-  deeppk_resultado <- eventReactive(input$deeppk_run, {
-    req(deeppk_datos())
-    tryCatch({
-      out <- applyFilters(
-        data = deeppk_datos(), filters = input$deeppk_filters,
-        lipinski = list(mw = input$deeppk_mw, logp = input$deeppk_logp, hba = input$deeppk_hba, hbd = input$deeppk_hbd, violations = input$deeppk_violations),
-        veber = list(v_rb = input$deeppk_v_rb, v_tpsa = input$deeppk_v_tpsa, v_hb_sum = input$deeppk_v_hb_sum, violations = input$deeppk_veber_violations),
-        ghose = list(g_mw_min = input$deeppk_g_mw[1], g_mw_max = input$deeppk_g_mw[2], g_mr_min = input$deeppk_g_mr[1], g_mr_max = input$deeppk_g_mr[2], g_logp_min = input$deeppk_g_logp[1], g_logp_max = input$deeppk_g_logp[2], g_ha_min = input$deeppk_g_ha[1], g_ha_max = input$deeppk_g_ha[2], violations = input$deeppk_ghose_violations),
-        egan = list(e_tpsa = input$deeppk_e_tpsa, e_logp = input$deeppk_e_logp, violations = input$deeppk_egan_violations),
-        muegge = list(m_mw_min = input$deeppk_m_mw[1], m_mw_max = input$deeppk_m_mw[2], m_logp_min = input$deeppk_m_logp[1], m_logp_max = input$deeppk_m_logp[2], m_hba = input$deeppk_m_hba, m_hbd = input$deeppk_m_hbd, m_rb = input$deeppk_m_rb, m_tpsa = input$deeppk_m_tpsa, violations = input$deeppk_muegge_violations)
-      )
-      if (nrow(out) == 0) {
-        showNotification("No compound meets the selected filters.",
-                         type = "warning", duration = 6)
-      }
-      out
-    }, error = function(e) {
-      showNotification(paste("Error applying filters:", e$message),
-                       type = "error", duration = 8)
-      deeppk_datos()[0, ]
-    })
-  })
-
-  output$deeppk_tabla <- renderDT({
-    req(deeppk_resultado())
-    deeppk_resultado()
-  }, options = list(pageLength = 10, scrollX = TRUE))
-
-  output$deeppk_download <- downloadHandler(
-    filename = function() "DeepPK_Filtered.csv",
-    content = function(file) write.csv(deeppk_resultado(), file, row.names = FALSE)
-  )
-
-  ## ---- Deep-PK dynamic controls ----
-  output$deeppk_radar_id_selector <- renderUI({
-    req(deeppk_resultado())
-    tagList(
-      selectInput("deeppk_radar_id_col", "ID", choices = names(deeppk_resultado()),
-                  selected = names(deeppk_resultado())[1]),
-      selectizeInput("deeppk_radar_ids", "Molecules", choices = NULL, multiple = TRUE,
-                     options = list(maxItems = 5))
-    )
-  })
-
-  observeEvent(input$deeppk_radar_id_col, {
-    req(deeppk_resultado(), input$deeppk_radar_id_col)
-    updateSelectizeInput(session, "deeppk_radar_ids",
-                         choices = unique(as.character(deeppk_resultado()[[input$deeppk_radar_id_col]])),
-                         server = TRUE)
-  })
-
-  output$deeppk_smiles_col_selector <- renderUI({
-    req(deeppk_resultado())
-    cols <- names(deeppk_resultado())
-    guess <- cols[grepl("smiles", cols, ignore.case = TRUE)]
-    selectInput("deeppk_smiles_col", "SMILES", choices = cols,
-                selected = if (length(guess) > 0) guess[1] else cols[1])
-  })
-
-  output$deeppk_label_col_selector <- renderUI({
-    req(deeppk_resultado())
-    cols <- names(deeppk_resultado())
-    selectInput("deeppk_label_col", "Label", choices = cols, selected = cols[1])
-  })
-
-  output$deeppk_pca_controls <- renderUI({
-    req(deeppk_resultado())
-    cols <- names(deeppk_resultado())
-    num_cols <- cols[sapply(deeppk_resultado(), is.numeric)]
-    tagList(
-      selectInput("deeppk_pca_variables", "Variables", choices = num_cols,
-                  selected = intersect(c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"), num_cols),
-                  multiple = TRUE),
-      selectInput("deeppk_pca_color", "Colour", choices = c("None", cols), selected = "None"),
-      selectInput("deeppk_pca_label", "Labels", choices = c("None", cols), selected = "None"),
-      checkboxInput("deeppk_pca_ellipse", "Ellipses", TRUE),
-      checkboxInput("deeppk_pca_scale", "Scale", TRUE)
-    )
-  })
-
-  output$deeppk_tsne_controls <- renderUI({
-    req(deeppk_resultado())
-    cols <- names(deeppk_resultado())
-    num_cols <- cols[sapply(deeppk_resultado(), is.numeric)]
-    tagList(
-      selectInput("deeppk_tsne_variables", "Variables", choices = num_cols,
-                  selected = intersect(c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"), num_cols),
-                  multiple = TRUE),
-      sliderInput("deeppk_tsne_perplexity", "Perplexity", min = 5, max = 50, value = 30),
-      sliderInput("deeppk_tsne_iter", "Iterations", min = 500, max = 5000, value = 1000, step = 500),
-      selectInput("deeppk_tsne_color", "Colour", choices = c("None", cols), selected = "None"),
-      selectInput("deeppk_tsne_label", "Labels", choices = c("None", cols), selected = "None"),
-      checkboxInput("deeppk_tsne_scale", "Scale", TRUE)
-    )
-  })
-
-  output$deeppk_umap_controls <- renderUI({
-    req(deeppk_resultado())
-    cols <- names(deeppk_resultado())
-    num_cols <- cols[sapply(deeppk_resultado(), is.numeric)]
-    tagList(
-      selectInput("deeppk_umap_variables", "Variables", choices = num_cols,
-                  selected = intersect(c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"), num_cols),
-                  multiple = TRUE),
-      sliderInput("deeppk_umap_n_neighbors", "n_neighbors", min = 2, max = 50, value = 15),
-      sliderInput("deeppk_umap_min_dist", "min_dist", min = 0, max = 1, value = 0.1, step = 0.05),
-      selectInput("deeppk_umap_color", "Colour", choices = c("None", cols), selected = "None"),
-      selectInput("deeppk_umap_label", "Labels", choices = c("None", cols), selected = "None"),
-      checkboxInput("deeppk_umap_scale", "Scale", TRUE)
-    )
-  })
-
-  output$deeppk_parallel_controls <- renderUI({
-    req(deeppk_resultado())
-    cols <- names(deeppk_resultado())
-    num_cols <- cols[sapply(deeppk_resultado(), is.numeric)]
-    tagList(
-      selectInput("deeppk_parallel_variables", "Variables", choices = num_cols,
-                  selected = intersect(c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"), num_cols),
-                  multiple = TRUE),
-      selectInput("deeppk_parallel_color", "Colour", choices = c("None", cols), selected = "None"),
-      checkboxInput("deeppk_parallel_scale", "Scale", TRUE)
-    )
-  })
-
-  output$deeppk_cluster_heatmap_controls <- renderUI({
-    req(deeppk_resultado())
-    cols <- names(deeppk_resultado())
-    numeric_cols <- cols[sapply(deeppk_resultado(), is.numeric)]
-    ## Look for a suitable label column: prefer text columns that could be IDs
-    char_cols <- cols[!sapply(deeppk_resultado(), is.numeric)]
-    default_id <- if (any(c("Name", "name", "ID", "Compound", "Molecule") %in% cols)) {
-      intersect(c("Name", "name", "ID", "Compound", "Molecule"), cols)[1]
-    } else if (length(char_cols) > 0) {
-      char_cols[1]
-    } else {
-      "None"
-    }
-    tagList(
-      selectInput("deeppk_cluster_heatmap_variables", "Variables", choices = numeric_cols,
-                  selected = c("MW","TPSA","LogP","#H-bond acceptors","#H-bond donors","#Rotatable bonds"),
-                  multiple = TRUE),
-      selectInput("deeppk_cluster_heatmap_id_col", "Label column (optional)", choices = c("None", cols),
-                  selected = default_id),
-      selectInput("deeppk_cluster_heatmap_method", "Clustering method",
-                  choices = c("Ward D2" = "ward.D2", "Ward D" = "ward.D",
-                              "Complete" = "complete", "Average (UPGMA)" = "average",
-                              "Single" = "single", "McQuitty" = "mcquitty",
-                              "Median" = "median", "Centroid" = "centroid"),
-                  selected = "ward.D2"),
-      checkboxInput("deeppk_cluster_heatmap_scale", "Scale variables (z-score)", TRUE)
-    )
-  })
-
-  output$deeppk_violin_controls <- renderUI({
-    req(deeppk_resultado())
-    cols <- names(deeppk_resultado())
-    num_cols <- cols[sapply(deeppk_resultado(), is.numeric)]
-    cat_cols <- cols[!sapply(deeppk_resultado(), is.numeric)]
-    tagList(
-      selectInput("deeppk_violin_variable", "Variable", choices = num_cols, selected = "MW"),
-      selectInput("deeppk_violin_group", "Group by", choices = cat_cols,
-                  selected = if ("BBB permeant" %in% cat_cols) "BBB permeant" else cat_cols[1]),
-      checkboxInput("deeppk_violin_box", "Boxplot", TRUE),
-      checkboxInput("deeppk_violin_points", "Points", FALSE)
-    )
-  })
-
-  ## ---- Deep-PK: renderUI blocks for the new plot types ----
-  output$deeppk_histogram_custom_controls <- renderUI({
-    req(deeppk_resultado())
-    cols <- names(deeppk_resultado())
-    numeric_cols <- cols[sapply(deeppk_resultado(), is.numeric)]
-    categorical_cols <- cols[!sapply(deeppk_resultado(), is.numeric)]
-    tagList(
-      selectInput("deeppk_hc_variable", "Variable", choices = numeric_cols, selected = "MW"),
-      sliderInput("deeppk_hc_bins", "Number of bins", min = 5, max = 100, value = 30),
-      selectInput("deeppk_hc_group", "Group by (overlay)", choices = c("None", categorical_cols), selected = "None"),
-      checkboxInput("deeppk_hc_density", "Show density curve", TRUE),
-      checkboxInput("deeppk_hc_rug", "Show rug plot", FALSE)
-    )
-  })
-
-  ## ---- Deep-PK plot rendering ----
-  deeppk_base_plot_types <- c("Radar plot (Chemical profile)",
+  ## ---------------- Step 4: plot rendering ----------------
+  master_base_plot_types <- c("Radar plot (Chemical profile)",
                               "Tanimoto / AGNES (Structural similarity)")
 
-  deeppk_currentPlot <- reactive({
-    req(deeppk_resultado())
-    validate(need(nrow(deeppk_resultado()) > 0, "No data."))
-    pt <- input$deeppk_plot_type
+  master_currentPlot <- reactive({
+    req(master_resultado())
+    validate(need(nrow(master_resultado()) > 0, "No data to plot."))
+    pt <- input$master_plot_type
 
-    if (pt %in% deeppk_base_plot_types) {
+    if (pt %in% master_base_plot_types) {
       if (pt == "Radar plot (Chemical profile)") {
-        req(input$deeppk_radar_id_col)
-        function() plotRadar(deeppk_resultado(),
-                             id_col = input$deeppk_radar_id_col,
-                             ids = input$deeppk_radar_ids)
+        req(input$master_radar_id_col)
+        validate(need(length(input$master_radar_ids) >= 1,
+                      "Select at least one molecule for the radar."))
+        function() plotRadar(master_resultado(),
+                             id_col = input$master_radar_id_col,
+                             ids = input$master_radar_ids)
       } else {
-        req(input$deeppk_smiles_col)
-        function() plotTanimoto(deeppk_resultado(),
-                                smiles_col = input$deeppk_smiles_col,
-                                label_col = input$deeppk_label_col,
-                                max_n = input$deeppk_tanimoto_max_n,
-                                method = input$deeppk_agnes_method)
+        req(input$master_smiles_col)
+        function() plotTanimoto(master_resultado(),
+                                smiles_col = input$master_smiles_col,
+                                label_col  = input$master_label_col,
+                                max_n      = input$master_tanimoto_max_n,
+                                method     = input$master_agnes_method)
       }
     } else {
       switch(pt,
-             "Boiled Egg" = plotBoiledEgg(deeppk_resultado()),
-             "TPSA" = plotTPSA(deeppk_resultado()),
-             "LogP" = plotLogP(deeppk_resultado()),
-             "Correlation Heatmap" = plotCorrHeatmap(deeppk_resultado()),
-             "Principal Component Analysys (PCA - Chemical space)" =
-               apply_palette(plotPCA(data = deeppk_resultado(), variables = input$deeppk_pca_variables,
-                                     color_by = input$deeppk_pca_color, label_by = input$deeppk_pca_label,
-                                     scale_data = input$deeppk_pca_scale, ellipse = input$deeppk_pca_ellipse),
-                             input$deeppk_palette, deeppk_resultado(), input$deeppk_pca_color),
-             "t-SNE (Chemical space)" =
-               apply_palette(plotTSNE(data = deeppk_resultado(), variables = input$deeppk_tsne_variables,
-                                      color_by = input$deeppk_tsne_color, label_by = input$deeppk_tsne_label,
-                                      perplexity = input$deeppk_tsne_perplexity, max_iter = input$deeppk_tsne_iter,
-                                      scale_data = input$deeppk_tsne_scale),
-                             input$deeppk_palette, deeppk_resultado(), input$deeppk_tsne_color),
-             "UMAP (Chemical space)" =
-               apply_palette(plotUMAP(data = deeppk_resultado(), variables = input$deeppk_umap_variables,
-                                      color_by = input$deeppk_umap_color, label_by = input$deeppk_umap_label,
-                                      n_neighbors = input$deeppk_umap_n_neighbors,
-                                      min_dist = input$deeppk_umap_min_dist,
-                                      scale_data = input$deeppk_umap_scale),
-                             input$deeppk_palette, deeppk_resultado(), input$deeppk_umap_color),
-             "Parallel Coordinates" =
-               apply_palette(plotParallel(data = deeppk_resultado(), variables = input$deeppk_parallel_variables,
-                                          color_by = input$deeppk_parallel_color, scale_data = input$deeppk_parallel_scale),
-                             input$deeppk_palette, deeppk_resultado(), input$deeppk_parallel_color),
-             "Cluster Heatmap (Dendrogram)" =
-               function() plotClusterHeatmap(data = deeppk_resultado(),
-                                             variables = input$deeppk_cluster_heatmap_variables,
-                                             id_col = .safe_id_col(input$deeppk_cluster_heatmap_id_col),
-                                             method = input$deeppk_cluster_heatmap_method,
-                                             scale_data = input$deeppk_cluster_heatmap_scale,
-                                             palette = input$deeppk_palette),
-             "Violin Plot" =
-               apply_palette(plotViolin(data = deeppk_resultado(), variable = input$deeppk_violin_variable,
-                                         group_by = input$deeppk_violin_group, show_box = input$deeppk_violin_box,
-                                         show_points = input$deeppk_violin_points),
-                             input$deeppk_palette, deeppk_resultado(), input$deeppk_violin_group),
-             "Custom Histogram" =
-               plotHistogramCustom(data = deeppk_resultado(),
-                                   variable = input$deeppk_hc_variable,
-                                   bins = input$deeppk_hc_bins,
-                                   group_by = input$deeppk_hc_group,
-                                   show_density = input$deeppk_hc_density,
-                                   show_rug = input$deeppk_hc_rug)
+        "Boiled Egg" = {
+          logp_choice <- input$master_boiled_egg_logp
+          if (is.null(logp_choice) || logp_choice == "")
+            logp_choice <- "LogP"
+          data_be <- master_resultado()
+          if (logp_choice %in% names(data_be) && logp_choice != "LogP") {
+            data_be$LogP <- data_be[[logp_choice]]
+          }
+          plotBoiledEgg(data_be, logp_source = logp_choice)
+        },
+        "Molecular Weight" = plotMW(master_resultado()),
+        "TPSA"             = plotTPSA(master_resultado()),
+        "LogP"             = plotLogP(master_resultado()),
+        "Correlation Heatmap" = plotCorrHeatmap(master_resultado()),
+        "Principal Component Analysys (PCA - Chemical space)" =
+          apply_palette(plotPCA(data = master_resultado(),
+                                variables  = input$master_pca_variables,
+                                color_by   = input$master_pca_color,
+                                label_by   = input$master_pca_label,
+                                scale_data = input$master_pca_scale,
+                                ellipse    = input$master_pca_ellipse),
+                        input$master_palette, master_resultado(),
+                        input$master_pca_color),
+        "t-SNE (Chemical space)" =
+          apply_palette(plotTSNE(data = master_resultado(),
+                                 variables   = input$master_tsne_variables,
+                                 color_by    = input$master_tsne_color,
+                                 label_by    = input$master_tsne_label,
+                                 perplexity  = input$master_tsne_perplexity,
+                                 max_iter    = input$master_tsne_iter,
+                                 scale_data  = input$master_tsne_scale),
+                        input$master_palette, master_resultado(),
+                        input$master_tsne_color),
+        "UMAP (Chemical space)" =
+          apply_palette(plotUMAP(data = master_resultado(),
+                                 variables    = input$master_umap_variables,
+                                 color_by     = input$master_umap_color,
+                                 label_by     = input$master_umap_label,
+                                 n_neighbors  = input$master_umap_n_neighbors,
+                                 min_dist     = input$master_umap_min_dist,
+                                 scale_data   = input$master_umap_scale),
+                        input$master_palette, master_resultado(),
+                        input$master_umap_color),
+        "Parallel Coordinates" =
+          apply_palette(plotParallel(data = master_resultado(),
+                                     variables   = input$master_parallel_variables,
+                                     color_by    = input$master_parallel_color,
+                                     scale_data  = input$master_parallel_scale),
+                        input$master_palette, master_resultado(),
+                        input$master_parallel_color),
+        "Cluster Heatmap (Dendrogram)" =
+          function() plotClusterHeatmap(
+            data       = master_resultado(),
+            variables  = input$master_cluster_heatmap_variables,
+            id_col     = .safe_id_col(input$master_cluster_heatmap_id_col),
+            method     = input$master_cluster_heatmap_method,
+            scale_data = input$master_cluster_heatmap_scale,
+            palette    = input$master_palette
+          ),
+        "Violin Plot" =
+          apply_palette(plotViolin(data = master_resultado(),
+                                    variable    = input$master_violin_variable,
+                                    group_by    = input$master_violin_group,
+                                    show_box    = input$master_violin_box,
+                                    show_points = input$master_violin_points),
+                        input$master_palette, master_resultado(),
+                        input$master_violin_group),
+        "Custom Histogram" =
+          plotHistogramCustom(data         = master_resultado(),
+                              variable     = input$master_hc_variable,
+                              bins         = input$master_hc_bins,
+                              group_by     = input$master_hc_group,
+                              show_density = input$master_hc_density,
+                              show_rug     = input$master_hc_rug)
       )
     }
   })
 
-  output$deeppk_plot <- renderPlot({
-    p <- deeppk_currentPlot()
+  output$master_plot <- renderPlot({
+    p <- master_currentPlot()
     if (is.function(p)) p() else print(p)
   })
 
-  output$deeppk_downloadPlot <- downloadHandler(
+  output$master_downloadPlot <- downloadHandler(
     filename = function() {
-      paste0("deeppk_", gsub("[^A-Za-z0-9]+", "_", input$deeppk_plot_type), ".", input$deeppk_format)
+      paste0("admet_master_",
+             gsub("[^A-Za-z0-9]+", "_", input$master_plot_type),
+             ".", input$master_format)
     },
     content = function(file) {
-      p <- deeppk_currentPlot()
+      p <- master_currentPlot()
       if (is.function(p)) {
-        open_device <- switch(input$deeppk_format,
-          "png" = function() grDevices::png(file, width = input$deeppk_width, height = input$deeppk_height, units = "in", res = as.numeric(input$deeppk_dpi)),
-          "pdf" = function() grDevices::pdf(file, width = input$deeppk_width, height = input$deeppk_height),
-          function() grDevices::png(file, width = input$deeppk_width, height = input$deeppk_height, units = "in", res = as.numeric(input$deeppk_dpi))
+        open_device <- switch(input$master_format,
+          "png"  = function() grDevices::png(file,
+                              width  = input$master_width,
+                              height = input$master_height,
+                              units  = "in",
+                              res    = as.numeric(input$master_dpi)),
+          "jpeg" = function() grDevices::jpeg(file,
+                               width  = input$master_width,
+                               height = input$master_height,
+                               units  = "in",
+                               res    = as.numeric(input$master_dpi)),
+          "tiff" = function() grDevices::tiff(file,
+                               width  = input$master_width,
+                               height = input$master_height,
+                               units  = "in",
+                               res    = as.numeric(input$master_dpi)),
+          "pdf"  = function() grDevices::pdf(file,
+                              width  = input$master_width,
+                              height = input$master_height),
+          "svg"  = function() grDevices::svg(file,
+                              width  = input$master_width,
+                              height = input$master_height),
+          function() grDevices::png(file,
+                            width  = input$master_width,
+                            height = input$master_height,
+                            units  = "in",
+                            res    = as.numeric(input$master_dpi))
         )
         open_device()
         p()
         grDevices::dev.off()
       } else {
-        ggplot2::ggsave(filename = file, plot = p, device = input$deeppk_format,
-                        width = input$deeppk_width, height = input$deeppk_height,
-                        units = "in", dpi = as.numeric(input$deeppk_dpi))
+        ggplot2::ggsave(filename = file, plot = p,
+                        device = input$master_format,
+                        width  = input$master_width,
+                        height = input$master_height,
+                        units  = "in",
+                        dpi    = as.numeric(input$master_dpi))
       }
     }
   )
@@ -1745,17 +1506,6 @@ app_server <- function(input, output, session) {
 
     datasets <- list()
 
-    ## SwissADME
-    if (!is.null(datos_rv())) {
-      filt <- tryCatch(resultado(), error = function(e) NULL)
-      datasets[["SwissADME"]] <- list(
-        raw         = datos_rv(),
-        filtered    = if (!is.null(filt)) filt else datos_rv(),
-        filters     = if (!is.null(filt)) input$filters else character(0),
-        source_name = "SwissADME Manager"
-      )
-    }
-
     ## CDK & webchem
     if (!is.null(cdk_results_rv())) {
       filt <- tryCatch(cdk_resultado(), error = function(e) NULL)
@@ -1767,25 +1517,14 @@ app_server <- function(input, output, session) {
       )
     }
 
-    ## ADMETlab 3.0
-    if (!is.null(admetlab_datos_rv())) {
-      filt <- tryCatch(admetlab_resultado(), error = function(e) NULL)
-      datasets[["ADMETlab"]] <- list(
-        raw         = admetlab_datos_rv(),
-        filtered    = if (!is.null(filt)) filt else admetlab_datos_rv(),
-        filters     = if (!is.null(filt)) input$admetlab_filters else character(0),
-        source_name = "ADMETlab 3.0 Manager"
-      )
-    }
-
-    ## Deep-PK
-    if (!is.null(deeppk_datos_rv())) {
-      filt <- tryCatch(deeppk_resultado(), error = function(e) NULL)
-      datasets[["DeepPK"]] <- list(
-        raw         = deeppk_datos_rv(),
-        filtered    = if (!is.null(filt)) filt else deeppk_datos_rv(),
-        filters     = if (!is.null(filt)) input$deeppk_filters else character(0),
-        source_name = "Deep-PK Manager"
+    ## ADMET Master
+    if (!is.null(master_mapped_rv())) {
+      filt <- tryCatch(master_resultado(), error = function(e) NULL)
+      datasets[["ADMET Master"]] <- list(
+        raw         = master_mapped_rv(),
+        filtered    = if (!is.null(filt)) filt else master_mapped_rv(),
+        filters     = if (!is.null(filt)) input$master_filters else character(0),
+        source_name = "ADMET Master Manager"
       )
     }
 
