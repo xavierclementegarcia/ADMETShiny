@@ -86,4 +86,60 @@ respects an explicit LogP mapping.
 
 #### Molecular Weight (MW)
 
+The molecular weight is the sum of the atomic weights of every atom in the molecule, weighted by the count of each atom type:
+
+$$\mathrm{MW} \;=\; \sum_{i=1}^{N} A_i \times \mathrm{MW}_i,$$
+
+That's equation define the next functions, where **N** is the number of distinct atom types **Ai** is the count of atoms of type and **MWi** is the monoisotopic or average atomic weight of atom type taken from the IUPAC standard atomic weights [@roskoski2020].
+
+#### LogP (Lipophilicity)
+
+The partition coefficient **LogP** between **n-octanol** and water is estimated by several independent methods. ADMETShiny exposes the two atomistic fragmental predictors **ALogP** and **WLOGP**, together with **Consensus LogP** that aggregates five distinct methods [@filimonov2014].
+
+At the case to **ALogP** , is calculated with **Development Kit (CDK)**, that's implementation of uses an atomistic fragmental method: every atom is assigned to a typed fragment whose contribution has been regression fitted on a curated training set. The **LogP** is the sum of fragment contributions:
+
+$$ \mathrm{LogP} \;=\; \sum_{i=1}^{N} f_i \times n_i,$$
+
+where ***fi*** is the contribution of fragment type **i** and ***ni*** is the number of occurrences of fragment **i** in the molecule.
+
+#### Topological Polar Surface Area (TPSA) 
+
+The **TPSA** is computed by *Ertl's* fragment based method as the sum of polar atom type surface contributions over 43 predefined atom types:
+
+$$\mathrm{WLOGP} \;=\; \sum_{i=1}^{N} f_i \times n_i,$$
+
+where the count of polar atom type is defined by elements, hybridization, and number of attached hydrogens.
+
+#### Molar Refractivity (MR)
+
+Molar refractivity is related to the refractive index *n*, the molecular weight *MW*, and the density *d* of the pure compound by the Lorenz-Lorentz equation:
+
+$$\mathrm{MR} \;=\; \frac{n^2 - 1}{n^2 + 2} \times \frac{\mathrm{MW}}{d}$$
+
+Because the refractive index and density are not generally available for arbitrary molecules, ADMETShiny uses the Wildman-Crippen fragmental estimator:
+
+$$\mathrm{MR} \;=\; \sum_{i=1}^{N} r_i \times n_i,$$
+
+#### Hydrogen Bond Donors (HBD) 
+
+#### Hydrogen Bond Acceptors (HBA)
+
+#### Rotatable Bonds (RB)
+
+#### Heavy Atoms and Aromatic Heavy Atoms
+
+### Drug-Likeness Filters 
+
+#### Lipinski Rule of Five 
+
+#### Veber Filter 
+
+#### Ghose Filter 
+
+#### Egan Filter 
+
+#### Muegge Filter 
+
+### BOILED-Egg Model 
+
 ### References
