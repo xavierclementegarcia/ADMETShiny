@@ -102,7 +102,7 @@ $$ \mathrm{LogP} \;=\; \sum_{i=1}^{N} f_i \times n_i,$$
 
 where ***fi*** is the contribution of fragment type **i** and ***ni*** is the number of occurrences of fragment **i** in the molecule.
 
-#### Topological Polar Surface Area (TPSA) 
+#### Topological Polar Surface Area (TPSA)
 
 The **TPSA** is computed by *Ertl's* fragment based method as the sum of polar atom type surface contributions over 43 predefined atom types:
 
@@ -120,26 +120,116 @@ Because the refractive index and density are not generally available for arbitra
 
 $$\mathrm{MR} \;=\; \sum_{i=1}^{N} r_i \times n_i,$$
 
-#### Hydrogen Bond Donors (HBD) 
+#### Hydrogen Bond Donors (HBD)
+
+The HBD count is the number of N-H and O-H bonds in the molecule, that's the total number hydrogens bound to a nitrogen or oxygen atom.
+
+$$\mathrm{HBD} \;=\; \sum_{i} (\text{atom}_i \in \{\mathrm{N}, \mathrm{O}\}) \times h_i,$$
 
 #### Hydrogen Bond Acceptors (HBA)
 
+The HBA count is the number of nitrogen and oxygen atoms in the molecule with Lipinski's definition.
+
+$$\mathrm{HBA} \;=\; \sum_{i} (\text{atom}_i \in \{\mathrm{N}, \mathrm{O}\}).$$
+
 #### Rotatable Bonds (RB)
+
+A rotatable bond is any single non-ring non-terminal bond between two non-hydrogen atoms:
+
+$$\mathrm{RB} = \sum_{(i,j)\in E} \mathbb{I}(b_{ij} = 1) \cdot \mathbb{I}(\text{ring}_{ij} = 0) \cdot \mathbb{I}(\deg(i) > 1) \cdot \mathbb{I}(\deg(j) > 1)$$
+
+Where *E* is the bond set, $$b_ij = 1$$ indicates a single bond, $$ ring_ij = 0$$ indicates the bond is not part of a ring, and deg is the heavy-atom degree.
 
 #### Heavy Atoms and Aromatic Heavy Atoms
 
-### Drug-Likeness Filters 
+The heavy-atom count is the total number of non-hydrogen atoms:
 
-#### Lipinski Rule of Five 
+$$\mathrm{HA} = \sum_{i} \mathbb{I}(\text{atom}_i \neq \mathrm{H})$$
 
-#### Veber Filter 
+The heavy-atom count is the total number of non-hydrogen atoms. The aromatic heavy-atom count is the subset of heavy atoms that belong to an aromatic ring:
 
-#### Ghose Filter 
+### Drug-Likeness Filters
 
-#### Egan Filter 
+Each drug-likeness filter is formalized as an indicator function combination. For each rule we define a violation indicator. *V=0* denotes as compound that satisfies the rule, *V=1* a violation.
 
-#### Muegge Filter 
+#### Lipinski Rule of Five
 
-### BOILED-Egg Model 
+The Lipinski violation count is the number of threshold superations over the four canonical physicochemical properties:
+
+$$V_{\mathrm{Lipinski}} = \mathbb{I}(\mathrm{MW} > 500) + \mathbb{I}(\mathrm{LogP} > 5) + \mathbb{I}(\mathrm{HBA} > 10) + \mathbb{I}(\mathrm{HBD} > 5)$$
+
+A compound is considered $$ drug-like$ when $$ V_lipinski = 0$. A single violation $$ (V=1) $$ is still considered acceptable, following Lipinski's original "one violation allowed" convention.
+
+#### Veber Filter
+
+The Veber rule predicts good oral bioavailability from molecular flexibility and polarity. The original Veber criterion uses only $$ RB > 10 $$ and $$ TPSA > 140 $$ branches; ADMETShiny additionally requires the H-bond pair count to exceed 12 in the TPSA based branch, matching the form used by SwissADME [@daina2017].
+
+$$V_{\mathrm{Veber}} = \Ind\Bigl(\mathrm{RB} > 10 \lor \bigl(\mathrm{TPSA} > 140 \land (\mathrm{HBA} + \mathrm{HBD}) > 12\bigr)\Bigr)$$
+
+#### Ghose Filter
+
+The Ghose filter defines a drug-like chemical space by four simultaneous range constraints:
+
+$$\begin{aligned}
+V_{\mathrm{Ghose}} = {} & \mathbf{1}(\mathrm{MW} < 160 \lor \mathrm{MW} > 480) \\
+                        & + \mathbf{1}(\mathrm{MR} < 40 \lor \mathrm{MR} > 130) \\
+                        & + \mathbf{1}(\mathrm{LogP} < -0.4 \lor \mathrm{LogP} > 5.6) \\
+                        & + \mathbf{1}(\mathrm{HA} < 20 \lor \mathrm{HA} > 70)
+\end{aligned}$$
+
+Each of the four properties must lie inside its permissible range for a compound to satisfy the rule.
+
+#### Egan Filter
+
+The Egan filter predicts oral absorption from lipophilicity and polarity alone:
+
+$$V_{\mathrm{Egan}} = \mathbb{I}(\mathrm{TPSA} > 131.6) + \mathbb{I}(\mathrm{LogP} > 5.88)$$
+
+A compound satisfies the Egan rule when both indicators are zero.
+
+#### Muegge Filter
+
+The Muegge "Lead-like" filter adds a pharmacophore points constraint **PP = HBA + HBD.**
+
+$$\def\Ind{\operatorname{Ind}}
+\begin{aligned}
+V_{\mathrm{Muegge}} = {} & \Ind(\mathrm{MW} < 200 \lor \mathrm{MW} > 600) \\
+                         & + \Ind(\mathrm{LogP} < -2 \lor \mathrm{LogP} > 5) \\
+                         & + \Ind(\mathrm{HBA} > 10) \\
+                         & + \Ind(\mathrm{HBD} > 5) \\
+                         & + \Ind(\mathrm{RB} > 15) \\
+                         & + \Ind(\mathrm{TPSA} > 150) \\
+                         & + \Ind(\mathrm{PP} < 4)
+\end{aligned}$$
+
+The last term enforces the presence of at least four pharmacophore points H-bond donor or acceptor atoms, excluding molecules that lack the minimal polar functionality required for specific target recognition.
+
+### BOILED-Egg Model
+
+The BOILED-Egg model classifies small molecules for two ADME endpoints human intestinal absorption (HIA) and blood-brain barrier (BBB) permeation from physicochemical descriptors only: $$TPSA$$ on the x-axis and $$LogP$$ on the y-axis.
+
+A molecule whose point $$(x,y) = (TPSA, LogP) $$ lies inside the HIA ellipse is predicted to be passively absorbed by the gastrointestinal tract; a molecule inside the BBB ellipse "yolk" is predicted to cross the blood-brain barrier.
+
+#### Official WLOGP Polygons
+
+Each ellipse is fully defined by scalar parameters: the two focus points $$ F_1 = (x_1,y_1)$$ and $$ F_2 = (x_2, y_2) $$ and the major axis length. A point $$ P= (x,y)$$ lies inside the ellipse if and only if the sum of its distances to the two foci does not exceed $$d$$:
+
+#### Point in Polygon Test
+
+#### LogP Source selection and trained ellipses
+
+#### Monte-Carlo optimization
+
+#### Validation data and accuracy
+
+### P-glycoprotein Substrate Prediction
+
+#### Random Forest Architecture
+
+#### Training Data, methodology & model performance
+
+### Additional Metrics
+
+#### Composite Drug-Likeness Score
 
 ### References

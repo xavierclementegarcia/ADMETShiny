@@ -423,6 +423,8 @@ window.Quarto = {
   <li><a href="#physicochemical-descriptors" id="toc-physicochemical-descriptors" class="nav-link" data-scroll-target="#physicochemical-descriptors">Physicochemical Descriptors</a></li>
   <li><a href="#drug-likeness-filters" id="toc-drug-likeness-filters" class="nav-link" data-scroll-target="#drug-likeness-filters">Drug-Likeness Filters</a></li>
   <li><a href="#boiled-egg-model" id="toc-boiled-egg-model" class="nav-link" data-scroll-target="#boiled-egg-model">BOILED-Egg Model</a></li>
+  <li><a href="#p-glycoprotein-substrate-prediction" id="toc-p-glycoprotein-substrate-prediction" class="nav-link" data-scroll-target="#p-glycoprotein-substrate-prediction">P-glycoprotein Substrate Prediction</a></li>
+  <li><a href="#additional-metrics" id="toc-additional-metrics" class="nav-link" data-scroll-target="#additional-metrics">Additional Metrics</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 </nav>
@@ -636,37 +638,109 @@ window.Quarto = {
 </section>
 <section id="hydrogen-bond-donors-hbd" class="level4">
 <h4 class="anchored" data-anchor-id="hydrogen-bond-donors-hbd">Hydrogen Bond Donors (HBD)</h4>
+<p>The HBD count is the number of N-H and O-H bonds in the molecule, that’s the total number hydrogens bound to a nitrogen or oxygen atom.</p>
+<p><span class="math display">\[\mathrm{HBD} \;=\; \sum_{i} (\text{atom}_i \in \{\mathrm{N}, \mathrm{O}\}) \times h_i,\]</span></p>
 </section>
 <section id="hydrogen-bond-acceptors-hba" class="level4">
 <h4 class="anchored" data-anchor-id="hydrogen-bond-acceptors-hba">Hydrogen Bond Acceptors (HBA)</h4>
+<p>The HBA count is the number of nitrogen and oxygen atoms in the molecule with Lipinski’s definition.</p>
+<p><span class="math display">\[\mathrm{HBA} \;=\; \sum_{i} (\text{atom}_i \in \{\mathrm{N}, \mathrm{O}\}).\]</span></p>
 </section>
 <section id="rotatable-bonds-rb" class="level4">
 <h4 class="anchored" data-anchor-id="rotatable-bonds-rb">Rotatable Bonds (RB)</h4>
+<p>A rotatable bond is any single non-ring non-terminal bond between two non-hydrogen atoms:</p>
+<p><span class="math display">\[\mathrm{RB} = \sum_{(i,j)\in E} \mathbb{I}(b_{ij} = 1) \cdot \mathbb{I}(\text{ring}_{ij} = 0) \cdot \mathbb{I}(\deg(i) &gt; 1) \cdot \mathbb{I}(\deg(j) &gt; 1)\]</span></p>
+<p>Where <em>E</em> is the bond set, <span class="math display">\[b_ij = 1\]</span> indicates a single bond, <span class="math display">\[ ring_ij = 0\]</span> indicates the bond is not part of a ring, and deg is the heavy-atom degree.</p>
 </section>
 <section id="heavy-atoms-and-aromatic-heavy-atoms" class="level4">
 <h4 class="anchored" data-anchor-id="heavy-atoms-and-aromatic-heavy-atoms">Heavy Atoms and Aromatic Heavy Atoms</h4>
+<p>The heavy-atom count is the total number of non-hydrogen atoms:</p>
+<p><span class="math display">\[\mathrm{HA} = \sum_{i} \mathbb{I}(\text{atom}_i \neq \mathrm{H})\]</span></p>
+<p>The heavy-atom count is the total number of non-hydrogen atoms. The aromatic heavy-atom count is the subset of heavy atoms that belong to an aromatic ring:</p>
 </section>
 </section>
 <section id="drug-likeness-filters" class="level3">
 <h3 class="anchored" data-anchor-id="drug-likeness-filters">Drug-Likeness Filters</h3>
+<p>Each drug-likeness filter is formalized as an indicator function combination. For each rule we define a violation indicator. <em>V=0</em> denotes as compound that satisfies the rule, <em>V=1</em> a violation.</p>
 <section id="lipinski-rule-of-five" class="level4">
 <h4 class="anchored" data-anchor-id="lipinski-rule-of-five">Lipinski Rule of Five</h4>
+<p>The Lipinski violation count is the number of threshold superations over the four canonical physicochemical properties:</p>
+<p><span class="math display">\[V_{\mathrm{Lipinski}} = \mathbb{I}(\mathrm{MW} &gt; 500) + \mathbb{I}(\mathrm{LogP} &gt; 5) + \mathbb{I}(\mathrm{HBA} &gt; 10) + \mathbb{I}(\mathrm{HBD} &gt; 5)\]</span></p>
+<p>A compound is considered <span class="math display">\[ drug-like$ when \]</span> V_lipinski = 0$. A single violation <span class="math display">\[ (V=1) \]</span> is still considered acceptable, following Lipinski’s original “one violation allowed” convention.</p>
 </section>
 <section id="veber-filter" class="level4">
 <h4 class="anchored" data-anchor-id="veber-filter">Veber Filter</h4>
+<p>The Veber rule predicts good oral bioavailability from molecular flexibility and polarity. The original Veber criterion uses only <span class="math display">\[ RB &gt; 10 \]</span> and <span class="math display">\[ TPSA &gt; 140 \]</span> branches; ADMETShiny additionally requires the H-bond pair count to exceed 12 in the TPSA based branch, matching the form used by SwissADME <span class="citation" data-cites="daina2017">(<a href="#ref-daina2017" role="doc-biblioref">Daina et al. 2017</a>)</span>.</p>
+<p><span class="math display">\[V_{\mathrm{Veber}} = \Ind\Bigl(\mathrm{RB} &gt; 10 \lor \bigl(\mathrm{TPSA} &gt; 140 \land (\mathrm{HBA} + \mathrm{HBD}) &gt; 12\bigr)\Bigr)\]</span></p>
 </section>
 <section id="ghose-filter" class="level4">
 <h4 class="anchored" data-anchor-id="ghose-filter">Ghose Filter</h4>
+<p>The Ghose filter defines a drug-like chemical space by four simultaneous range constraints:</p>
+<p><span class="math display">\[\begin{aligned}
+V_{\mathrm{Ghose}} = {} &amp; \mathbf{1}(\mathrm{MW} &lt; 160 \lor \mathrm{MW} &gt; 480) \\
+                        &amp; + \mathbf{1}(\mathrm{MR} &lt; 40 \lor \mathrm{MR} &gt; 130) \\
+                        &amp; + \mathbf{1}(\mathrm{LogP} &lt; -0.4 \lor \mathrm{LogP} &gt; 5.6) \\
+                        &amp; + \mathbf{1}(\mathrm{HA} &lt; 20 \lor \mathrm{HA} &gt; 70)
+\end{aligned}\]</span></p>
+<p>Each of the four properties must lie inside its permissible range for a compound to satisfy the rule.</p>
 </section>
 <section id="egan-filter" class="level4">
 <h4 class="anchored" data-anchor-id="egan-filter">Egan Filter</h4>
+<p>The Egan filter predicts oral absorption from lipophilicity and polarity alone:</p>
+<p><span class="math display">\[V_{\mathrm{Egan}} = \mathbb{I}(\mathrm{TPSA} &gt; 131.6) + \mathbb{I}(\mathrm{LogP} &gt; 5.88)\]</span></p>
+<p>A compound satisfies the Egan rule when both indicators are zero.</p>
 </section>
 <section id="muegge-filter" class="level4">
 <h4 class="anchored" data-anchor-id="muegge-filter">Muegge Filter</h4>
+<p>The Muegge “Lead-like” filter adds a pharmacophore points constraint <strong>PP = HBA + HBD.</strong></p>
+<p><span class="math display">\[\def\Ind{\operatorname{Ind}}
+\begin{aligned}
+V_{\mathrm{Muegge}} = {} &amp; \Ind(\mathrm{MW} &lt; 200 \lor \mathrm{MW} &gt; 600) \\
+                         &amp; + \Ind(\mathrm{LogP} &lt; -2 \lor \mathrm{LogP} &gt; 5) \\
+                         &amp; + \Ind(\mathrm{HBA} &gt; 10) \\
+                         &amp; + \Ind(\mathrm{HBD} &gt; 5) \\
+                         &amp; + \Ind(\mathrm{RB} &gt; 15) \\
+                         &amp; + \Ind(\mathrm{TPSA} &gt; 150) \\
+                         &amp; + \Ind(\mathrm{PP} &lt; 4)
+\end{aligned}\]</span></p>
+<p>The last term enforces the presence of at least four pharmacophore points H-bond donor or acceptor atoms, excluding molecules that lack the minimal polar functionality required for specific target recognition.</p>
 </section>
 </section>
 <section id="boiled-egg-model" class="level3">
 <h3 class="anchored" data-anchor-id="boiled-egg-model">BOILED-Egg Model</h3>
+<p>The BOILED-Egg model classifies small molecules for two ADME endpoints human intestinal absorption (HIA) and blood-brain barrier (BBB) permeation from physicochemical descriptors only: <span class="math display">\[TPSA\]</span> on the x-axis and <span class="math display">\[LogP\]</span> on the y-axis.</p>
+<p>A molecule whose point <span class="math display">\[(x,y) = (TPSA, LogP) \]</span> lies inside the HIA ellipse is predicted to be passively absorbed by the gastrointestinal tract; a molecule inside the BBB ellipse “yolk” is predicted to cross the blood-brain barrier.</p>
+<section id="official-wlogp-polygons" class="level4">
+<h4 class="anchored" data-anchor-id="official-wlogp-polygons">Official WLOGP Polygons</h4>
+<p>Each ellipse is fully defined by scalar parameters: the two focus points <span class="math display">\[ F_1 = (x_1,y_1)\]</span> and <span class="math display">\[ F_2 = (x_2, y_2) \]</span> and the major axis length. A point <span class="math display">\[ P= (x,y)\]</span> lies inside the ellipse if and only if the sum of its distances to the two foci does not exceed <span class="math display">\[d\]</span>:</p>
+</section>
+<section id="point-in-polygon-test" class="level4">
+<h4 class="anchored" data-anchor-id="point-in-polygon-test">Point in Polygon Test</h4>
+</section>
+<section id="logp-source-selection-and-trained-ellipses" class="level4">
+<h4 class="anchored" data-anchor-id="logp-source-selection-and-trained-ellipses">LogP Source selection and trained ellipses</h4>
+</section>
+<section id="monte-carlo-optimization" class="level4">
+<h4 class="anchored" data-anchor-id="monte-carlo-optimization">Monte-Carlo optimization</h4>
+</section>
+<section id="validation-data-and-accuracy" class="level4">
+<h4 class="anchored" data-anchor-id="validation-data-and-accuracy">Validation data and accuracy</h4>
+</section>
+</section>
+<section id="p-glycoprotein-substrate-prediction" class="level3">
+<h3 class="anchored" data-anchor-id="p-glycoprotein-substrate-prediction">P-glycoprotein Substrate Prediction</h3>
+<section id="random-forest-architecture" class="level4">
+<h4 class="anchored" data-anchor-id="random-forest-architecture">Random Forest Architecture</h4>
+</section>
+<section id="training-data-methodology-model-performance" class="level4">
+<h4 class="anchored" data-anchor-id="training-data-methodology-model-performance">Training Data, methodology &amp; model performance</h4>
+</section>
+</section>
+<section id="additional-metrics" class="level3">
+<h3 class="anchored" data-anchor-id="additional-metrics">Additional Metrics</h3>
+<section id="composite-drug-likeness-score" class="level4">
+<h4 class="anchored" data-anchor-id="composite-drug-likeness-score">Composite Drug-Likeness Score</h4>
+</section>
 </section>
 <section id="references" class="level3">
 
@@ -676,6 +750,9 @@ window.Quarto = {
 </section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-daina2017" class="csl-entry" role="listitem">
+Daina, Antoine, Olivier Michielin, and Vincent Zoete. 2017. <span>“SwissADME: A Free Web Tool to Evaluate Pharmacokinetics, Drug-Likeness and Medicinal Chemistry Friendliness of Small Molecules.”</span> <em>Scientific Reports</em> 7 (1): 42717. <a href="https://doi.org/10.1038/srep42717">https://doi.org/10.1038/srep42717</a>.
+</div>
 <div id="ref-daina2016a" class="csl-entry" role="listitem">
 Daina, Antoine, and Vincent Zoete. 2016. <span>“A BOILED<span>-</span>Egg to Predict Gastrointestinal Absorption and Brain Penetration of Small Molecules.”</span> <em>Chemmedchem</em> 11 (11): 1117–21. <a href="https://doi.org/10.1002/cmdc.201600182">https://doi.org/10.1002/cmdc.201600182</a>.
 </div>
