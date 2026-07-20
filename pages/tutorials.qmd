@@ -100,8 +100,6 @@ At the case to **ALogP** , is calculated with **Development Kit (CDK)**, that's 
 
 $$ \mathrm{LogP} \;=\; \sum_{i=1}^{N} f_i \times n_i,$$
 
-where ***fi*** is the contribution of fragment type **i** and ***ni*** is the number of occurrences of fragment **i** in the molecule.
-
 #### Topological Polar Surface Area (TPSA)
 
 The **TPSA** is computed by *Ertl's* fragment based method as the sum of polar atom type surface contributions over 43 predefined atom types:
@@ -138,8 +136,6 @@ A rotatable bond is any single non-ring non-terminal bond between two non-hydrog
 
 $$\mathrm{RB} = \sum_{(i,j)\in E} \mathbb{I}(b_{ij} = 1) \cdot \mathbb{I}(\text{ring}_{ij} = 0) \cdot \mathbb{I}(\deg(i) > 1) \cdot \mathbb{I}(\deg(j) > 1)$$
 
-Where *E* is the bond set, $$b_ij = 1$$ indicates a single bond, $$ ring_ij = 0$$ indicates the bond is not part of a ring, and deg is the heavy-atom degree.
-
 #### Heavy Atoms and Aromatic Heavy Atoms
 
 The heavy-atom count is the total number of non-hydrogen atoms:
@@ -158,11 +154,11 @@ The Lipinski violation count is the number of threshold superations over the fou
 
 $$V_{\mathrm{Lipinski}} = \mathbb{I}(\mathrm{MW} > 500) + \mathbb{I}(\mathrm{LogP} > 5) + \mathbb{I}(\mathrm{HBA} > 10) + \mathbb{I}(\mathrm{HBD} > 5)$$
 
-A compound is considered $$ drug-like$ when $$ V_lipinski = 0$. A single violation $$ (V=1) $$ is still considered acceptable, following Lipinski's original "one violation allowed" convention.
+A compound is considered drug-like when Vlipinski = 0. A single violation (V=1) is still considered acceptable, following Lipinski's original "one violation allowed" convention.
 
 #### Veber Filter
 
-The Veber rule predicts good oral bioavailability from molecular flexibility and polarity. The original Veber criterion uses only $$ RB > 10 $$ and $$ TPSA > 140 $$ branches; ADMETShiny additionally requires the H-bond pair count to exceed 12 in the TPSA based branch, matching the form used by SwissADME [@daina2017].
+The Veber rule predicts good oral bioavailability from molecular flexibility and polarity. The original Veber criterion uses only RB \> 10 and TPSA \> 140 branches; ADMETShiny additionally requires the H-bond pair count to exceed 12 in the TPSA based branch, matching the form used by SwissADME [@daina2017].
 
 $$V_{\mathrm{Veber}} = \Ind\Bigl(\mathrm{RB} > 10 \lor \bigl(\mathrm{TPSA} > 140 \land (\mathrm{HBA} + \mathrm{HBD}) > 12\bigr)\Bigr)$$
 
@@ -212,24 +208,132 @@ A molecule whose point $$(x,y) = (TPSA, LogP) $$ lies inside the HIA ellipse is 
 
 #### Official WLOGP Polygons
 
-Each ellipse is fully defined by scalar parameters: the two focus points $$ F_1 = (x_1,y_1)$$ and $$ F_2 = (x_2, y_2) $$ and the major axis length. A point $$ P= (x,y)$$ lies inside the ellipse if and only if the sum of its distances to the two foci does not exceed $$d$$:
+Each ellipse is fully defined by scalar parameters: the two focus points $$ F_1 = (x_1,y_1)$$ and $$ F_2 = (x_2, y_2) $$ and the major axis length. A point $$ P= (x,y)$$ lies inside the ellipse if and only if the sum of its distances to the two points does not exceed d:
 
-#### Point in Polygon Test
+$$d(P, F_1) + d(P, F_2) \;\leq\; d,$$
+
+where the Euclidean point to focus distances are:
+
+$$\begin{aligned}
+d(P, F_1) &= \sqrt{(x - x_1)^2 + (y - y_1)^2} \\
+d(P, F_2) &= \sqrt{(x - x_2)^2 + (y - y_2)^2}
+\end{aligned}$$
+ {#eq-distancias}
+
+The constants defining the official WLOGP ellipses for HIA+ and BBB+ are calibrated on the SwissADME training set [@daina2016; @daina2017]. We had use this when WLOGP are available for ADMETShiny.
+
+#### Point in Polygon Test approximation
+
+For runtime classification, the analytical ellipse is discrete into a closed polygon of *n* boundary points. The query point *P* is then decided by the ray-casting algorithm as a horizontal ray is cast from *P* in the +x direction axis, and the number of polygon edges crossed by the ray is counted. The parity of the count gives the classification:
+
+$$\mathrm{inside}(P) = \left( \sum_{e \in E_{\mathrm{poly}}} \mathbb{I}(\text{ray crosses } e) \right) \bmod 2,$$
+
+That definition in the practice in ADMETShiny delegate this test to `sp::point.in.polygon()` when available, with the ray-casting formulation above as a pure R fallback.
 
 #### LogP Source selection and trained ellipses
 
+Because the official ellipses were calibrated against WLOGP, their application to data produced with a different LogP estimator can produce systematic misclassification. ADMETShiny therefore selects the polygon set as a function of the user-supplied LogP source:
+
+$$\mathrm{polygons} =
+\begin{cases}
+\text{WLOGP official} & \text{if } \texttt{logp\_source} = \text{"WLOGP"}, \\
+\text{ALogP-trained}  & \text{otherwise}.
+\end{cases}$$ {#eq-be-sel}
+
+When the input data contain ALogP but no WLOGP, ADMETShiny uses ALogP trained polygons. These polygons are re-derived by ADMETShiny following the Monte-Carlo optimization protocol using a CDK training set of 439 molecules [@daina2016].
+
 #### Monte-Carlo optimization
+
+We have considered the Daina & Zoete methodology for this optimization. This is performed in the normalized *(TPSA, ALogP)* space. Normalization uses the empirical mean and standard deviation of the training set.
+
+$$\begin{aligned}
+x' &= \frac{x - \mu_x}{\sigma_x} & y' &= \frac{y - \mu_y}{\sigma_y}
+\end{aligned}$$
+
+Each ellipse is parameterized by a five-dimensional vectors. The optimization maximizes a regularized with Matthews Correlation Coefficient:
+
+$$\mathrm{Score} = \mathrm{MCC} - 0.05 \times S$$ The MCC itself is the standard balanced classification metric,
+
+$$\mathrm{MCC} = \frac{\mathrm{TP} \times \mathrm{TN} - \mathrm{FP} \times \mathrm{FN}}{\sqrt{(\mathrm{TP}+\mathrm{FP})(\mathrm{TP}+\mathrm{FN})(\mathrm{TN}+\mathrm{FP})(\mathrm{TN}+\mathrm{FN})}}$$ {#eq-mcc-definition}
 
 #### Validation data and accuracy
 
-### P-glycoprotein Substrate Prediction
+The re-trained ALogP ellipses were validated against the CDK training set of 439 molecules. The classification performance is summarized in the next table:
 
-#### Random Forest Architecture
+| Model |  MCC  | Accuracy | TP  | FN  | FP  | TN  |
+|:-----:|:-----:|:--------:|:---:|:---:|:---:|:---:|
+|  HIA  | 0.986 |  99.5%   | 348 |  2  |  0  | 89  |
+|  BBB  | 0.977 |  98.9%   | 230 |  5  |  0  | 204 |
+
+The HIA ellipse correctly classifies 348 of 350 absorbed molecules and all 89 non absorbed molecules. The BBB ellipse correctly classifies 230 of 235 permeant molecules and all 204 non permeant molecules. Both ellipses achieve zero false positives, which is desirable for a screening tool where over prediction of absorption & permeation would generate costly false leads.
+
+### P-glycoprotein Substrate Prediction & Random Forest Architecture
+
+P-glycoprotein (P-gp, ABCB1) substrate status is predicted by a Random Forest of *K= 100* binary decision trees. Each tree is trained independently on a bootstrap sample of the training set; at each internal node, the split is chosen over a random subset of features. Each leaf node stores the fraction of training set samples in that leaf that are P-gp substrates:
+
+$$P(\mathbf{x}) = \dfrac{\#\{\text{substrates in leaf reached by } \mathbf{x}\}}{\#\{\text{samples in leaf reached by } \mathbf{x}\}}$$ {#eq-leaf-probability-expanded}
+
+The final binary classification applies a threshold of 0.5 to the averaged probability:
+
+$$\text{P-gp substrate} =
+\begin{cases}
+\text{"Yes"} & \text{if } P(\text{substrate} \mid \mathbf{x}) \ge 0.5, \\
+\text{"No"}  & \text{otherwise}.
+\end{cases}$$ {#eq-pgp-classify}
 
 #### Training Data, methodology & model performance
+
+The model was trained on 882 experimental P-gp (ABCB1) compounds extracted from Metrabase. The class distribution is 474 substrates (positive class) and 408 non-substrates (negative class). The nine physicochemical descriptors of equation are used as features. Their means and standard deviations in the training set are listed in the next table.
+
+|   Descriptor   |  Mean  |   SD   |
+|:--------------:|:------:|:------:|
+|       MW       | 426.05 | 168.47 |
+|      LogP      |  3.28  |  2.22  |
+|      TPSA      | 89.63  | 59.68  |
+|      HBD       |  1.91  |  1.83  |
+|      HBA       |  5.71  |  3.65  |
+|       RB       |  5.72  |  4.54  |
+|  Heavy Atoms   | 30.28  | 12.06  |
+| Aromatic Atoms | 11.17  |  7.52  |
+|       MR       | 115.31 | 43.87  |
+
+The model performance was evaluated by five fold stratified cross validation.
+
+| Metric      | Random Forest | SD    |
+|-------------|---------------|-------|
+| Accuracy    | 0.694         | 0.025 |
+| MCC         | 0.383         | 0.050 |
+| Sensitivity | 0.700         | \-    |
+| Specificity | 0.591         | \-    |
+
+: P-gp substrate prediction: 5-fold stratified cross validation performance
 
 ### Additional Metrics
 
 #### Composite Drug-Likeness Score
 
-### References
+ADMETShiny combines the available drug-likeness filters into a single composite score. For a compound evaluated against *n* rules, the score is the percentage of rules with zero violations:
+
+$$\mathrm{Score} = \frac{1}{n_{\mathrm{rules}}} \sum_{i=1}^{n_{\mathrm{rules}}} \mathbf{1}(V_i = 0) \times 100$$ {#eq-compliance-score}
+
+The score is discreted into three bands:
+
+- **Excellent** — $\mathrm{Score} \ge 80$.
+- **Acceptable** — $60 \le \mathrm{Score} < 80$.
+- **Poor** — $\mathrm{Score} < 60$.
+
+### Column Mapping System (ADMET Master Manager) 
+
+The ADMET Master module accepts arbitrary CSV or Excel inputs whose columns names may differ from the canonical ADMETShiny schema. The function `mapADMETColumns` takes a user supplied mapping vector **m** that maps each canonical name to the corresponding source column name, and applies a deterministic column rename:
+
+$$\mathrm{data}_{\mathrm{standard}} = \operatorname{rename}(\mathrm{data}_{\mathrm{raw}}, \mathbf{m})$$ {#eq-data-normalization}
+
+After column mapping, ADMET Master converts numerical endpoint predictions into the categorical labels used by the visualization modules. For the HIA endpoint, the conversion is:
+
+$$\text{GI absorption} =
+\begin{cases}
+\text{"High"} & \text{if } p_{\mathrm{HIA}} \ge 0.5, \\
+\text{"Low"}  & \text{if } p_{\mathrm{HIA}} < 0.5.
+\end{cases}$$ {#eq-map-hia}
+
+#### References

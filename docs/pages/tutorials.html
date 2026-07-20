@@ -423,9 +423,9 @@ window.Quarto = {
   <li><a href="#physicochemical-descriptors" id="toc-physicochemical-descriptors" class="nav-link" data-scroll-target="#physicochemical-descriptors">Physicochemical Descriptors</a></li>
   <li><a href="#drug-likeness-filters" id="toc-drug-likeness-filters" class="nav-link" data-scroll-target="#drug-likeness-filters">Drug-Likeness Filters</a></li>
   <li><a href="#boiled-egg-model" id="toc-boiled-egg-model" class="nav-link" data-scroll-target="#boiled-egg-model">BOILED-Egg Model</a></li>
-  <li><a href="#p-glycoprotein-substrate-prediction" id="toc-p-glycoprotein-substrate-prediction" class="nav-link" data-scroll-target="#p-glycoprotein-substrate-prediction">P-glycoprotein Substrate Prediction</a></li>
+  <li><a href="#p-glycoprotein-substrate-prediction-random-forest-architecture" id="toc-p-glycoprotein-substrate-prediction-random-forest-architecture" class="nav-link" data-scroll-target="#p-glycoprotein-substrate-prediction-random-forest-architecture">P-glycoprotein Substrate Prediction &amp; Random Forest Architecture</a></li>
   <li><a href="#additional-metrics" id="toc-additional-metrics" class="nav-link" data-scroll-target="#additional-metrics">Additional Metrics</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  <li><a href="#column-mapping-system-admet-master-manager" id="toc-column-mapping-system-admet-master-manager" class="nav-link" data-scroll-target="#column-mapping-system-admet-master-manager">Column Mapping System (ADMET Master Manager)</a></li>
   </ul>
 </nav>
     </div>
@@ -592,7 +592,7 @@ window.Quarto = {
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a> data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ol start="4" type="1">
 <li><strong>Optional CDK calculation for missing descriptors:</strong> When the function <code>calculate_cdk = TRUE</code>, and a CanonicalSMILES column exists, the function computes the set of missing standard descriptors via <code>setdiff()</code>, MAPS each to its CDK short code. <strong>For more information about to this function, you could read the technical documentation.</strong></li>
-<li><strong>WLOGP/LogP precedence logic:</strong> WLOGP is the BOILED-Egg’s original calibration axis <span class="citation" data-cites="daina2016a">(<a href="#ref-daina2016a" role="doc-biblioref">Daina and Zoete 2016</a>)</span>. When the user has explicitly mapped a column to WLOGP but has not mapped another column to LogP, the generic LogP column is silently set to the WLOGP values:</li>
+<li><strong>WLOGP/LogP precedence logic:</strong> WLOGP is the BOILED-Egg’s original calibration axis <span class="citation" data-cites="daina2016a">(<a href="#ref-daina2016a" role="doc-biblioref">Daina and Zoete 2016a</a>)</span>. When the user has explicitly mapped a column to WLOGP but has not mapped another column to LogP, the generic LogP column is silently set to the WLOGP values:</li>
 </ol>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">## ----- 5. If WLOGP present and LogP not mapped, set LogP = WLOGP -----</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="do">## WLOGP is preferred for BOILED-Egg (official calibration), but only</span></span>
@@ -621,7 +621,6 @@ window.Quarto = {
 <p>The partition coefficient <strong>LogP</strong> between <strong>n-octanol</strong> and water is estimated by several independent methods. ADMETShiny exposes the two atomistic fragmental predictors <strong>ALogP</strong> and <strong>WLOGP</strong>, together with <strong>Consensus LogP</strong> that aggregates five distinct methods <span class="citation" data-cites="filimonov2014">(<a href="#ref-filimonov2014" role="doc-biblioref">Filimonov et al. 2014</a>)</span>.</p>
 <p>At the case to <strong>ALogP</strong> , is calculated with <strong>Development Kit (CDK)</strong>, that’s implementation of uses an atomistic fragmental method: every atom is assigned to a typed fragment whose contribution has been regression fitted on a curated training set. The <strong>LogP</strong> is the sum of fragment contributions:</p>
 <p><span class="math display">\[ \mathrm{LogP} \;=\; \sum_{i=1}^{N} f_i \times n_i,\]</span></p>
-<p>where <strong><em>fi</em></strong> is the contribution of fragment type <strong>i</strong> and <strong><em>ni</em></strong> is the number of occurrences of fragment <strong>i</strong> in the molecule.</p>
 </section>
 <section id="topological-polar-surface-area-tpsa" class="level4">
 <h4 class="anchored" data-anchor-id="topological-polar-surface-area-tpsa">Topological Polar Surface Area (TPSA)</h4>
@@ -650,7 +649,6 @@ window.Quarto = {
 <h4 class="anchored" data-anchor-id="rotatable-bonds-rb">Rotatable Bonds (RB)</h4>
 <p>A rotatable bond is any single non-ring non-terminal bond between two non-hydrogen atoms:</p>
 <p><span class="math display">\[\mathrm{RB} = \sum_{(i,j)\in E} \mathbb{I}(b_{ij} = 1) \cdot \mathbb{I}(\text{ring}_{ij} = 0) \cdot \mathbb{I}(\deg(i) &gt; 1) \cdot \mathbb{I}(\deg(j) &gt; 1)\]</span></p>
-<p>Where <em>E</em> is the bond set, <span class="math display">\[b_ij = 1\]</span> indicates a single bond, <span class="math display">\[ ring_ij = 0\]</span> indicates the bond is not part of a ring, and deg is the heavy-atom degree.</p>
 </section>
 <section id="heavy-atoms-and-aromatic-heavy-atoms" class="level4">
 <h4 class="anchored" data-anchor-id="heavy-atoms-and-aromatic-heavy-atoms">Heavy Atoms and Aromatic Heavy Atoms</h4>
@@ -666,11 +664,11 @@ window.Quarto = {
 <h4 class="anchored" data-anchor-id="lipinski-rule-of-five">Lipinski Rule of Five</h4>
 <p>The Lipinski violation count is the number of threshold superations over the four canonical physicochemical properties:</p>
 <p><span class="math display">\[V_{\mathrm{Lipinski}} = \mathbb{I}(\mathrm{MW} &gt; 500) + \mathbb{I}(\mathrm{LogP} &gt; 5) + \mathbb{I}(\mathrm{HBA} &gt; 10) + \mathbb{I}(\mathrm{HBD} &gt; 5)\]</span></p>
-<p>A compound is considered <span class="math display">\[ drug-like$ when \]</span> V_lipinski = 0$. A single violation <span class="math display">\[ (V=1) \]</span> is still considered acceptable, following Lipinski’s original “one violation allowed” convention.</p>
+<p>A compound is considered drug-like when Vlipinski = 0. A single violation (V=1) is still considered acceptable, following Lipinski’s original “one violation allowed” convention.</p>
 </section>
 <section id="veber-filter" class="level4">
 <h4 class="anchored" data-anchor-id="veber-filter">Veber Filter</h4>
-<p>The Veber rule predicts good oral bioavailability from molecular flexibility and polarity. The original Veber criterion uses only <span class="math display">\[ RB &gt; 10 \]</span> and <span class="math display">\[ TPSA &gt; 140 \]</span> branches; ADMETShiny additionally requires the H-bond pair count to exceed 12 in the TPSA based branch, matching the form used by SwissADME <span class="citation" data-cites="daina2017">(<a href="#ref-daina2017" role="doc-biblioref">Daina et al. 2017</a>)</span>.</p>
+<p>The Veber rule predicts good oral bioavailability from molecular flexibility and polarity. The original Veber criterion uses only RB &gt; 10 and TPSA &gt; 140 branches; ADMETShiny additionally requires the H-bond pair count to exceed 12 in the TPSA based branch, matching the form used by SwissADME <span class="citation" data-cites="daina2017">(<a href="#ref-daina2017" role="doc-biblioref">Daina et al. 2017</a>)</span>.</p>
 <p><span class="math display">\[V_{\mathrm{Veber}} = \Ind\Bigl(\mathrm{RB} &gt; 10 \lor \bigl(\mathrm{TPSA} &gt; 140 \land (\mathrm{HBA} + \mathrm{HBD}) &gt; 12\bigr)\Bigr)\]</span></p>
 </section>
 <section id="ghose-filter" class="level4">
@@ -712,49 +710,225 @@ V_{\mathrm{Muegge}} = {} &amp; \Ind(\mathrm{MW} &lt; 200 \lor \mathrm{MW} &gt; 6
 <p>A molecule whose point <span class="math display">\[(x,y) = (TPSA, LogP) \]</span> lies inside the HIA ellipse is predicted to be passively absorbed by the gastrointestinal tract; a molecule inside the BBB ellipse “yolk” is predicted to cross the blood-brain barrier.</p>
 <section id="official-wlogp-polygons" class="level4">
 <h4 class="anchored" data-anchor-id="official-wlogp-polygons">Official WLOGP Polygons</h4>
-<p>Each ellipse is fully defined by scalar parameters: the two focus points <span class="math display">\[ F_1 = (x_1,y_1)\]</span> and <span class="math display">\[ F_2 = (x_2, y_2) \]</span> and the major axis length. A point <span class="math display">\[ P= (x,y)\]</span> lies inside the ellipse if and only if the sum of its distances to the two foci does not exceed <span class="math display">\[d\]</span>:</p>
+<p>Each ellipse is fully defined by scalar parameters: the two focus points <span class="math display">\[ F_1 = (x_1,y_1)\]</span> and <span class="math display">\[ F_2 = (x_2, y_2) \]</span> and the major axis length. A point <span class="math display">\[ P= (x,y)\]</span> lies inside the ellipse if and only if the sum of its distances to the two points does not exceed d:</p>
+<p><span class="math display">\[d(P, F_1) + d(P, F_2) \;\leq\; d,\]</span></p>
+<p>where the Euclidean point to focus distances are:</p>
+<p><span class="math display">\[\begin{aligned}
+d(P, F_1) &amp;= \sqrt{(x - x_1)^2 + (y - y_1)^2} \\
+d(P, F_2) &amp;= \sqrt{(x - x_2)^2 + (y - y_2)^2}
+\end{aligned}\]</span> {#eq-distancias}</p>
+<p>The constants defining the official WLOGP ellipses for HIA+ and BBB+ are calibrated on the SwissADME training set <span class="citation" data-cites="daina2016 daina2017">(<a href="#ref-daina2016" role="doc-biblioref">Daina and Zoete 2016b</a>; <a href="#ref-daina2017" role="doc-biblioref">Daina et al. 2017</a>)</span>. We had use this when WLOGP are available for ADMETShiny.</p>
 </section>
-<section id="point-in-polygon-test" class="level4">
-<h4 class="anchored" data-anchor-id="point-in-polygon-test">Point in Polygon Test</h4>
+<section id="point-in-polygon-test-approximation" class="level4">
+<h4 class="anchored" data-anchor-id="point-in-polygon-test-approximation">Point in Polygon Test approximation</h4>
+<p>For runtime classification, the analytical ellipse is discrete into a closed polygon of <em>n</em> boundary points. The query point <em>P</em> is then decided by the ray-casting algorithm as a horizontal ray is cast from <em>P</em> in the +x direction axis, and the number of polygon edges crossed by the ray is counted. The parity of the count gives the classification:</p>
+<p><span class="math display">\[\mathrm{inside}(P) = \left( \sum_{e \in E_{\mathrm{poly}}} \mathbb{I}(\text{ray crosses } e) \right) \bmod 2,\]</span></p>
+<p>That definition in the practice in ADMETShiny delegate this test to <code>sp::point.in.polygon()</code> when available, with the ray-casting formulation above as a pure R fallback.</p>
 </section>
 <section id="logp-source-selection-and-trained-ellipses" class="level4">
 <h4 class="anchored" data-anchor-id="logp-source-selection-and-trained-ellipses">LogP Source selection and trained ellipses</h4>
+<p>Because the official ellipses were calibrated against WLOGP, their application to data produced with a different LogP estimator can produce systematic misclassification. ADMETShiny therefore selects the polygon set as a function of the user-supplied LogP source:</p>
+<p><span id="eq-be-sel"><span class="math display">\[\mathrm{polygons} =
+\begin{cases}
+\text{WLOGP official} &amp; \text{if } \texttt{logp\_source} = \text{"WLOGP"}, \\
+\text{ALogP-trained}  &amp; \text{otherwise}.
+\end{cases} \tag{1}\]</span></span></p>
+<p>When the input data contain ALogP but no WLOGP, ADMETShiny uses ALogP trained polygons. These polygons are re-derived by ADMETShiny following the Monte-Carlo optimization protocol using a CDK training set of 439 molecules <span class="citation" data-cites="daina2016">(<a href="#ref-daina2016" role="doc-biblioref">Daina and Zoete 2016b</a>)</span>.</p>
 </section>
 <section id="monte-carlo-optimization" class="level4">
 <h4 class="anchored" data-anchor-id="monte-carlo-optimization">Monte-Carlo optimization</h4>
+<p>We have considered the Daina &amp; Zoete methodology for this optimization. This is performed in the normalized <em>(TPSA, ALogP)</em> space. Normalization uses the empirical mean and standard deviation of the training set.</p>
+<p><span class="math display">\[\begin{aligned}
+x' &amp;= \frac{x - \mu_x}{\sigma_x} &amp; y' &amp;= \frac{y - \mu_y}{\sigma_y}
+\end{aligned}\]</span></p>
+<p>Each ellipse is parameterized by a five-dimensional vectors. The optimization maximizes a regularized with Matthews Correlation Coefficient:</p>
+<p><span class="math display">\[\mathrm{Score} = \mathrm{MCC} - 0.05 \times S\]</span> The MCC itself is the standard balanced classification metric,</p>
+<p><span id="eq-mcc-definition"><span class="math display">\[\mathrm{MCC} = \frac{\mathrm{TP} \times \mathrm{TN} - \mathrm{FP} \times \mathrm{FN}}{\sqrt{(\mathrm{TP}+\mathrm{FP})(\mathrm{TP}+\mathrm{FN})(\mathrm{TN}+\mathrm{FP})(\mathrm{TN}+\mathrm{FN})}} \tag{2}\]</span></span></p>
 </section>
 <section id="validation-data-and-accuracy" class="level4">
 <h4 class="anchored" data-anchor-id="validation-data-and-accuracy">Validation data and accuracy</h4>
+<p>The re-trained ALogP ellipses were validated against the CDK training set of 439 molecules. The classification performance is summarized in the next table:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Model</th>
+<th style="text-align: center;">MCC</th>
+<th style="text-align: center;">Accuracy</th>
+<th style="text-align: center;">TP</th>
+<th style="text-align: center;">FN</th>
+<th style="text-align: center;">FP</th>
+<th style="text-align: center;">TN</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">HIA</td>
+<td style="text-align: center;">0.986</td>
+<td style="text-align: center;">99.5%</td>
+<td style="text-align: center;">348</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">89</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">BBB</td>
+<td style="text-align: center;">0.977</td>
+<td style="text-align: center;">98.9%</td>
+<td style="text-align: center;">230</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">204</td>
+</tr>
+</tbody>
+</table>
+<p>The HIA ellipse correctly classifies 348 of 350 absorbed molecules and all 89 non absorbed molecules. The BBB ellipse correctly classifies 230 of 235 permeant molecules and all 204 non permeant molecules. Both ellipses achieve zero false positives, which is desirable for a screening tool where over prediction of absorption &amp; permeation would generate costly false leads.</p>
 </section>
 </section>
-<section id="p-glycoprotein-substrate-prediction" class="level3">
-<h3 class="anchored" data-anchor-id="p-glycoprotein-substrate-prediction">P-glycoprotein Substrate Prediction</h3>
-<section id="random-forest-architecture" class="level4">
-<h4 class="anchored" data-anchor-id="random-forest-architecture">Random Forest Architecture</h4>
-</section>
+<section id="p-glycoprotein-substrate-prediction-random-forest-architecture" class="level3">
+<h3 class="anchored" data-anchor-id="p-glycoprotein-substrate-prediction-random-forest-architecture">P-glycoprotein Substrate Prediction &amp; Random Forest Architecture</h3>
+<p>P-glycoprotein (P-gp, ABCB1) substrate status is predicted by a Random Forest of <em>K= 100</em> binary decision trees. Each tree is trained independently on a bootstrap sample of the training set; at each internal node, the split is chosen over a random subset of features. Each leaf node stores the fraction of training set samples in that leaf that are P-gp substrates:</p>
+<p><span id="eq-leaf-probability-expanded"><span class="math display">\[P(\mathbf{x}) = \dfrac{\#\{\text{substrates in leaf reached by } \mathbf{x}\}}{\#\{\text{samples in leaf reached by } \mathbf{x}\}} \tag{3}\]</span></span></p>
+<p>The final binary classification applies a threshold of 0.5 to the averaged probability:</p>
+<p><span id="eq-pgp-classify"><span class="math display">\[\text{P-gp substrate} =
+\begin{cases}
+\text{"Yes"} &amp; \text{if } P(\text{substrate} \mid \mathbf{x}) \ge 0.5, \\
+\text{"No"}  &amp; \text{otherwise}.
+\end{cases} \tag{4}\]</span></span></p>
 <section id="training-data-methodology-model-performance" class="level4">
 <h4 class="anchored" data-anchor-id="training-data-methodology-model-performance">Training Data, methodology &amp; model performance</h4>
+<p>The model was trained on 882 experimental P-gp (ABCB1) compounds extracted from Metrabase. The class distribution is 474 substrates (positive class) and 408 non-substrates (negative class). The nine physicochemical descriptors of equation are used as features. Their means and standard deviations in the training set are listed in the next table.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Descriptor</th>
+<th style="text-align: center;">Mean</th>
+<th style="text-align: center;">SD</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">MW</td>
+<td style="text-align: center;">426.05</td>
+<td style="text-align: center;">168.47</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">LogP</td>
+<td style="text-align: center;">3.28</td>
+<td style="text-align: center;">2.22</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">TPSA</td>
+<td style="text-align: center;">89.63</td>
+<td style="text-align: center;">59.68</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">HBD</td>
+<td style="text-align: center;">1.91</td>
+<td style="text-align: center;">1.83</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">HBA</td>
+<td style="text-align: center;">5.71</td>
+<td style="text-align: center;">3.65</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">RB</td>
+<td style="text-align: center;">5.72</td>
+<td style="text-align: center;">4.54</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Heavy Atoms</td>
+<td style="text-align: center;">30.28</td>
+<td style="text-align: center;">12.06</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Aromatic Atoms</td>
+<td style="text-align: center;">11.17</td>
+<td style="text-align: center;">7.52</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">MR</td>
+<td style="text-align: center;">115.31</td>
+<td style="text-align: center;">43.87</td>
+</tr>
+</tbody>
+</table>
+<p>The model performance was evaluated by five fold stratified cross validation.</p>
+<table class="caption-top table">
+<caption>P-gp substrate prediction: 5-fold stratified cross validation performance</caption>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Random Forest</th>
+<th>SD</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Accuracy</td>
+<td>0.694</td>
+<td>0.025</td>
+</tr>
+<tr class="even">
+<td>MCC</td>
+<td>0.383</td>
+<td>0.050</td>
+</tr>
+<tr class="odd">
+<td>Sensitivity</td>
+<td>0.700</td>
+<td>-</td>
+</tr>
+<tr class="even">
+<td>Specificity</td>
+<td>0.591</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
 </section>
 </section>
 <section id="additional-metrics" class="level3">
 <h3 class="anchored" data-anchor-id="additional-metrics">Additional Metrics</h3>
 <section id="composite-drug-likeness-score" class="level4">
 <h4 class="anchored" data-anchor-id="composite-drug-likeness-score">Composite Drug-Likeness Score</h4>
+<p>ADMETShiny combines the available drug-likeness filters into a single composite score. For a compound evaluated against <em>n</em> rules, the score is the percentage of rules with zero violations:</p>
+<p><span id="eq-compliance-score"><span class="math display">\[\mathrm{Score} = \frac{1}{n_{\mathrm{rules}}} \sum_{i=1}^{n_{\mathrm{rules}}} \mathbf{1}(V_i = 0) \times 100 \tag{5}\]</span></span></p>
+<p>The score is discreted into three bands:</p>
+<ul>
+<li><strong>Excellent</strong> — <span class="math inline">\(\mathrm{Score} \ge 80\)</span>.</li>
+<li><strong>Acceptable</strong> — <span class="math inline">\(60 \le \mathrm{Score} &lt; 80\)</span>.</li>
+<li><strong>Poor</strong> — <span class="math inline">\(\mathrm{Score} &lt; 60\)</span>.</li>
+</ul>
 </section>
 </section>
-<section id="references" class="level3">
+<section id="column-mapping-system-admet-master-manager" class="level3">
+<h3 class="anchored" data-anchor-id="column-mapping-system-admet-master-manager">Column Mapping System (ADMET Master Manager)</h3>
+<p>The ADMET Master module accepts arbitrary CSV or Excel inputs whose columns names may differ from the canonical ADMETShiny schema. The function <code>mapADMETColumns</code> takes a user supplied mapping vector <strong>m</strong> that maps each canonical name to the corresponding source column name, and applies a deterministic column rename:</p>
+<p><span id="eq-data-normalization"><span class="math display">\[\mathrm{data}_{\mathrm{standard}} = \operatorname{rename}(\mathrm{data}_{\mathrm{raw}}, \mathbf{m}) \tag{6}\]</span></span></p>
+<p>After column mapping, ADMET Master converts numerical endpoint predictions into the categorical labels used by the visualization modules. For the HIA endpoint, the conversion is:</p>
+<p><span id="eq-map-hia"><span class="math display">\[\text{GI absorption} =
+\begin{cases}
+\text{"High"} &amp; \text{if } p_{\mathrm{HIA}} \ge 0.5, \\
+\text{"Low"}  &amp; \text{if } p_{\mathrm{HIA}} &lt; 0.5.
+\end{cases} \tag{7}\]</span></span></p>
+<section id="references" class="level4">
 
 
 
 
+</section>
 </section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-daina2017" class="csl-entry" role="listitem">
 Daina, Antoine, Olivier Michielin, and Vincent Zoete. 2017. <span>“SwissADME: A Free Web Tool to Evaluate Pharmacokinetics, Drug-Likeness and Medicinal Chemistry Friendliness of Small Molecules.”</span> <em>Scientific Reports</em> 7 (1): 42717. <a href="https://doi.org/10.1038/srep42717">https://doi.org/10.1038/srep42717</a>.
 </div>
+<div id="ref-daina2016" class="csl-entry" role="listitem">
+Daina, Antoine, and Vincent Zoete. 2016b. <span>“A BOILED<span>-</span>Egg to Predict Gastrointestinal Absorption and Brain Penetration of Small Molecules.”</span> <em>Chemmedchem</em> 11 (11): 1117–21. <a href="https://doi.org/10.1002/cmdc.201600182">https://doi.org/10.1002/cmdc.201600182</a>.
+</div>
 <div id="ref-daina2016a" class="csl-entry" role="listitem">
-Daina, Antoine, and Vincent Zoete. 2016. <span>“A BOILED<span>-</span>Egg to Predict Gastrointestinal Absorption and Brain Penetration of Small Molecules.”</span> <em>Chemmedchem</em> 11 (11): 1117–21. <a href="https://doi.org/10.1002/cmdc.201600182">https://doi.org/10.1002/cmdc.201600182</a>.
+Daina, Antoine, and Vincent Zoete. 2016a. <span>“A BOILED<span>-</span>Egg to Predict Gastrointestinal Absorption and Brain Penetration of Small Molecules.”</span> <em>Chemmedchem</em> 11 (11): 1117–21. <a href="https://doi.org/10.1002/cmdc.201600182">https://doi.org/10.1002/cmdc.201600182</a>.
 </div>
 <div id="ref-filimonov2014" class="csl-entry" role="listitem">
 Filimonov, D. A., A. A. Lagunin, T. A. Gloriozova, et al. 2014. <span>“Prediction of the Biological Activity Spectra of Organic Compounds Using the Pass Online Web Resource.”</span> <em>Chemistry of Heterocyclic Compounds</em> 50 (3): 444–57. <a href="https://doi.org/10.1007/s10593-014-1496-1">https://doi.org/10.1007/s10593-014-1496-1</a>.
