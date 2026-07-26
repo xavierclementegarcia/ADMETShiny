@@ -10,7 +10,6 @@ docs_tab()
 A \code{shiny.tabPanel}.
 }
 \description{
-Builds the Documentation tab of the ADMETShiny application, with reference
-tables for the drug-likeness rules, ADMET models and data schemas.
+Builds the Documentation tab of the ADMETShiny application.
 }
 \keyword{internal}

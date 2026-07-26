@@ -9,8 +9,8 @@
 The \pkg{admetshiny} package provides an interactive Shiny application and a
 collection of R functions for the management, calculation, filtering,
 visualization and exploratory analysis of molecular descriptors and ADMET
-properties of small molecules. It integrates data exported from SwissADME,
-ADMETlab 3.0 and Deep-PK, computes descriptors locally via the Chemistry
+properties of small molecules.
+computes descriptors locally via the Chemistry
 Development Kit (CDK) through \pkg{rcdk}, and offers drug-likeness filters
 (Lipinski, Veber, Ghose, Egan, Muegge), the BOILED-Egg model, PCA, t-SNE,
 radar plots and Tanimoto/AGNES structural similarity clustering.

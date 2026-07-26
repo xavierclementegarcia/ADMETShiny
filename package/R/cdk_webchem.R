@@ -3,7 +3,7 @@
 # Retrieval of canonical SMILES from PubChem (via webchem) and local
 # calculation of molecular descriptors with CDK (via rcdk), plus the
 # drug-likeness violation and BOILED-Egg ADMET property calculators shared by
-# the CDK, ADMETlab and Deep-PK modules.
+# all modules that use CDK.
 # ---------------------------------------------------------------------------
 
 #' Retrieve canonical SMILES from PubChem
@@ -356,8 +356,8 @@ computeADMETProperties <- function(data) {
   mr   <- safe_get("MR")
 
   ## Select the appropriate BOILED-Egg polygon based on the LogP source.
-  ## If the data has a WLOGP column (SwissADME), use the official WLOGP
-  ## polygons from Daina & Zoete (2016). Otherwise (CDK/ADMETlab/Deep-PK,
+  ## If the data has a WLOGP column, use the official WLOGP
+  ## polygons from Daina & Zoete (2016). Otherwise (CDK, ADMET Master,
   ## which use ALogP or their own logP), use the ALogP-trained polygons.
   use_alogp <- !"WLOGP" %in% names(data)
   hia_poly <- if (use_alogp) .hia_polygon_alogp else .hia_polygon

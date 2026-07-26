@@ -205,7 +205,7 @@ cdk_tab <- function() {
       tags$hr(),
 
       h3("Step 3: Visualization and Drug-likeness filter"),
-      p("It applies the same drug-likeness filters (Lipinski, Veber, Ghose, Egan, Muegge) to the descriptors calculated with CDK. The columns are automatically mapped to the SwissADME schema, and the #violations columns required by the filters are calculated."),
+      p("It applies the same drug-likeness filters (Lipinski, Veber, Ghose, Egan, Muegge) to the descriptors calculated with CDK. The columns are automatically mapped to the standard schema, and the #violations columns required by the filters are calculated."),
 
       sidebarLayout(
 
@@ -411,7 +411,7 @@ cdk_tab <- function() {
         tags$code("mapADMETColumns()"),
         "(MW, TPSA, #H-bond donors/acceptors, etc.) and calculate the #violations columns that the filters need. Continuing, you can apply Lipinski, Veber, Ghose, Egan, and Muegge and view the same existing tables and graphs, including BOILED-Egg, Radar plot, and Tanimoto/AGNES (the latter using the newly obtained SMILES column)."
       ),
-      actionButton("send_to_filter", "Send to SwissADME Filtering",
+      actionButton("send_to_filter", "Send to ADMET Master",
                    icon = icon("arrow-right"), class = "btn-success"),
       br(), br(),
       actionButton("back_home_cdk", "Back to Home", icon = icon("arrow-left"))

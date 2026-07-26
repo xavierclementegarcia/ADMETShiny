@@ -217,9 +217,22 @@
   38.3945038530, 0.4064845993,
   40.9701792513, 0.4062562900
 ), ncol = 2, byrow = TRUE)
-# ALogP-trained HIA polygon (for CDK/ADMETlab/Deep-PK BOILED-Egg)
+# ALogP-trained HIA polygon (for non-WLOGP BOILED-Egg)
 # Trained from 439 molecules using Monte Carlo optimization (Daina methodology)
-# MCC = 0.986, Accuracy = 99.5%
+#
+# Training: MCC = 0.986, Accuracy = 99.5% (on training set, CDK dataset)
+#
+# Independent validation against Daina's experimental HIA dataset
+# (632 molecules with experimental % absorption data):
+#   Accuracy = 90.5%, MCC = 0.525, Sensitivity = 95.2%, Specificity = 55.4%
+#
+# For comparison, the official WLOGP polygons on the same experimental data:
+#   Accuracy = 93.5%, MCC = 0.674, Sensitivity = 97.0%, Specificity = 67.6%
+#
+# The ALogP approximation is ~3 percentage points less accurate than WLOGP
+# but provides a valid alternative when WLOGP is not available (CDK,
+# other datasets).
+#
 # Format: matrix with 2 columns: (TPSA, ALogP)
 .hia_polygon_alogp <- matrix(c(
   51.656038498521, 6.707847117933884,
@@ -324,9 +337,22 @@
   55.685946512471794, 6.721529207157731
 ), ncol = 2, byrow = TRUE)
 
-# ALogP-trained BBB polygon (for CDK/ADMETlab/Deep-PK BOILED-Egg)
+# ALogP-trained BBB polygon (for non-WLOGP BOILED-Egg)
 # Trained from 439 molecules using Monte Carlo optimization (Daina methodology)
-# MCC = 0.977, Accuracy = 98.9%
+#
+# Training: MCC = 0.977, Accuracy = 98.9% (on training set, CDK dataset)
+#
+# Independent validation against Daina's experimental BBB dataset
+# (240 molecules with experimental log BB data):
+#   Accuracy = 82.9%, MCC = 0.643, Sensitivity = 94.5%, Specificity = 65.3%
+#
+# For comparison, the official WLOGP polygons on the same experimental data:
+#   Accuracy = 89.6%, MCC = 0.782, Sensitivity = 95.9%, Specificity = 80.0%
+#
+# The ALogP approximation is ~7 percentage points less accurate than WLOGP
+# but provides a valid alternative when WLOGP is not available (CDK,
+# other datasets).
+#
 # Format: matrix with 2 columns: (TPSA, ALogP)
 .bbb_polygon_alogp <- matrix(c(
   37.86063181726698, 0.49750402355211465,

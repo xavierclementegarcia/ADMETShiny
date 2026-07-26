@@ -24,7 +24,7 @@
 #' }
 run_app <- function(onStart = NULL, ...) {
 
-  ## Allow uploads up to 200 MB (ADMETlab 3.0 / Deep-PK exports with
+  ## Allow uploads up to 200 MB (large ADMET datasets with
   ## hundreds of molecules can easily exceed Shiny's default 5 MB cap).
   options(shiny.maxRequestSize = 200 * 1024^2)
 

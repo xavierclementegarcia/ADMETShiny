@@ -81,9 +81,11 @@ home_tab <- function() {
                       tags$div(class = "info-card-header", icon("book"), " References"),
                       tags$div(class = "info-card-body",
                                tags$ul(style = "color:#555; line-height: 1.8; padding-left: 20px;",
-                                       tags$li("Daina, A., Michielin, O., & Zoete, V. (2017). SwissADME: a free web tool to evaluate pharmacokinetics, drug-likeness and medicinal chemistry friendliness of small molecules. ", tags$i("Scientific reports"), ", 7(1), 42717."),
-                                       tags$li("Myung, Y., de Sa, A. G., & Ascher, D. B. (2024). Deep-PK: deep learning for small molecule pharmacokinetic and toxicity prediction. ", tags$i("Nucleic acids research"), ", 52(W1), W469-W475."),
-                                       tags$li("Fu, L., Shi, S., Yi, J., Wang, N., He, Y., Wu, Z., ... & Cao, D. (2024). ADMETlab 3.0: an updated comprehensive online ADMET prediction platform enhanced with broader coverage, improved performance, API functionality and decision support. ", tags$i("Nucleic acids research"), ", 52(W1), W422-W431.")
+                                       tags$li("Daina, A., & Zoete, V. (2016). A boiled egg to predict gastrointestinal absorption and brain penetration of small molecules. ", tags$i("ChemMedChem"), ", 11(11), 1117-1121."),
+                                       tags$li("Breiman, L. (2001). Random Forests. ", tags$i("Machine Learning"), ", 45(1), 5-32."),
+                                       tags$li("Metrabase: Journal of Cheminformatics, 2015, 7:21."),
+                                       tags$li("Lipinski, C. A., et al. (1997). Advanced Drug Delivery Reviews, 23(1-3), 3-25."),
+                                       tags$li("Muegge, I., et al. (2001). Journal of Medicinal Chemistry, 44(12), 1841-1846.")
                                )
                       )
              )

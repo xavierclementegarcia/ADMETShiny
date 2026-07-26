@@ -51,10 +51,11 @@ about_tab <- function() {
                       tags$div(class = "info-card-body",
                                tags$ul(style = "color:#555; font-size: 15px; line-height: 1.8; padding-left: 20px;",
                                        tags$li("Interactive compound filtering (Lipinski, Veber, Ghose, Egan, Muegge)"),
-                                       tags$li("BOILED-Egg visualization & Tanimoto/AGNES clustering"),
-                                       tags$li("Chemical space exploration (PCA, t-SNE, Parallel Coordinates)"),
+                                       tags$li("BOILED-Egg visualization with dual WLOGP/ALogP polygon support"),
+                                       tags$li("P-glycoprotein substrate prediction via Random Forest (trained from 882 experimental compounds)"),
+                                       tags$li("Chemical space exploration (PCA, t-SNE, UMAP, Parallel Coordinates)"),
                                        tags$li("Local descriptor calculation via CDK & webchem"),
-                                       tags$li("Integration with SwissADME, ADMETlab 3.0 & Deep-PK datasets")
+                                       tags$li("Generic ADMET dataset import with manual column mapping (ADMET Master Manager)")
                                )
                       )
              )
@@ -107,11 +108,11 @@ about_tab <- function() {
                       tags$div(class = "info-card-body",
                                tags$p(style = "color:#555;", "This work would not be possible without the following open-source projects:"),
                                tags$div(style = "display: flex; flex-wrap: wrap; gap: 10px;",
-                                        tags$span(class = "badge bg-light text-dark", "SwissADME"),
-                                        tags$span(class = "badge bg-light text-dark", "PubChem"),
                                         tags$span(class = "badge bg-light text-dark", "Chemistry Development Kit (CDK)"),
                                         tags$span(class = "badge bg-light text-dark", "webchem"),
                                         tags$span(class = "badge bg-light text-dark", "rcdk"),
+                                        tags$span(class = "badge bg-light text-dark", "PubChem"),
+                                        tags$span(class = "badge bg-light text-dark", "Metrabase"),
                                         tags$span(class = "badge bg-light text-dark", "Shiny"),
                                         tags$span(class = "badge bg-light text-dark", "ggplot2"),
                                         tags$span(class = "badge bg-light text-dark", "DT")

@@ -10,7 +10,6 @@ tutorial_tab()
 A \code{shiny.tabPanel}.
 }
 \description{
-Builds the "First Steps" interactive tutorial tab of the ADMETShiny
-application.
+Builds the Tutorial tab of the ADMETShiny application.
 }
 \keyword{internal}

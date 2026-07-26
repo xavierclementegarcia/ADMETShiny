@@ -40,8 +40,8 @@ admet_master_tab <- function() {
         "Step 1 uploads your data and inspects it. Step 2 maps your columns to",
         " the standard schema (SMILES, MW, LogP, TPSA, HBD, HBA, ...). Step 3",
         " applies the drug-likeness filters. Step 4 visualises the filtered",
-        " results with the same plots available in the SwissADME / CDK /",
-        " ADMETlab / Deep-PK modules."
+        " results with the same plots available in the CDK & webchem /",
+        " ADMET Master modules."
       ),
 
       tags$hr(),

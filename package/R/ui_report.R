@@ -7,7 +7,7 @@
 #'
 #' Builds the Report tab of the ADMETShiny application, which generates a
 #' comprehensive report of all analyses performed across the four data source
-#' modules (SwissADME Manager, CDK & webchem, ADMETlab 3.0, Deep-PK Manager).
+#' modules (CDK & webchem, ADMET Master Manager).
 #'
 #' @return A \code{shiny.tabPanel}.
 #' @keywords internal

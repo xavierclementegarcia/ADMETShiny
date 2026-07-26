@@ -1490,8 +1490,8 @@ app_server <- function(input, output, session) {
   ## Report Module
   ## ============================================================
   ##
-  ## Collects the state of all four data-source modules (SwissADME,
-  ## CDK & webchem, ADMETlab 3.0, Deep-PK) and generates a comprehensive
+  ## Collects the state of all data-source modules (CDK & webchem,
+  ## ADMET Master) and generates a comprehensive
   ## report in HTML, PDF, or Word format. The report includes per-dataset
   ## statistics, drug-likeness filter results, BOILED-Egg ADMET
   ## classification, additional literature-supported metrics (Pfizer 3/75,

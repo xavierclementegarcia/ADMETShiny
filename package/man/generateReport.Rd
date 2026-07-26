@@ -46,14 +46,14 @@ visualizations and references.
 \examples{
 \dontrun{
 ## Generate a report from a single dataset
-d <- read.csv("swissadme.csv", check.names = FALSE)
+d <- read.csv("admet_data.csv", check.names = FALSE)
 d <- mapADMETColumns(d, mapping)
 generateReport(d, filters = c("Lipinski", "Veber"), format = "html")
 
 ## Generate a report from multiple datasets
 generateReport(
-  data = list(SwissADME = d1, ADMETlab = d2),
-  filters = list(SwissADME = c("Lipinski"), ADMETlab = c("Egan")),
+  data = list(CDK = d1, Master = d2),
+  filters = list(CDK = c("Lipinski"), Master = c("Egan")),
   format = "pdf"
 )
 }
