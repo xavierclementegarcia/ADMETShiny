@@ -6,7 +6,7 @@ Un mensaje en español para quienes lo lean...
 
 ### What's ADMETShiny?
 
-Provides an interactive 'shiny' application and a toolbox of R functions for the management, calculation, filtering, visualization and exploratory analysis of molecular descriptors and ADMET (Absorption, Distribution, Metabolism, Excretion and Toxicity) properties of small molecules. It integrates workflows from SwissADME, ADMETlab 3.0 and Deep-PK, computes descriptors locally via the Chemistry Development Kit (CDK), and offers drug-likeness filters (Lipinski, Veber, Ghose, Egan, Muegge), the BOILED-Egg model, PCA, t-SNE, radar plots and Tanimoto/AGNES clustering to support compound prioritization in early-stage drug discovery.
+Admetshiny is an open-source R package that integrates code-based tools with a dual Shiny application interface to streamline drug discovery workflows. It facilitates the calculation of molecular descriptors via CDK and Webchem, standardizes heterogeneous ADMET datasets through its ADMET Master Manager, and applies prominent drug-likeness filters such as Lipinski’s and Veber’s rules. Furthermore, the package predicts pharmacokinetic endpoints including P-glycoprotein substrates and BOILED-Egg parameters, while enabling the generation of publication-ready visualizations and automated statistical reports like PCA, UMAP, and AGNES Tanimoto similarity dendrograms.
 
 #### The essentials of this package
 
