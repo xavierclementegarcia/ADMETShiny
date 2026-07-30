@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Xavier Clemente Garcia Cevallos">
-<meta name="dcterms.date" content="2026-07-26">
+<meta name="dcterms.date" content="2026-07-30">
 
 <title>Introduction to admetshiny – admetshiny</title>
 <style>
@@ -406,7 +406,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 26, 2026</p>
+      <p class="date">July 30, 2026</p>
     </div>
   </div>
   
@@ -420,7 +420,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="overview" class="level2">
 <h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p><strong>admetshiny</strong> is an R package that provides an interactive Shiny application and a toolbox of functions for the management, calculation, filtering, visualization and exploratory analysis of molecular descriptors and ADMET properties of small molecules. It integrates data exported from SwissADME, ADMETlab 3.0 and Deep-PK, and can compute descriptors locally via the Chemistry Development Kit (CDK).</p>
+<p>An open-source R package with a Shiny interface and code-based tools designed to calculate molecular descriptors, harmonize heterogeneous ADMET datasets from external web servers or local sources, apply drug-likeness filters, predict pharmacokinetic properties such as P-glycoprotein substrates and BOILED-Egg parameters, and generate publication-ready visualizations and automated analysis reports.</p>
 </section>
 <section id="launching-the-application" class="level2">
 <h2 class="anchored" data-anchor-id="launching-the-application">Launching the application</h2>
@@ -428,10 +428,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>admetshiny<span class="sc">::</span><span class="fu">run_app</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The application provides four modules:</p>
 <ol type="1">
-<li><strong>SwissADME Manager</strong> - upload a SwissADME CSV and apply drug-likeness filters.</li>
 <li><strong>CDK &amp; webchem</strong> - retrieve SMILES from PubChem and calculate descriptors locally.</li>
-<li><strong>ADMETlab 3.0</strong> - upload an ADMETlab CSV; properties are mapped automatically.</li>
-<li><strong>Deep-PK</strong> - upload a Deep-PK CSV; missing descriptors are calculated on-the-fly from SMILES.</li>
+<li><strong>ADMET Master Manager</strong> - retrieve SMILES from PubChem and harmonization data. locally.</li>
+<li><strong>Report</strong> - A summary of the ADMET properties</li>
 </ol>
 </section>
 <section id="using-the-functions-programmatically" class="level2">

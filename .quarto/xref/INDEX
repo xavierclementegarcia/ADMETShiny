@@ -43,5 +43,11 @@
   },
   "pages/index.qmd": {
     "index.html": "d617dfb6"
+  },
+  "package/inst/extdata/acknowledgements.md": {
+    "acknowledgements.html": "aeaf5907"
+  },
+  "package/LICENSE.md": {
+    "LICENSE.html": "6192b87f"
   }
 }

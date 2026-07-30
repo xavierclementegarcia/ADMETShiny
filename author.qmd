@@ -23,6 +23,6 @@ about:
       href: https://orcid.org/0000-0002-3284-2363
 ---
 
-### About the author 
+### About the author
 
 **Xavier Clemente García Cevallos** is a biologist and researcher student whose work focuses on computational drug discovery, cheminformatics, bioinformatics, natural products, and neurobiology. His research integrates experimental phytochemistry with *in silico* approaches, including molecular docking, ADMET profiling, molecular dynamics, and software development for reproducible computational workflows. He is the developer of **ADMETShiny**, an open-source R package designed to facilitate the analysis and visualization of molecular descriptors and ADMET properties.

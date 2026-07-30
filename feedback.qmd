@@ -1,5 +1,9 @@
 ### Feedback
 
-#### How report the bugs in the form? 
+#### How report the bugs in the form?
 
+##### Google Form option feedback
 You could report the bugs of this package [Here](https://forms.gle/Sx9c119KskwSiNMG8)
+
+##### GitHub issues
+You could report bugs of this package wit [Github issues](https://github.com/xavierclementegarcia/ADMETShiny/issues)

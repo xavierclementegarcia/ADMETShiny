@@ -713,10 +713,10 @@ V_{\mathrm{Muegge}} = {} &amp; \Ind(\mathrm{MW} &lt; 200 \lor \mathrm{MW} &gt; 6
 <p>Each ellipse is fully defined by scalar parameters: the two focus points <span class="math display">\[ F_1 = (x_1,y_1)\]</span> and <span class="math display">\[ F_2 = (x_2, y_2) \]</span> and the major axis length. A point <span class="math display">\[ P= (x,y)\]</span> lies inside the ellipse if and only if the sum of its distances to the two points does not exceed d:</p>
 <p><span class="math display">\[d(P, F_1) + d(P, F_2) \;\leq\; d,\]</span></p>
 <p>where the Euclidean point to focus distances are:</p>
-<p><span class="math display">\[\begin{aligned}
+<p><span id="eq-distancias"><span class="math display">\[\begin{aligned}
 d(P, F_1) &amp;= \sqrt{(x - x_1)^2 + (y - y_1)^2} \\
 d(P, F_2) &amp;= \sqrt{(x - x_2)^2 + (y - y_2)^2}
-\end{aligned}\]</span> {#eq-distancias}</p>
+\end{aligned} \tag{1}\]</span></span></p>
 <p>The constants defining the official WLOGP ellipses for HIA+ and BBB+ are calibrated on the SwissADME training set <span class="citation" data-cites="daina2016 daina2017">(<a href="#ref-daina2016" role="doc-biblioref">Daina and Zoete 2016b</a>; <a href="#ref-daina2017" role="doc-biblioref">Daina et al. 2017</a>)</span>. We had use this when WLOGP are available for ADMETShiny.</p>
 </section>
 <section id="point-in-polygon-test-approximation" class="level4">
@@ -732,7 +732,7 @@ d(P, F_2) &amp;= \sqrt{(x - x_2)^2 + (y - y_2)^2}
 \begin{cases}
 \text{WLOGP official} &amp; \text{if } \texttt{logp\_source} = \text{"WLOGP"}, \\
 \text{ALogP-trained}  &amp; \text{otherwise}.
-\end{cases} \tag{1}\]</span></span></p>
+\end{cases} \tag{2}\]</span></span></p>
 <p>When the input data contain ALogP but no WLOGP, ADMETShiny uses ALogP trained polygons. These polygons are re-derived by ADMETShiny following the Monte-Carlo optimization protocol using a CDK training set of 439 molecules <span class="citation" data-cites="daina2016">(<a href="#ref-daina2016" role="doc-biblioref">Daina and Zoete 2016b</a>)</span>.</p>
 </section>
 <section id="monte-carlo-optimization" class="level4">
@@ -743,7 +743,7 @@ x' &amp;= \frac{x - \mu_x}{\sigma_x} &amp; y' &amp;= \frac{y - \mu_y}{\sigma_y}
 \end{aligned}\]</span></p>
 <p>Each ellipse is parameterized by a five-dimensional vectors. The optimization maximizes a regularized with Matthews Correlation Coefficient:</p>
 <p><span class="math display">\[\mathrm{Score} = \mathrm{MCC} - 0.05 \times S\]</span> The MCC itself is the standard balanced classification metric,</p>
-<p><span id="eq-mcc-definition"><span class="math display">\[\mathrm{MCC} = \frac{\mathrm{TP} \times \mathrm{TN} - \mathrm{FP} \times \mathrm{FN}}{\sqrt{(\mathrm{TP}+\mathrm{FP})(\mathrm{TP}+\mathrm{FN})(\mathrm{TN}+\mathrm{FP})(\mathrm{TN}+\mathrm{FN})}} \tag{2}\]</span></span></p>
+<p><span id="eq-mcc-definition"><span class="math display">\[\mathrm{MCC} = \frac{\mathrm{TP} \times \mathrm{TN} - \mathrm{FP} \times \mathrm{FN}}{\sqrt{(\mathrm{TP}+\mathrm{FP})(\mathrm{TP}+\mathrm{FN})(\mathrm{TN}+\mathrm{FP})(\mathrm{TN}+\mathrm{FN})}} \tag{3}\]</span></span></p>
 </section>
 <section id="validation-data-and-accuracy" class="level4">
 <h4 class="anchored" data-anchor-id="validation-data-and-accuracy">Validation data and accuracy</h4>
@@ -787,13 +787,13 @@ x' &amp;= \frac{x - \mu_x}{\sigma_x} &amp; y' &amp;= \frac{y - \mu_y}{\sigma_y}
 <section id="p-glycoprotein-substrate-prediction-random-forest-architecture" class="level3">
 <h3 class="anchored" data-anchor-id="p-glycoprotein-substrate-prediction-random-forest-architecture">P-glycoprotein Substrate Prediction &amp; Random Forest Architecture</h3>
 <p>P-glycoprotein (P-gp, ABCB1) substrate status is predicted by a Random Forest of <em>K= 100</em> binary decision trees. Each tree is trained independently on a bootstrap sample of the training set; at each internal node, the split is chosen over a random subset of features. Each leaf node stores the fraction of training set samples in that leaf that are P-gp substrates:</p>
-<p><span id="eq-leaf-probability-expanded"><span class="math display">\[P(\mathbf{x}) = \dfrac{\#\{\text{substrates in leaf reached by } \mathbf{x}\}}{\#\{\text{samples in leaf reached by } \mathbf{x}\}} \tag{3}\]</span></span></p>
+<p><span id="eq-leaf-probability-expanded"><span class="math display">\[P(\mathbf{x}) = \dfrac{\#\{\text{substrates in leaf reached by } \mathbf{x}\}}{\#\{\text{samples in leaf reached by } \mathbf{x}\}} \tag{4}\]</span></span></p>
 <p>The final binary classification applies a threshold of 0.5 to the averaged probability:</p>
 <p><span id="eq-pgp-classify"><span class="math display">\[\text{P-gp substrate} =
 \begin{cases}
 \text{"Yes"} &amp; \text{if } P(\text{substrate} \mid \mathbf{x}) \ge 0.5, \\
 \text{"No"}  &amp; \text{otherwise}.
-\end{cases} \tag{4}\]</span></span></p>
+\end{cases} \tag{5}\]</span></span></p>
 <section id="training-data-methodology-model-performance" class="level4">
 <h4 class="anchored" data-anchor-id="training-data-methodology-model-performance">Training Data, methodology &amp; model performance</h4>
 <p>The model was trained on 882 experimental P-gp (ABCB1) compounds extracted from Metrabase. The class distribution is 474 substrates (positive class) and 408 non-substrates (negative class). The nine physicochemical descriptors of equation are used as features. Their means and standard deviations in the training set are listed in the next table.</p>
@@ -893,7 +893,7 @@ x' &amp;= \frac{x - \mu_x}{\sigma_x} &amp; y' &amp;= \frac{y - \mu_y}{\sigma_y}
 <section id="composite-drug-likeness-score" class="level4">
 <h4 class="anchored" data-anchor-id="composite-drug-likeness-score">Composite Drug-Likeness Score</h4>
 <p>ADMETShiny combines the available drug-likeness filters into a single composite score. For a compound evaluated against <em>n</em> rules, the score is the percentage of rules with zero violations:</p>
-<p><span id="eq-compliance-score"><span class="math display">\[\mathrm{Score} = \frac{1}{n_{\mathrm{rules}}} \sum_{i=1}^{n_{\mathrm{rules}}} \mathbf{1}(V_i = 0) \times 100 \tag{5}\]</span></span></p>
+<p><span id="eq-compliance-score"><span class="math display">\[\mathrm{Score} = \frac{1}{n_{\mathrm{rules}}} \sum_{i=1}^{n_{\mathrm{rules}}} \mathbf{1}(V_i = 0) \times 100 \tag{6}\]</span></span></p>
 <p>The score is discreted into three bands:</p>
 <ul>
 <li><strong>Excellent</strong> — <span class="math inline">\(\mathrm{Score} \ge 80\)</span>.</li>
@@ -905,13 +905,13 @@ x' &amp;= \frac{x - \mu_x}{\sigma_x} &amp; y' &amp;= \frac{y - \mu_y}{\sigma_y}
 <section id="column-mapping-system-admet-master-manager" class="level3">
 <h3 class="anchored" data-anchor-id="column-mapping-system-admet-master-manager">Column Mapping System (ADMET Master Manager)</h3>
 <p>The ADMET Master module accepts arbitrary CSV or Excel inputs whose columns names may differ from the canonical ADMETShiny schema. The function <code>mapADMETColumns</code> takes a user supplied mapping vector <strong>m</strong> that maps each canonical name to the corresponding source column name, and applies a deterministic column rename:</p>
-<p><span id="eq-data-normalization"><span class="math display">\[\mathrm{data}_{\mathrm{standard}} = \operatorname{rename}(\mathrm{data}_{\mathrm{raw}}, \mathbf{m}) \tag{6}\]</span></span></p>
+<p><span id="eq-data-normalization"><span class="math display">\[\mathrm{data}_{\mathrm{standard}} = \operatorname{rename}(\mathrm{data}_{\mathrm{raw}}, \mathbf{m}) \tag{7}\]</span></span></p>
 <p>After column mapping, ADMET Master converts numerical endpoint predictions into the categorical labels used by the visualization modules. For the HIA endpoint, the conversion is:</p>
 <p><span id="eq-map-hia"><span class="math display">\[\text{GI absorption} =
 \begin{cases}
 \text{"High"} &amp; \text{if } p_{\mathrm{HIA}} \ge 0.5, \\
 \text{"Low"}  &amp; \text{if } p_{\mathrm{HIA}} &lt; 0.5.
-\end{cases} \tag{7}\]</span></span></p>
+\end{cases} \tag{8}\]</span></span></p>
 <section id="references" class="level4">
 
 

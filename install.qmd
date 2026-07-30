@@ -22,8 +22,7 @@ You could choice your R & Rstudio version f your operative system.
 
 *I recommended install RStudio for the easyful user interface*
 
-2.  Install the [pak](https://pak.r-lib.org/) our remotes [packages](https://remotes.r-lib.org/).
-3.  To enjoy all the features of ADMETShiny, we suggest you install all the dependencies listed below.
+2.  To enjoy all the features of ADMETShiny, we suggest you install all the dependencies listed below.
 
 ``` r
 #All dependencies:
@@ -40,18 +39,7 @@ Please, consider this option for the all features.
 
 5.  Installation to the package in your environment with the follow steps:
 
-You could consider install "pak", follow the steps:
-
-``` r
-#Write in the R & RStudio console:
-install.packages("pak")
-#Call the package
-library(pak)
-#Follow this step: 
-pak::pkg_install("xavierclementegarcia/ADMETShiny", subdir = "package")
-```
-
-You could install the package with "remotes", :
+You could install the package with "remotes" :
 
 ``` r
 #Write in the R & RStudio console:

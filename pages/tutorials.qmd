@@ -217,8 +217,7 @@ where the Euclidean point to focus distances are:
 $$\begin{aligned}
 d(P, F_1) &= \sqrt{(x - x_1)^2 + (y - y_1)^2} \\
 d(P, F_2) &= \sqrt{(x - x_2)^2 + (y - y_2)^2}
-\end{aligned}$$
- {#eq-distancias}
+\end{aligned}$$ {#eq-distancias}
 
 The constants defining the official WLOGP ellipses for HIA+ and BBB+ are calibrated on the SwissADME training set [@daina2016; @daina2017]. We had use this when WLOGP are available for ADMETShiny.
 
@@ -322,7 +321,7 @@ The score is discreted into three bands:
 - **Acceptable** — $60 \le \mathrm{Score} < 80$.
 - **Poor** — $\mathrm{Score} < 60$.
 
-### Column Mapping System (ADMET Master Manager) 
+### Column Mapping System (ADMET Master Manager)
 
 The ADMET Master module accepts arbitrary CSV or Excel inputs whose columns names may differ from the canonical ADMETShiny schema. The function `mapADMETColumns` takes a user supplied mapping vector **m** that maps each canonical name to the corresponding source column name, and applies a deterministic column rename:
 
