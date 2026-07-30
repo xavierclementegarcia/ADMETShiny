@@ -20,12 +20,7 @@ knitr::opts_chunk$set(
 
 ## Overview
 
-**admetshiny** is an R package that provides an interactive Shiny application
-and a toolbox of functions for the management, calculation, filtering,
-visualization and exploratory analysis of molecular descriptors and ADMET
-properties of small molecules. It integrates data exported from SwissADME,
-ADMETlab 3.0 and Deep-PK, and can compute descriptors locally via the
-Chemistry Development Kit (CDK).
+An open-source R package with a Shiny interface and code-based tools designed to calculate molecular descriptors, harmonize heterogeneous ADMET datasets from external web servers or local sources, apply drug-likeness filters, predict pharmacokinetic properties such as P-glycoprotein substrates and BOILED-Egg parameters, and generate publication-ready visualizations and automated analysis reports.
 
 ## Launching the application
 
@@ -37,14 +32,12 @@ admetshiny::run_app()
 
 The application provides four modules:
 
-1. **SwissADME Manager** - upload a SwissADME CSV and apply drug-likeness
-   filters.
-2. **CDK & webchem** - retrieve SMILES from PubChem and calculate descriptors
+1. **CDK & webchem** - retrieve SMILES from PubChem and calculate descriptors
    locally.
-3. **ADMETlab 3.0** - upload an ADMETlab CSV; properties are mapped
-   automatically.
-4. **Deep-PK** - upload a Deep-PK CSV; missing descriptors are calculated
-   on-the-fly from SMILES.
+2. **ADMET Master Manager** - retrieve SMILES from PubChem and harmonization data.
+   locally.
+3. **Report** - A summary of the ADMET properties
+
 
 ## Using the functions programmatically
 

@@ -85,7 +85,7 @@ about_tab <- function() {
                                           tags$tr(tags$td(tags$b("Package:")), tags$td("admetshiny")),
                                           tags$tr(tags$td(tags$b("Version:")), tags$td(ADMETSHINY_VERSION)),
                                           tags$tr(tags$td(tags$b("Codename:")), tags$td(tags$em(ADMETSHINY_CODENAME))),
-                                          tags$tr(tags$td(tags$b("License:")), tags$td("CC BY 4.0"))
+                                          tags$tr(tags$td(tags$b("License:")), tags$td("MIT License"))
                                )
                       )
              )

@@ -2,7 +2,6 @@
 # data_fixers.R
 # Column mapping and dataset normalization for the ADMET Master Manager.
 # The generic mapADMETColumns() function replaces the former platform-specific
-# (replaces the former fixSwissADME/fixADMETlab/fixDeepPK functions).
 # ---------------------------------------------------------------------------
 
 ## ---------------------------------------------------------------------------
@@ -163,7 +162,7 @@ mapADMETColumns <- function(data, mapping, calculate_cdk = TRUE) {
 
   ## ----- 1. Rename columns based on mapping ----------------------------
   ## Translate the short field codes to the application's standard column
-  ## names (matching the schema used by mapADMETColumns, mapCDKDescriptors 
+  ## names (matching the schema used by mapADMETColumns, mapCDKDescriptors
   ## mapCDKDescriptors).
   code_to_standard <- c(
     "SMILES"                  = "SMILES",

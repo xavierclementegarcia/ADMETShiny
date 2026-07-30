@@ -66,7 +66,7 @@ home_tab <- function() {
                                tags$pre(style = "background:#f8f9fc; padding:15px; border-radius:8px; font-size:12px; white-space: pre-wrap; border: 1px solid #e3e6f0; color: #333;",
                                         paste0(
                                           "Garcia Cevallos, X. C. (", format(Sys.Date(), "%Y"), "). ADMETShiny: ",
-                                          "A open-source web application for management, calculation, filtering and selection of drug-likeness.\n",
+                                          "A open-source R package for calculation and harmonizing heterogeneous ADMET datasets.\n",
                                           "Package & App: https://github.com/xavierclementegarcia/admetshiny"
                                         )
                                )
