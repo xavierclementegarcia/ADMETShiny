@@ -26,7 +26,7 @@ You could choice your R & Rstudio version f your operative system.
 
 ``` r
 #All dependencies:
-install.packages(c("shiny", "DT", "ggplot2", "dplyr", "magrittr", "rcdk", "webchem", "fmsb", "Rtsne", "ggrepel", "fingerprint", "cluster", "GGally", "openxlsx", "knitr", "rmarkdown", "testthat"))
+install.packages(c("shiny", "DT", "ggplot2", "dplyr", "magrittr", "grid","graphics","utils","grDevices","stats","rcdk", "webchem", "fmsb", "Rtsne", "ggrepel", "fingerprint", "cluster", "GGally", "openxlsx", "knitr", "rmarkdown", "testthat", "uwot", "viridisLite"))
 ```
 
 Note: For users, the **testthat** package is not required. However, if you would like to contribute to the debugging, testing, or improvement of **ADMETShiny**, please feel free to send your suggestions through of the [e-mail](mailto:xgarcia@unicauca.edu.co) or [Feedback page](https://forms.gle/83H14SnvvnrtioyE6).
@@ -47,7 +47,7 @@ install.packages("remotes")
 #Call the package
 library(remotes)
 #Follow this step: 
-remotes::install_github("xavierclementegarcia/ADMETShiny", subdir = "package")
+remotes::install_github("xavierclementegarcia/admetshiny-package")
 ```
 
 Remember that the correct proficiency of the Shiny app is required **JDK & the others dependencies listing above.**
