@@ -2,23 +2,20 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.10.18">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Workflows &amp; demostrations – admetshiny</title>
+<title>🔬 Workflows &amp; Demonstrations – admetshiny</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
+code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: 1.5em;}
-div.column{flex: auto;}
-@media screen {
-div.columns{gap: min(4vw, 1.5em);}
-div.column{overflow-x: auto;}
-}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -42,14 +39,12 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-0a6b7249c26820e032cb0bd839ff02b1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-821b885b5e94fe17c7cb8d887f1a43ab.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-8ad9ef64c7c19a4991da5ee206e28f88.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-821b885b5e94fe17c7cb8d887f1a43ab.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-a0f9fd0d421825b736dc1bbcbcba2219.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-e8964db687007ca8dd88d9d9ce58e3ef.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -79,10 +74,9 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-fixed quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -224,10 +218,8 @@ ul.task-list li input[type="checkbox"] {
         changeGiscusTheme();
       }
     };
-    const authorPrefersDark = false;
+    const authorPrefersDark = true;
     const darkModeDefault = authorPrefersDark;
-      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
-      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
@@ -263,32 +255,28 @@ ul.task-list li input[type="checkbox"] {
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
     <a class="nav-link" href="./index.html"> 
-<span class="menu-text">Home</span></a>
+<span class="menu-text">🏠 Home</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./install.html"> 
-<span class="menu-text">How to install?</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./publication.html"> 
-<span class="menu-text">Publications</span></a>
+<span class="menu-text">🧪 Installation Guide</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-about" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">About</span>
+ <span class="menu-text">ℹ️ About</span>
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-about">    
         <li>
     <a class="dropdown-item" href="./about.html">
- <span class="dropdown-text">About ADMETShiny</span></a>
+ <span class="dropdown-text">💊 About About ADMETShiny</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./espeletia.html">
- <span class="dropdown-text">The flagship specie</span></a>
+ <span class="dropdown-text">🌿 The Flagship species</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./author.html">
- <span class="dropdown-text">About the author</span></a>
+ <span class="dropdown-text">👨 About the Author</span></a>
   </li>  
     </ul>
   </li>
@@ -301,15 +289,15 @@ ul.task-list li input[type="checkbox"] {
     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-help">    
         <li>
     <a class="dropdown-item" href="./feedback.html">
- <span class="dropdown-text">Feedback</span></a>
+ <span class="dropdown-text">💬 Feedback</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./workflow.html">
- <span class="dropdown-text">Workflows &amp; demostrations</span></a>
+ <span class="dropdown-text">🔬 Workflows &amp; Demonstrations</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./pages/tutorials.html">
- <span class="dropdown-text">Documentation</span></a>
+ <span class="dropdown-text">📖️ Documentation</span></a>
   </li>  
     </ul>
   </li>
@@ -336,10 +324,20 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#workflows-demonstrations" id="toc-workflows-demonstrations" class="nav-link active" data-scroll-target="#workflows-demonstrations">Workflows &amp; demonstrations</a></li>
-  <li><a href="#the-datasets-example" id="toc-the-datasets-example" class="nav-link" data-scroll-target="#the-datasets-example">The datasets example</a></li>
-  <li><a href="#you-probably-need-a-report" id="toc-you-probably-need-a-report" class="nav-link" data-scroll-target="#you-probably-need-a-report">You probably need a report</a></li>
-  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section"></a></li>
+  <li><a href="#the-user-interface" id="toc-the-user-interface" class="nav-link active" data-scroll-target="#the-user-interface">🖥️ The User Interface</a>
+  <ul class="collapse">
+  <li><a href="#navigation-bar" id="toc-navigation-bar" class="nav-link" data-scroll-target="#navigation-bar">Navigation bar</a></li>
+  <li><a href="#landing-page-panels" id="toc-landing-page-panels" class="nav-link" data-scroll-target="#landing-page-panels">Landing page panels</a></li>
+  </ul></li>
+  <li><a href="#the-dataset-example" id="toc-the-dataset-example" class="nav-link" data-scroll-target="#the-dataset-example">🧪 The Dataset Example</a>
+  <ul class="collapse">
+  <li><a href="#filtered-results" id="toc-filtered-results" class="nav-link" data-scroll-target="#filtered-results">Filtered results</a></li>
+  </ul></li>
+  <li><a href="#you-probably-need-a-report" id="toc-you-probably-need-a-report" class="nav-link" data-scroll-target="#you-probably-need-a-report">📊 You Probably Need a Report</a>
+  <ul class="collapse">
+  <li><a href="#key-metrics" id="toc-key-metrics" class="nav-link" data-scroll-target="#key-metrics">Key metrics</a></li>
+  <li><a href="#supporting-visualizations" id="toc-supporting-visualizations" class="nav-link" data-scroll-target="#supporting-visualizations">Supporting visualizations</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -349,7 +347,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Workflows &amp; demostrations</h1>
+<h1 class="title">🔬 Workflows &amp; Demonstrations</h1>
 </div>
 
 
@@ -366,43 +364,227 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="workflows-demonstrations" class="level3">
-<h3 class="anchored" data-anchor-id="workflows-demonstrations">Workflows &amp; demonstrations</h3>
-<section id="the-user-interface" class="level4">
-<h4 class="anchored" data-anchor-id="the-user-interface">The user interface</h4>
-<p>This image displays the Navigation Guide for <strong>ADMETShiny (Version 1.0.0)</strong>, an open-source R Shiny web application designed for the management, calculation, filtering, and selection of drug-likeness potential molecules in early-stage drug discovery. The user interface features a top horizontal navigation bar split into nine numbered modules indicated by green hex icons: <strong>(1) Home</strong>, which returns to the main landing page; <strong>(2) ADMET Master Manager</strong>, for calculating and analyzing molecular properties; <strong>(3) CDK &amp; webchem</strong>, providing access to cheminformatics tools for structure processing and chemical analysis.</p>
+<hr>
+<section id="the-user-interface" class="level2">
+<h2 class="anchored" data-anchor-id="the-user-interface">🖥️ The User Interface</h2>
+<p><strong>ADMETShiny (Version 1.0.0)</strong> is an open-source R Shiny web application designed for the management, calculation, filtering, and selection of drug-like molecules in early-stage drug discovery.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/20.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
 </figure>
 </div>
-<p><strong>(4) Report</strong>, for customizing and exporting analysis results; <strong>(5) About</strong>, detailing project and author information; <strong>(6) First Steps</strong>, offering step-by-step tutorials for new users; and <strong>(7) Documentation</strong>, which hosts technical guides and vignettes. Below this primary interface menu, the dashboard is split into two bottom sections highlighted by green pointers: a <strong>Description</strong> box on the left, summarizing the app’s integration of bioinformatics and cheminformatics workflows for molecular descriptor visualization, and a <strong>How to cite?</strong> box on the right, providing the formal 2026 academic citation and the GitHub repository link</p>
+<section id="navigation-bar" class="level3">
+<h3 class="anchored" data-anchor-id="navigation-bar">Navigation bar</h3>
+<p>The top horizontal bar is divided into <strong>seven numbered modules</strong>, each marked with a green hex icon:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 38%">
+<col style="width: 42%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">#</th>
+<th>Module</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td><strong>Home</strong></td>
+<td>Returns to the main landing page</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2</td>
+<td><strong>ADMET Master Manager</strong></td>
+<td>Calculates and analyzes molecular properties</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">3</td>
+<td><strong>CDK &amp; webchem</strong></td>
+<td>Cheminformatics tools for structure processing and chemical analysis</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">4</td>
+<td><strong>Report</strong></td>
+<td>Customizes and exports analysis results</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">5</td>
+<td><strong>About</strong></td>
+<td>Project and author information</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">6</td>
+<td><strong>First Steps</strong></td>
+<td>Step-by-step tutorials for new users</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">7</td>
+<td><strong>Documentation</strong></td>
+<td>Technical guides and vignettes</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="landing-page-panels" class="level3">
+<h3 class="anchored" data-anchor-id="landing-page-panels">Landing page panels</h3>
+<p>Below the navigation bar, the dashboard is split into two sections:</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>📝 Description
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Summarizes the app’s integration of bioinformatics and cheminformatics workflows for molecular descriptor visualization.</p>
+</div>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>📖 How to cite?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Provides the formal 2026 academic citation and the GitHub repository link.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<hr>
 </section>
 </section>
-<section id="the-datasets-example" class="level3">
-<h3 class="anchored" data-anchor-id="the-datasets-example">The datasets example</h3>
-<p>Below this, the <strong>Drug-likeness Filters</strong> section allows users to apply customizable filters based on popular medicinal chemistry criteria, including Lipinski, Veber, Ghose, Egan, and Muegge rules, along with adjustable threshold inputs for maximum molecular weight, logP, hydrogen bond acceptors/donors, and maximum Lipinski violations.</p>
+<section id="the-dataset-example" class="level2">
+<h2 class="anchored" data-anchor-id="the-dataset-example">🧪 The Dataset Example</h2>
+<p>The <strong>Drug-likeness Filters</strong> section lets users apply customizable filters based on popular medicinal chemistry criteria:</p>
+<ul>
+<li>✅ <strong>Lipinski</strong></li>
+<li>✅ <strong>Veber</strong></li>
+<li>✅ <strong>Ghose</strong></li>
+<li>✅ <strong>Egan</strong></li>
+<li>✅ <strong>Muegge</strong></li>
+</ul>
+<p>Adjustable thresholds are available for maximum <strong>molecular weight</strong>, <strong>logP</strong>, <strong>hydrogen bond acceptors/donors</strong>, and <strong>maximum Lipinski violations</strong>.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/21.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
 </figure>
 </div>
-<p>The main central area displays the <strong>Filtered Results</strong> table under the <strong>Filtered Molecules</strong> tab <strong>(6)</strong>, which renders a structured overview of the compounds that meet the set criteria. This interactive data grid displays key molecular descriptors such as the Molecule ID, Canonical SMILES, chemical Formula, Molecular Weight (MW), number of Heavy Atoms, and number of Aromatic Heavy Atoms. Users can utilize the <strong>Search</strong> bar <strong>(8)</strong> located at the top right of the table to quickly filter molecules by name, SMILES string, or specific properties. Additionally, the interface includes top tabs for <strong>Data Preview</strong> <strong>(5)</strong> and <strong>Plots</strong> <strong>(7)</strong> to seamlessly toggle between the raw dataset, the refined subsets, and data distributions, providing an intuitive, integrated workflow for compound prioritization.</p>
+<section id="filtered-results" class="level3">
+<h3 class="anchored" data-anchor-id="filtered-results">Filtered results</h3>
+<p>The central area displays the <strong>Filtered Results</strong> table under the <strong>Filtered Molecules</strong> tab <strong>(6)</strong>, giving a structured overview of the compounds that meet the selected criteria. This interactive data grid shows key molecular descriptors:</p>
+<ul>
+<li>Molecule ID</li>
+<li>Canonical SMILES</li>
+<li>Chemical formula</li>
+<li>Molecular weight (MW)</li>
+<li>Number of heavy atoms</li>
+<li>Number of aromatic heavy atoms</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>🔍 Quick search
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Use the <strong>Search</strong> bar <strong>(8)</strong> at the top right of the table to filter molecules by name, SMILES string, or specific properties.</p>
+</div>
+</div>
+<p>The top tabs, <strong>Data Preview</strong> <strong>(5)</strong> and <strong>Plots</strong> <strong>(7)</strong>, let you toggle seamlessly between the raw dataset, refined subsets, and data distributions, providing an intuitive, integrated workflow for compound prioritization.</p>
+<hr>
 </section>
-<section id="you-probably-need-a-report" class="level3">
-<h3 class="anchored" data-anchor-id="you-probably-need-a-report">You probably need a report</h3>
-<p>The executive summary and statistical breakdown confirm that 100% of the library was successfully retained, exhibiting average baseline properties such as a Molecular Weight of 392.44, a LogP of 3.33, and a TPSA of 90.53. The library demonstrates high quality with a mean composite drug-likeness score of 85.4 out of 100, where 80.5% of the compounds achieve an “Excellent” classification.</p>
+</section>
+<section id="you-probably-need-a-report" class="level2">
+<h2 class="anchored" data-anchor-id="you-probably-need-a-report">📊 You Probably Need a Report</h2>
+<p>The executive summary and statistical breakdown confirm that <strong>100% of the library was successfully retained</strong>.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/27.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
 </figure>
 </div>
-<p>These metrics are supported by three robust visualizations: a BOILED-Egg plot mapping gastrointestinal absorption and blood-brain barrier permeability alongside P-glycoprotein efflux status, a stacked bar chart detailing individual rule violations across standard medicinal chemistry criteria (Lipinski, Ghose, Veber, Egan, and Muegge), and a score distribution histogram that visually confirms the sharp clustering of the vast majority of the compounds within the highest drug-likeness tier.</p>
+<section id="key-metrics" class="level3">
+<h3 class="anchored" data-anchor-id="key-metrics">Key metrics</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th style="text-align: center;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>🧬 <strong>Molecular Weight (mean)</strong></td>
+<td style="text-align: center;">392.44</td>
+</tr>
+<tr class="even">
+<td>💧 <strong>LogP (mean)</strong></td>
+<td style="text-align: center;">3.33</td>
+</tr>
+<tr class="odd">
+<td>🔷 <strong>TPSA (mean)</strong></td>
+<td style="text-align: center;">90.53</td>
+</tr>
+<tr class="even">
+<td>⭐ <strong>Drug-likeness score (mean)</strong></td>
+<td style="text-align: center;">85.4 / 100</td>
+</tr>
+<tr class="odd">
+<td>🏆 <strong>Compounds rated “Excellent”</strong></td>
+<td style="text-align: center;">80.5%</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>High-quality library
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The majority of compounds cluster within the highest drug-likeness tier, confirming the overall quality of the library.</p>
+</div>
+</div>
 </section>
-<section id="section" class="level3">
-<h3 class="anchored" data-anchor-id="section"></h3>
+<section id="supporting-visualizations" class="level3">
+<h3 class="anchored" data-anchor-id="supporting-visualizations">Supporting visualizations</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">🥚 BOILED-Egg</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">📉 Rule violations</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">📈 Score distribution</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<p>Maps <strong>gastrointestinal absorption</strong> and <strong>blood-brain barrier permeability</strong>, alongside <strong>P-glycoprotein efflux</strong> status.</p>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<p>A stacked bar chart detailing individual rule violations across the standard medicinal chemistry criteria: <strong>Lipinski, Ghose, Veber, Egan, and Muegge</strong>.</p>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<p>A histogram that visually confirms the sharp clustering of most compounds within the highest drug-likeness tier.</p>
+</div>
+</div>
+</div>
 
 
+</section>
 </section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->

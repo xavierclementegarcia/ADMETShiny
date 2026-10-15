@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.10.18">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,13 +12,10 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
+code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: 1.5em;}
-div.column{flex: auto;}
-@media screen {
-div.columns{gap: min(4vw, 1.5em);}
-div.column{overflow-x: auto;}
-}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -42,14 +39,12 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-0a6b7249c26820e032cb0bd839ff02b1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-821b885b5e94fe17c7cb8d887f1a43ab.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-8ad9ef64c7c19a4991da5ee206e28f88.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-821b885b5e94fe17c7cb8d887f1a43ab.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-a0f9fd0d421825b736dc1bbcbcba2219.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-e8964db687007ca8dd88d9d9ce58e3ef.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -79,10 +74,9 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-fixed quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -224,10 +218,8 @@ ul.task-list li input[type="checkbox"] {
         changeGiscusTheme();
       }
     };
-    const authorPrefersDark = false;
+    const authorPrefersDark = true;
     const darkModeDefault = authorPrefersDark;
-      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
-      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
@@ -263,32 +255,28 @@ ul.task-list li input[type="checkbox"] {
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
     <a class="nav-link" href="./index.html"> 
-<span class="menu-text">Home</span></a>
+<span class="menu-text">🏠 Home</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./install.html"> 
-<span class="menu-text">How to install?</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./publication.html"> 
-<span class="menu-text">Publications</span></a>
+<span class="menu-text">🧪 Installation Guide</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-about" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">About</span>
+ <span class="menu-text">ℹ️ About</span>
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-about">    
         <li>
     <a class="dropdown-item" href="./about.html">
- <span class="dropdown-text">About ADMETShiny</span></a>
+ <span class="dropdown-text">💊 About About ADMETShiny</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./espeletia.html">
- <span class="dropdown-text">The flagship specie</span></a>
+ <span class="dropdown-text">🌿 The Flagship species</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./author.html">
- <span class="dropdown-text">About the author</span></a>
+ <span class="dropdown-text">👨 About the Author</span></a>
   </li>  
     </ul>
   </li>
@@ -301,15 +289,15 @@ ul.task-list li input[type="checkbox"] {
     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-help">    
         <li>
     <a class="dropdown-item" href="./feedback.html">
- <span class="dropdown-text">Feedback</span></a>
+ <span class="dropdown-text">💬 Feedback</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./workflow.html">
- <span class="dropdown-text">Workflows &amp; demostrations</span></a>
+ <span class="dropdown-text">🔬 Workflows &amp; Demonstrations</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./pages/tutorials.html">
- <span class="dropdown-text">Documentation</span></a>
+ <span class="dropdown-text">📖️ Documentation</span></a>
   </li>  
     </ul>
   </li>
@@ -336,8 +324,14 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#the-flagship-specie" id="toc-the-flagship-specie" class="nav-link active" data-scroll-target="#the-flagship-specie">The flagship specie</a></li>
+  <li><a href="#the-flagship-species" id="toc-the-flagship-species" class="nav-link active" data-scroll-target="#the-flagship-species">🌿 The Flagship Species</a>
+  <ul class="collapse">
   <li><a href="#espeletia-hartwegiana" id="toc-espeletia-hartwegiana" class="nav-link" data-scroll-target="#espeletia-hartwegiana"><strong><em>Espeletia hartwegiana</em></strong></a></li>
+  </ul></li>
+  <li><a href="#species-overview" id="toc-species-overview" class="nav-link" data-scroll-target="#species-overview">🌱 Species Overview</a></li>
+  <li><a href="#a-keystone-of-high-andean-biodiversity" id="toc-a-keystone-of-high-andean-biodiversity" class="nav-link" data-scroll-target="#a-keystone-of-high-andean-biodiversity">🦋 A Keystone of High-Andean Biodiversity</a></li>
+  <li><a href="#conservation-threats" id="toc-conservation-threats" class="nav-link" data-scroll-target="#conservation-threats">⚠️ Conservation Threats</a></li>
+  <li><a href="#why-conservation-matters" id="toc-why-conservation-matters" class="nav-link" data-scroll-target="#why-conservation-matters">💧 Why Conservation Matters</a></li>
   </ul>
 </nav>
     </div>
@@ -348,29 +342,132 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="the-flagship-specie" class="level2">
-<h2 class="anchored" data-anchor-id="the-flagship-specie">The flagship specie</h2>
-</section>
+<section id="the-flagship-species" class="level1" style="text-align: center;">
+<h1>🌿 The Flagship Species</h1>
 <section id="espeletia-hartwegiana" class="level2">
 <h2 class="anchored" data-anchor-id="espeletia-hartwegiana"><strong><em>Espeletia hartwegiana</em></strong></h2>
-<p>The <strong>frailejón</strong> is a caulescent rosette reaching up to 4 m in height, with slender stems, inflorescences approximately equal in length to the leaves, and yellow capitula.</p>
-<p>It is one of the emblematic plants of the Colombian páramo ecosystem, playing a key ecological role in water regulation, storage, and generation.</p>
+<p><em>The guardian of the Colombian páramo</em></p>
+</section>
+</section>
+<hr>
+<section id="species-overview" class="level2">
+<h2 class="anchored" data-anchor-id="species-overview">🌱 Species Overview</h2>
+<p>The <strong>frailejón</strong> is a caulescent rosette reaching up to <strong>4 m</strong> in height, with slender stems, inflorescences approximately equal in length to the leaves, and yellow capitula.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Ecological significance
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>It is one of the emblematic plants of the Colombian páramo ecosystem, playing a key role in <strong>water regulation, storage, and generation</strong>.</p>
+</div>
+</div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="images/17.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+<p><img src="images/17.png" class="img-fluid figure-img"></p>
+<figcaption><em>Espeletia hartwegiana</em> in its natural páramo habitat</figcaption>
 </figure>
 </div>
-<p>Beyond its ecological function, <em>E. hartwegiana</em> supports a unique assemblage of microorganisms, insects, birds, and other high-Andean organisms that depend on páramo habitats. The species also represents an important reservoir of specialized secondary metabolites with promising pharmacological and biotechnological potential.</p>
-<p>However, climate change, agricultural expansion, livestock grazing, recurrent fires, and habitat fragmentation are threatening natural populations throughout the northern Andes. Rising temperatures are expected to reduce suitable páramo habitats, forcing populations to migrate to higher elevations where available habitat becomes increasingly limited.</p>
+<hr>
+</section>
+<section id="a-keystone-of-high-andean-biodiversity" class="level2">
+<h2 class="anchored" data-anchor-id="a-keystone-of-high-andean-biodiversity">🦋 A Keystone of High-Andean Biodiversity</h2>
+<p>Beyond its ecological function, <em>E. hartwegiana</em> supports a unique assemblage of <strong>microorganisms, insects, birds, and other high-Andean organisms</strong> that depend on páramo habitats.</p>
+<p>The species is also an important reservoir of <strong>specialized secondary metabolites</strong> with promising pharmacological and biotechnological potential.</p>
+<hr>
+</section>
+<section id="conservation-threats" class="level2">
+<h2 class="anchored" data-anchor-id="conservation-threats">⚠️ Conservation Threats</h2>
+<p>Natural populations throughout the northern Andes are under increasing pressure from:</p>
+<ul>
+<li>🌡️ <strong>Climate change</strong></li>
+<li>🚜 <strong>Agricultural expansion</strong></li>
+<li>🐄 <strong>Livestock grazing</strong></li>
+<li>🔥 <strong>Recurrent fires</strong></li>
+<li>🧩 <strong>Habitat fragmentation</strong></li>
+</ul>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Upward habitat shift
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Rising temperatures are expected to reduce suitable páramo habitats, forcing populations to migrate to higher elevations where available habitat becomes increasingly limited.</p>
+</div>
+</div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="images/18.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+<p><img src="images/18.png" class="img-fluid figure-img"></p>
+<figcaption>Threats to páramo ecosystems</figcaption>
 </figure>
 </div>
-<p>The conservation of <em>Espeletia hartwegiana</em> is therefore essential not only for preserving one of the world’s most biodiverse mountain ecosystems, but also for safeguarding water security, ecological resilience, and the chemical diversity that may support future discoveries in natural product research and drug development.</p>
+<hr>
+</section>
+<section id="why-conservation-matters" class="level2">
+<h2 class="anchored" data-anchor-id="why-conservation-matters">💧 Why Conservation Matters</h2>
+<p>The conservation of <em>Espeletia hartwegiana</em> is essential not only for preserving one of the world’s most biodiverse mountain ecosystems, but also for safeguarding:</p>
+<div class="quarto-layout-panel" data-layout-ncol="3">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div class="callout callout-style-default callout-tip callout-empty-content callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>💧 Water security
+</div>
+</div>
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div class="callout callout-style-default callout-tip callout-empty-content callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>🌎 Ecological resilience
+</div>
+</div>
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div class="callout callout-style-default callout-tip callout-empty-content callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>🧬 Chemical diversity
+</div>
+</div>
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>Together, these values support <strong>future discoveries in natural product research and drug development</strong>.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="images/19.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+<p><img src="images/19.png" class="img-fluid figure-img"></p>
+<figcaption>Conservation of the páramo for future generations</figcaption>
 </figure>
 </div>
 

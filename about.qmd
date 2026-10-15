@@ -1,41 +1,73 @@
 ---
-title: "About ADMETShiny"
+title: "💊 About About ADMETShiny"
 ---
 
-## Principal functions of ADMETShiny in R
+------------------------------------------------------------------------
 
-With ADMETShiny, say goodbye to manual ADMET analysis although different Web-Servers. Now, you could management your physicochemical profiles in once only spot.
+## ⚙️ Principal Functions of ADMETShiny in R
 
-![](images/6.png)
+With **ADMETShiny**, say goodbye to manual ADMET analysis spread across multiple web servers. Manage all your **physicochemical profiles in a single place**.
 
-Finally, you could generate an once report about the principal characteristics of the each model.
+![](images/6.png){fig-align="center"}
 
-If you're not estimate that's profile in external websites..., Don't Worry!, This Shiny include a web-local-server built with rCDK R package and Java SE Development Kit (JDK).
+Once your analysis is complete, you can generate a **single consolidated report** summarizing the main characteristics of each model.
 
-## One for open source and open source for one
+::: callout-tip
+## 🔒 No external websites needed
 
-**Input** data although of different methods (datasets in ".csv", search in PubChem with CID, common name, inchKey & CAS).
+Don't want to submit your compounds to external websites? Don't worry. ADMETShiny includes a **local web server** built with the **rCDK** R package and the **Java SE Development Kit (JDK)**, so your profiles can be estimated entirely on your own machine.
+:::
 
-### Now, you can calculate drug-likeness properties with CDK & WebChem
+------------------------------------------------------------------------
 
-The dataset & management filters could apply above to the properties *(molecular descriptors)* and get very easy reports.
+## 🌐 One for Open Source, and Open Source for One
+
+ADMETShiny accepts **input data from multiple sources**:
+
+| Input method | Details |
+|--------------|---------|
+| 📄 **Datasets** | Upload files in `.csv` format |
+| 🔎 **PubChem search** | By **CID**, **common name**, **InChIKey**, or **CAS** number |
+
+### 🧪 Calculate drug-likeness properties with CDK and webchem
+
+Dataset management and filters can be applied to the calculated **molecular descriptors**, producing clear and reproducible reports with minimal effort.
 
 ![](images/7.png){fig-align="center"}
 
-### Yes, you could use the console for develop a simple reproducible script
+### 💻 Prefer the console? Build reproducible scripts
 
-And this isn't all! You could generate your reports with the console... :)
+Everything available in the graphical interface can also be run from the R console, allowing you to develop **simple, reproducible scripts** and generate your reports programmatically.
 
-## The Shiny App for coders & no coders
+------------------------------------------------------------------------
 
-**Built for both coders and non-coders**, ADMETShiny offers an intuitive graphical interface that makes advanced cheminformatics analyses accessible without programming experience, while remaining fully integrated with the R ecosystem for users who require reproducible, customizable, and extensible workflows.
+## 👥 The Shiny App for Coders and Non-Coders
+
+::: callout-note
+## Built for everyone
+
+ADMETShiny offers an **intuitive graphical interface** that makes advanced cheminformatics analyses accessible without programming experience, while remaining fully integrated with the R ecosystem for users who require **reproducible, customizable, and extensible** workflows.
+:::
 
 ![](images/8.png){fig-align="center"}
 
-## Knowledge structure analysis
+------------------------------------------------------------------------
 
-ADMETShiny provides a comprehensive collection of interactive modules designed to streamline the early stages of drug discovery by integrating molecular retrieval, descriptor calculation, ADMET prediction, chemical space exploration, structural similarity analysis, and automated reporting into a single user-friendly environment.
+## 🧠 Knowledge Structure Analysis
+
+ADMETShiny provides a comprehensive collection of **interactive modules** that streamline the early stages of drug discovery in a single, user-friendly environment:
+
+- 🔬 **Molecular retrieval**
+- 🧮 **Descriptor calculation**
+- 🧬 **ADMET prediction**
+- 🌌 **Chemical space exploration**
+- 🔗 **Structural similarity analysis**
+- 📑 **Automated reporting**
 
 ![](images/9.png){fig-align="center"}
 
-Overall, ADMETShiny combines data retrieval, descriptor calculation, predictive modeling, interactive visualization, molecular prioritization, and automated reporting into a unified open-source platform specifically designed to accelerate computational drug discovery and medicinal chemistry research.
+::: callout-important
+## In summary
+
+ADMETShiny combines **data retrieval, descriptor calculation, predictive modeling, interactive visualization, molecular prioritization, and automated reporting** in a unified open-source platform, designed to accelerate computational drug discovery and medicinal chemistry research.
+:::

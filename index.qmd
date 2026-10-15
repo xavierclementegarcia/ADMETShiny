@@ -22,13 +22,61 @@ about:
     - icon: file-text
       text: Author
       href: https://xavierclementegarcia.github.io/
-format: 
-    html: 
-        header-includes: <meta name="google-site-verification" content="h2lnvvhWpvnoK2cNWm9_9bdMCOZDnfvi_dNeRIm9GGM" />
+format:
+    html:
+      theme:
+        dark: darkly
+        light: cosmo
+      toc: false 
+      header-includes: '<meta name="google-site-verification" content="h2lnvvhWpvnoK2cNWm9_9bdMCOZDnfvi_dNeRIm9GGM" />'
 ---
 
-## What's admetshiny v1.0.0 *Espeletia hartwegiana*?
+:::::::::::: column-page-left
+# admetshiny **`v1.0.0`**
 
-Admetshiny is an open-source R package that integrates code-based tools with a dual Shiny application interface to streamline drug discovery workflows. It facilitates the calculation of molecular descriptors via CDK and Webchem, standardizes heterogeneous ADMET datasets through its ADMET Master Manager, and applies prominent drug-likeness filters such as Lipinski's and Veber's rules. Furthermore, the package predicts pharmacokinetic endpoints including P-glycoprotein substrates and BOILED-Egg parameters, while enabling the generation of publication-ready visualizations and automated statistical reports like PCA, UMAP, and AGNES Tanimoto similarity dendrograms.
+### *Espeletia hartwegiana*
 
-## 
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/xavierclementegarcia/ADMETShiny) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![R-CMD-check](https://img.shields.io/badge/R--CMD--check-passing-brightgreen.svg)](https://github.com/xavierclementegarcia/ADMETShiny)
+
+**`admetshiny`** is an open-source R package designed to accelerate drug discovery workflows by unifying programmatic tools and an intuitive dual-interface Shiny application.
+
+------------------------------------------------------------------------
+
+## Key Capabilities
+
+::::::::::: grid
+:::: {.g-col-12 .g-col-md-6}
+::: {.callout-note icon="false" title="🔬 Descriptor Calculation"}
+Integrates seamlessly with **CDK** and **Webchem** to compute comprehensive molecular descriptors directly within R.
+:::
+::::
+
+:::: {.g-col-12 .g-col-md-6}
+::: {.callout-note icon="false" title="🛠 Data Standardization"}
+Standardizes heterogeneous ADMET datasets using the integrated **ADMET Master Manager**.
+:::
+::::
+
+:::: {.g-col-12 .g-col-md-6}
+::: {.callout-note icon="false" title="💊 Drug-Likeness Filtering"}
+Applies established filters, including **Lipinski’s** and **Veber’s** rules, for rapid candidate triaging.
+:::
+::::
+
+:::: {.g-col-12 .g-col-md-6}
+::: {.callout-note icon="false" title="🧪 PK Endpoint Prediction"}
+Predicts key pharmacokinetic parameters, such as **P-glycoprotein substrates** and **BOILED-Egg** models.
+:::
+::::
+:::::::::::
+
+------------------------------------------------------------------------
+
+## Advanced Analytics & Visualizations
+
+Automate statistical workflows and generate publication-ready figures with a single command or click:
+
+- **Dimensionality Reduction:** Automated PCA and UMAP projections.
+- **Hierarchical Clustering:** AGNES dendrograms based on Tanimoto similarity matrices.
+- **Automated Reporting:** Export comprehensive statistical reports instantly.
+::::::::::::

@@ -1,9 +1,40 @@
-### Feedback
+---
+title: "💬 Feedback"
+---
 
-#### How report the bugs in the form?
+------------------------------------------------------------------------
 
-##### Google Form option feedback
-You could report the bugs of this package [Here](https://forms.gle/Sx9c119KskwSiNMG8)
+## 🐞 How to Report Bugs
 
-##### GitHub issues
-You could report bugs of this package wit [Github issues](https://github.com/xavierclementegarcia/ADMETShiny/issues)
+You can report bugs or issues with this package through either of the following channels:
+
+::: panel-tabset
+## 📝 Google Form
+
+Prefer a quick and simple option? Submit your report through our feedback form.
+
+👉 [Open the feedback form](https://forms.gle/Sx9c119KskwSiNMG8){.btn .btn-primary}
+
+## 🐙 GitHub Issues
+
+Recommended for users familiar with GitHub, as it allows you to track the status of your report.
+
+👉 [Open a GitHub issue](https://github.com/xavierclementegarcia/admetshiny-package/issues){.btn .btn-primary}
+:::
+
+::: callout-tip
+## 📋 Tips for a useful bug report
+
+To help us resolve the issue faster, please include:
+
+- A **clear description** of the problem
+- The **steps to reproduce** it
+- Your **R version** and **operating system**
+- Any **error messages** or screenshots
+:::
+
+::: callout-note
+## 💡 Suggestions are welcome
+
+Have an idea to improve ADMETShiny? You can also reach us by [e-mail](mailto:xgarcia@unicauca.edu.co).
+:::

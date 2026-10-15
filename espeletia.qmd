@@ -1,19 +1,73 @@
-## The flagship specie
+::: {style="text-align: center;"}
+# 🌿 The Flagship Species
 
 ## ***Espeletia hartwegiana***
 
-The **frailejón** is a caulescent rosette reaching up to 4 m in height, with slender stems, inflorescences approximately equal in length to the leaves, and yellow capitula.
+*The guardian of the Colombian páramo*
+:::
 
-It is one of the emblematic plants of the Colombian páramo ecosystem, playing a key ecological role in water regulation, storage, and generation.
+------------------------------------------------------------------------
 
-![](images/17.png){fig-align="center"}
+## 🌱 Species Overview
 
-Beyond its ecological function, *E. hartwegiana* supports a unique assemblage of microorganisms, insects, birds, and other high-Andean organisms that depend on páramo habitats. The species also represents an important reservoir of specialized secondary metabolites with promising pharmacological and biotechnological potential.
+The **frailejón** is a caulescent rosette reaching up to **4 m** in height, with slender stems, inflorescences approximately equal in length to the leaves, and yellow capitula.
 
-However, climate change, agricultural expansion, livestock grazing, recurrent fires, and habitat fragmentation are threatening natural populations throughout the northern Andes. Rising temperatures are expected to reduce suitable páramo habitats, forcing populations to migrate to higher elevations where available habitat becomes increasingly limited.
+::: callout-note
+## Ecological significance
 
-![](images/18.png){fig-align="center"}
+It is one of the emblematic plants of the Colombian páramo ecosystem, playing a key role in **water regulation, storage, and generation**.
+:::
 
-The conservation of *Espeletia hartwegiana* is therefore essential not only for preserving one of the world's most biodiverse mountain ecosystems, but also for safeguarding water security, ecological resilience, and the chemical diversity that may support future discoveries in natural product research and drug development.
+![*Espeletia hartwegiana* in its natural páramo habitat](images/17.png){fig-align="center"}
 
-![](images/19.png){fig-align="center"}
+------------------------------------------------------------------------
+
+## 🦋 A Keystone of High-Andean Biodiversity
+
+Beyond its ecological function, *E. hartwegiana* supports a unique assemblage of **microorganisms, insects, birds, and other high-Andean organisms** that depend on páramo habitats.
+
+The species is also an important reservoir of **specialized secondary metabolites** with promising pharmacological and biotechnological potential.
+
+------------------------------------------------------------------------
+
+## ⚠️ Conservation Threats
+
+Natural populations throughout the northern Andes are under increasing pressure from:
+
+- 🌡️ **Climate change**
+- 🚜 **Agricultural expansion**
+- 🐄 **Livestock grazing**
+- 🔥 **Recurrent fires**
+- 🧩 **Habitat fragmentation**
+
+::: callout-warning
+## Upward habitat shift
+
+Rising temperatures are expected to reduce suitable páramo habitats, forcing populations to migrate to higher elevations where available habitat becomes increasingly limited.
+:::
+
+![Threats to páramo ecosystems](images/18.png){fig-align="center"}
+
+------------------------------------------------------------------------
+
+## 💧 Why Conservation Matters
+
+The conservation of *Espeletia hartwegiana* is essential not only for preserving one of the world's most biodiverse mountain ecosystems, but also for safeguarding:
+
+:::::: {layout-ncol="3"}
+::: callout-tip
+## 💧 Water security
+:::
+
+::: callout-tip
+## 🌎 Ecological resilience
+:::
+
+::: callout-tip
+## 🧬 Chemical diversity
+:::
+::::::
+
+Together, these values support **future discoveries in natural product research and drug development**.
+
+![Conservation of the páramo for future generations](images/19.png){fig-align="center"}

@@ -1,5 +1,5 @@
 ---
-title: "About the author"
+title: "👨 About the Author"
 subtitle: "Xavier Clemente García Cevallos"
 
 about:
@@ -16,13 +16,54 @@ about:
       text: LinkedIn
       href: https://www.linkedin.com/in/xavier-clemente-garc%C3%ADa-cevallos-b4727a206/
 
-    - text: '<img src="https://investigacion.udca.edu.co/wp-content/uploads/2018/04/cvlac.svg" alt="CVLAC" style="width:20px;height:20px;">'
+    - text: '<img src="https://investigacion.udca.edu.co/wp-content/uploads/2018/04/cvlac.svg" alt="CVLAC" style="width:20px;height:20px;"> CvLAC'
       href: https://scienti.minciencias.gov.co/cvlac/visualizador/generarCurriculoCv.do?cod_rh=0002018236
 
-    - text: '<img src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" alt="ORCID" style="width:20px;height:20px;">'
+    - text: '<img src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" alt="ORCID" style="width:20px;height:20px;"> ORCID'
       href: https://orcid.org/0000-0002-3284-2363
 ---
 
-### About the author
+## 👨‍🔬 Biography
 
-**Xavier Clemente García Cevallos** is a biologist and researcher student whose work focuses on computational drug discovery, cheminformatics, bioinformatics, natural products, and neurobiology. His research integrates experimental phytochemistry with *in silico* approaches, including molecular docking, ADMET profiling, molecular dynamics, and software development for reproducible computational workflows. He is the developer of **ADMETShiny**, an open-source R package designed to facilitate the analysis and visualization of molecular descriptors and ADMET properties.
+**Xavier Clemente García Cevallos** is a biologist and research student specializing in **computational drug discovery**. His work bridges experimental science and computational methods, with a focus on the discovery and characterization of bioactive molecules from natural sources.
+
+::: callout-note
+## 🎯 Research interests
+
+- 💊 **Computational drug discovery**
+- 🧪 **Cheminformatics**
+- 🧬 **Bioinformatics**
+- 🌿 **Natural products**
+- 🧠 **Neurobiology**
+:::
+
+------------------------------------------------------------------------
+
+## 🔬 Research Approach
+
+His research integrates **experimental phytochemistry** with ***in silico*** approaches, including:
+
+| Approach | Application |
+|-------------------------------|----------------------------------------|
+| ⚛️ **Molecular docking** | Prediction of ligand–target interactions |
+| 💧 **ADMET profiling** | Evaluation of pharmacokinetic and toxicity properties |
+| 🌀 **Molecular dynamics** | Study of molecular behavior and stability |
+| 💻 **Software development** | Reproducible computational workflows |
+
+------------------------------------------------------------------------
+
+## 🚀 Featured Project
+
+::: callout-tip
+## ADMETShiny
+
+Xavier is the developer of **ADMETShiny**, an **open-source R package** designed to facilitate the analysis and visualization of **molecular descriptors** and **ADMET properties**.
+
+👉 [View on GitHub](https://github.com/xavierclementegarcia/ADMETShiny){.btn .btn-primary}
+:::
+
+------------------------------------------------------------------------
+
+## 📬 Get in Touch
+
+Connect through the links on this page, or contact him by [e-mail](mailto:xgarcia@unicauca.edu.co).

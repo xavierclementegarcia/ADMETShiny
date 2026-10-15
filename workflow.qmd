@@ -1,31 +1,117 @@
 ---
-title: "Workflows & demostrations"
+title: "🔬 Workflows & Demonstrations"
 ---
+------------------------------------------------------------------------
 
-### Workflows & demonstrations
+## 🖥️ The User Interface
 
-#### The user interface
-
-This image displays the Navigation Guide for **ADMETShiny (Version 1.0.0)**, an open-source R Shiny web application designed for the management, calculation, filtering, and selection of drug-likeness potential molecules in early-stage drug discovery. The user interface features a top horizontal navigation bar split into nine numbered modules indicated by green hex icons: **(1) Home**, which returns to the main landing page; **(2) ADMET Master Manager**, for calculating and analyzing molecular properties; **(3) CDK & webchem**, providing access to cheminformatics tools for structure processing and chemical analysis.
+**ADMETShiny (Version 1.0.0)** is an open-source R Shiny web application designed for the management, calculation, filtering, and selection of drug-like molecules in early-stage drug discovery.
 
 ![](images/20.png){fig-align="center"}
 
-**(4) Report**, for customizing and exporting analysis results; **(5) About**, detailing project and author information; **(6) First Steps**, offering step-by-step tutorials for new users; and **(7) Documentation**, which hosts technical guides and vignettes. Below this primary interface menu, the dashboard is split into two bottom sections highlighted by green pointers: a **Description** box on the left, summarizing the app's integration of bioinformatics and cheminformatics workflows for molecular descriptor visualization, and a **How to cite?** box on the right, providing the formal 2026 academic citation and the GitHub repository link
+### Navigation bar
 
-### The datasets example
+The top horizontal bar is divided into **seven numbered modules**, each marked with a green hex icon:
 
-Below this, the **Drug-likeness Filters** section allows users to apply customizable filters based on popular medicinal chemistry criteria, including Lipinski, Veber, Ghose, Egan, and Muegge rules, along with adjustable threshold inputs for maximum molecular weight, logP, hydrogen bond acceptors/donors, and maximum Lipinski violations.
+| \# | Module | Purpose |
+|:--:|--------|---------|
+| 1 | **Home** | Returns to the main landing page |
+| 2 | **ADMET Master Manager** | Calculates and analyzes molecular properties |
+| 3 | **CDK & webchem** | Cheminformatics tools for structure processing and chemical analysis |
+| 4 | **Report** | Customizes and exports analysis results |
+| 5 | **About** | Project and author information |
+| 6 | **First Steps** | Step-by-step tutorials for new users |
+| 7 | **Documentation** | Technical guides and vignettes |
+
+### Landing page panels
+
+Below the navigation bar, the dashboard is split into two sections:
+
+::: {layout-ncol="2"}
+::: callout-note
+## 📝 Description
+
+Summarizes the app's integration of bioinformatics and cheminformatics workflows for molecular descriptor visualization.
+:::
+
+::: callout-tip
+## 📖 How to cite?
+
+Provides the formal 2026 academic citation and the GitHub repository link.
+:::
+:::
+
+------------------------------------------------------------------------
+
+## 🧪 The Dataset Example
+
+The **Drug-likeness Filters** section lets users apply customizable filters based on popular medicinal chemistry criteria:
+
+- ✅ **Lipinski**
+- ✅ **Veber**
+- ✅ **Ghose**
+- ✅ **Egan**
+- ✅ **Muegge**
+
+Adjustable thresholds are available for maximum **molecular weight**, **logP**, **hydrogen bond acceptors/donors**, and **maximum Lipinski violations**.
 
 ![](images/21.png){fig-align="center"}
 
-The main central area displays the **Filtered Results** table under the **Filtered Molecules** tab **(6)**, which renders a structured overview of the compounds that meet the set criteria. This interactive data grid displays key molecular descriptors such as the Molecule ID, Canonical SMILES, chemical Formula, Molecular Weight (MW), number of Heavy Atoms, and number of Aromatic Heavy Atoms. Users can utilize the **Search** bar **(8)** located at the top right of the table to quickly filter molecules by name, SMILES string, or specific properties. Additionally, the interface includes top tabs for **Data Preview** **(5)** and **Plots** **(7)** to seamlessly toggle between the raw dataset, the refined subsets, and data distributions, providing an intuitive, integrated workflow for compound prioritization.
+### Filtered results
 
-### You probably need a report
+The central area displays the **Filtered Results** table under the **Filtered Molecules** tab **(6)**, giving a structured overview of the compounds that meet the selected criteria. This interactive data grid shows key molecular descriptors:
 
-The executive summary and statistical breakdown confirm that 100% of the library was successfully retained, exhibiting average baseline properties such as a Molecular Weight of 392.44, a LogP of 3.33, and a TPSA of 90.53. The library demonstrates high quality with a mean composite drug-likeness score of 85.4 out of 100, where 80.5% of the compounds achieve an "Excellent" classification.
+- Molecule ID
+- Canonical SMILES
+- Chemical formula
+- Molecular weight (MW)
+- Number of heavy atoms
+- Number of aromatic heavy atoms
+
+::: callout-tip
+## 🔍 Quick search
+
+Use the **Search** bar **(8)** at the top right of the table to filter molecules by name, SMILES string, or specific properties.
+:::
+
+The top tabs, **Data Preview** **(5)** and **Plots** **(7)**, let you toggle seamlessly between the raw dataset, refined subsets, and data distributions, providing an intuitive, integrated workflow for compound prioritization.
+
+------------------------------------------------------------------------
+
+## 📊 You Probably Need a Report
+
+The executive summary and statistical breakdown confirm that **100% of the library was successfully retained**.
 
 ![](images/27.png){fig-align="center"}
 
-These metrics are supported by three robust visualizations: a BOILED-Egg plot mapping gastrointestinal absorption and blood-brain barrier permeability alongside P-glycoprotein efflux status, a stacked bar chart detailing individual rule violations across standard medicinal chemistry criteria (Lipinski, Ghose, Veber, Egan, and Muegge), and a score distribution histogram that visually confirms the sharp clustering of the vast majority of the compounds within the highest drug-likeness tier.
+### Key metrics
 
-### 
+| Metric | Value |
+|--------|:-----:|
+| 🧬 **Molecular Weight (mean)** | 392.44 |
+| 💧 **LogP (mean)** | 3.33 |
+| 🔷 **TPSA (mean)** | 90.53 |
+| ⭐ **Drug-likeness score (mean)** | 85.4 / 100 |
+| 🏆 **Compounds rated "Excellent"** | 80.5% |
+
+::: callout-important
+## High-quality library
+
+The majority of compounds cluster within the highest drug-likeness tier, confirming the overall quality of the library.
+:::
+
+### Supporting visualizations
+
+::: panel-tabset
+## 🥚 BOILED-Egg
+
+Maps **gastrointestinal absorption** and **blood-brain barrier permeability**, alongside **P-glycoprotein efflux** status.
+
+## 📉 Rule violations
+
+A stacked bar chart detailing individual rule violations across the standard medicinal chemistry criteria: **Lipinski, Ghose, Veber, Egan, and Muegge**.
+
+## 📈 Score distribution
+
+A histogram that visually confirms the sharp clustering of most compounds within the highest drug-likeness tier.
+:::

@@ -24,14 +24,16 @@ website:
   navbar:
     left:
       - href: index.qmd
-        text: Home
+        text: 🏠 Home
       - href: install.qmd
-      - href: publication.qmd
+        text: 🧪 Installation Guide
+      ##- href: publication.qmd
         
-      - text: About
+      - text: ℹ️ About
         menu:
           - href: about.qmd
           - href: espeletia.qmd
+            text: 🌿 The Flagship species
           - href: author.qmd 
     right:
       - text: Help
@@ -51,13 +53,9 @@ website:
 format:
   html:
     theme:
-      light: 
-        - pulse 
-        - styles.scss
-      dark: 
-        - vapor
-        - styles.scss
-    css: styles.css
+      dark: darkly
+      light: cosmo
+    #css: styles.css
     toc: true
         
 
