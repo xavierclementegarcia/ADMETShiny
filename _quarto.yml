@@ -40,7 +40,7 @@ website:
         menu:
           - href: feedback.qmd
           - href: workflow.qmd
-          - href: pages\tutorials.qmd
+          #- href: pages\tutorials.qmd
 
 
     tools:

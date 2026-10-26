@@ -32,7 +32,7 @@ format:
 ---
 
 :::::::::::: column-page-left
-# admetshiny **`v1.0.0`**
+# admetshiny **v1.0.1**
 
 ### *Espeletia hartwegiana*
 

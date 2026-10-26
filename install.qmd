@@ -49,7 +49,7 @@ install.packages(c(
   "shiny", "DT", "ggplot2", "dplyr", "magrittr", "grid", "graphics",
   "utils", "grDevices", "stats", "rcdk", "webchem", "fmsb", "Rtsne",
   "ggrepel", "fingerprint", "cluster", "GGally", "openxlsx", "knitr",
-  "rmarkdown", "testthat", "uwot", "viridisLite"
+  "rmarkdown", "testthat", "uwot", "viridisLite, "vegan"
 ))
 ```
 
