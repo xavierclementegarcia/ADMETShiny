@@ -49,5 +49,8 @@
   },
   "package/LICENSE.md": {
     "LICENSE.html": "6192b87f"
+  },
+  "dashboard.qmd": {
+    "dashboard.html": "27f7b442"
   }
 }

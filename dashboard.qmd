@@ -1,0 +1,253 @@
+---
+format:
+  dashboard:
+    theme:
+      dark: darkly
+      light: cosmo
+    nav-buttons:
+      - icon: github
+        href: https://github.com/xavierclementegarcia/admetshiny
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(admetshiny)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(DT)
+
+set.seed(42)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+
+# ggplot -> plotly; si ggplotly no soporta alguna capa, muestra el ggplot estático
+ip <- function(p) tryCatch(ggplotly(p), error = function(e) p)
+
+# ------------------------------------------------------------------
+# 1. DATOS
+#    - Real: data/admet.rds, generado con data-raw/build-data.R
+#    - Si no existe, se simula un dataset en el esquema estándar para
+#      poder probar el dashboard.
+# ------------------------------------------------------------------
+if (file.exists("data/admet.rds")) {
+  df <- readRDS("data/admet.rds")
+} else {
+  n <- 150
+  MW <- round(pmax(rnorm(n, 380, 120), 120), 2)
+  df <- data.frame(
+    Name = sprintf("CPD-%03d", seq_len(n)),
+    MW   = MW,
+    LogP = round(rnorm(n, 3, 1.8), 2),
+    TPSA = round(rgamma(n, shape = 6, scale = 15), 2),
+    MR   = round(MW * 0.27 + rnorm(n, 0, 6), 2),
+    "#H-bond acceptors"     = rpois(n, 5) + 1,
+    "#H-bond donors"        = rpois(n, 2),
+    "#Rotatable bonds"      = rpois(n, 5),
+    "#Heavy atoms"          = round(MW / 13),
+    "#Aromatic heavy atoms" = rpois(n, 6),
+    check.names = FALSE
+  )
+}
+
+# Columnas de violaciones y propiedades BOILED-Egg / P-gp (si faltan)
+if (!any(grepl("#violations", names(df)))) df <- computeViolationColumns(df)
+if (!"GI absorption" %in% names(df))       df <- computeADMETProperties(df)
+
+df$Grupo <- ifelse(df[["Lipinski #violations"]] == 0,
+                   "Lipinski OK", "Lipinski violado")
+
+# ------------------------------------------------------------------
+# 2. FILTROS DE DRUG-LIKENESS
+# ------------------------------------------------------------------
+filtros <- c("Lipinski", "Veber", "Ghose", "Egan", "Muegge")
+resumen_filtros <- data.frame(
+  Filtro = filtros,
+  Pasan  = sapply(filtros, \(f) nrow(applyFilters(df, filters = f)))
+) |>
+  mutate(Porcentaje = round(100 * Pasan / nrow(df), 1))
+
+pasan_todos <- applyFilters(df, filters = filtros)
+
+pct <- function(x, yes) round(100 * mean(tolower(x) %in% tolower(yes), na.rm = TRUE))
+
+props <- c("MW", "LogP", "TPSA", "MR", "#H-bond acceptors",
+           "#H-bond donors", "#Rotatable bonds", "#Heavy atoms")
+props <- intersect(props, names(df))
+```
+
+# Resumen
+
+## Row {height="20%"}
+
+```{r}
+#| content: valuebox
+#| title: "Compuestos"
+list(icon = "capsule", color = "primary", value = nrow(df))
+```
+
+```{r}
+#| content: valuebox
+#| title: "Cumplen Lipinski"
+list(icon = "check-circle", color = "success",
+     value = paste0(resumen_filtros$Porcentaje[resumen_filtros$Filtro == "Lipinski"], "%"))
+```
+
+```{r}
+#| content: valuebox
+#| title: "Pasan los 5 filtros"
+list(icon = "funnel", color = "info",
+     value = paste0(round(100 * nrow(pasan_todos) / nrow(df)), "%"))
+```
+
+```{r}
+#| content: valuebox
+#| title: "Alta absorción GI"
+list(icon = "egg-fried", color = "warning",
+     value = paste0(pct(df[["GI absorption"]], "High"), "%"))
+```
+
+```{r}
+#| content: valuebox
+#| title: "Permean BBB"
+list(icon = "lightning-charge", color = "danger",
+     value = paste0(pct(df[["BBB permeant"]], "Yes"), "%"))
+```
+
+## Row {height="80%"}
+
+```{r}
+#| title: "Modelo BOILED-Egg"
+ip(plotBoiledEgg(df))
+```
+
+```{r}
+#| title: "Compuestos que pasan cada filtro (%)"
+p <- ggplot(resumen_filtros,
+            aes(x = reorder(Filtro, -Porcentaje), y = Porcentaje, fill = Filtro,
+                text = paste0(Filtro, ": ", Pasan, " compuestos"))) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "% de compuestos") +
+  theme_minimal()
+ggplotly(p, tooltip = "text")
+```
+
+# Espacio químico
+
+## Row {.tabset}
+
+```{r}
+#| title: "PCA"
+plotPCA(df, variables = props, color_by = "Grupo")
+```
+
+```{r}
+#| title: "t-SNE"
+plotTSNE(df, variables = props, color_by = "Grupo",
+         perplexity = min(30, floor((nrow(df) - 1) / 3) - 1))
+```
+
+```{r}
+#| title: "UMAP"
+plotUMAP(df, variables = props, color_by = "Grupo")
+```
+
+# Distribuciones
+
+## Row
+
+```{r}
+#| title: "Peso molecular"
+ip(plotMW(df))
+```
+
+```{r}
+#| title: "TPSA"
+ip(plotTPSA(df))
+```
+
+```{r}
+#| title: "LogP"
+ip(plotLogP(df))
+```
+
+## Row
+
+```{r}
+#| title: "MW por cumplimiento de Lipinski"
+ip(plotViolin(df, variable = "MW", group_by = "Grupo"))
+```
+
+```{r}
+#| title: "LogP por absorción GI"
+ip(plotHistogramCustom(df, variable = "LogP", group_by = "GI absorption"))
+```
+
+```{r}
+#| title: "Coordenadas paralelas"
+plotParallel(df, variables = c("MW", "LogP", "TPSA"), color_by = "Grupo")
+```
+
+# Correlación y similitud
+
+## Row
+
+```{r}
+#| title: "Correlación entre propiedades"
+ip(plotCorrHeatmap(df, props = props))
+```
+
+```{r}
+#| title: "Clustering jerárquico (primeros 60 compuestos)"
+plotClusterHeatmap(head(df, 60), variables = props, id_col = "Name")
+```
+
+## Row
+
+```{r}
+#| title: "Perfil fisicoquímico (radar, 5 compuestos)"
+ids <- head(df$Name, 5)
+plotRadar(df, id_col = "Name", ids = ids)
+```
+
+```{r}
+#| title: "Similitud estructural Tanimoto / AGNES"
+# Requiere columna SMILES real y Java (rcdk) al renderizar
+ok <- "SMILES" %in% names(df) && any(!is.na(df$SMILES))
+if (ok) {
+  tryCatch(
+    plotTanimoto(df, smiles_col = "SMILES", label_col = "Name", max_n = 40),
+    error = function(e) { plot.new(); text(.5, .5, "Tanimoto no disponible\n(¿Java/rcdk?)") }
+  )
+} else {
+  plot.new(); text(.5, .5, "Sin SMILES en los datos")
+}
+```
+
+# Datos
+
+## Row {height="15%"}
+
+```{r}
+#| title: "Resumen de filtros"
+datatable(resumen_filtros, rownames = FALSE,
+          options = list(dom = "t", paging = FALSE))
+```
+
+## Row {height="85%"}
+
+```{r}
+#| title: "Tabla completa (exportable)"
+datatable(
+  df, rownames = FALSE, filter = "top",
+  extensions = c("Buttons", "Scroller"),
+  options = list(dom = "Bfrtip", buttons = c("csv", "excel"),
+                 scrollX = TRUE, scrollY = 400, scroller = TRUE)
+)
+```
+
+# Acerca de
+
+::: card
+**ADMETShiny Dashboard** muestra, de forma estática, el análisis ADMET y de drug-likeness generado con el paquete [`admetshiny`](https://github.com/xavierclementegarcia/admetshiny) (filtros Lipinski, Veber, Ghose, Egan y Muegge; BOILED-Egg; clasificador P-gp; PCA, t-SNE, UMAP; clustering Tanimoto/AGNES).
+:::

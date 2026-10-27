@@ -91,34 +91,6 @@
     "text": "💧 Why Conservation Matters\nThe conservation of Espeletia hartwegiana is essential not only for preserving one of the world’s most biodiverse mountain ecosystems, but also for safeguarding:\n\n\n\n\n\n\n\n\n\nTip💧 Water security\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTip🌎 Ecological resilience\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTip🧬 Chemical diversity\n\n\n\n\n\n\n\n\n\nTogether, these values support future discoveries in natural product research and drug development.\n\n\n\nConservation of the páramo for future generations"
   },
   {
-    "objectID": "about.html#principal-functions-of-admetshiny-in-r",
-    "href": "about.html#principal-functions-of-admetshiny-in-r",
-    "title": "💊 About About ADMETShiny",
-    "section": "⚙️ Principal Functions of ADMETShiny in R",
-    "text": "⚙️ Principal Functions of ADMETShiny in R\nWith ADMETShiny, say goodbye to manual ADMET analysis spread across multiple web servers. Manage all your physicochemical profiles in a single place.\n\n\n\n\n\nOnce your analysis is complete, you can generate a single consolidated report summarizing the main characteristics of each model.\n\n\n\n\n\n\nTip🔒 No external websites needed\n\n\n\nDon’t want to submit your compounds to external websites? Don’t worry. ADMETShiny includes a local web server built with the rCDK R package and the Java SE Development Kit (JDK), so your profiles can be estimated entirely on your own machine."
-  },
-  {
-    "objectID": "about.html#one-for-open-source-and-open-source-for-one",
-    "href": "about.html#one-for-open-source-and-open-source-for-one",
-    "title": "💊 About About ADMETShiny",
-    "section": "🌐 One for Open Source, and Open Source for One",
-    "text": "🌐 One for Open Source, and Open Source for One\nADMETShiny accepts input data from multiple sources:\n\n\n\n\n\n\n\nInput method\nDetails\n\n\n\n\n📄 Datasets\nUpload files in .csv format\n\n\n🔎 PubChem search\nBy CID, common name, InChIKey, or CAS number\n\n\n\n\n🧪 Calculate drug-likeness properties with CDK and webchem\nDataset management and filters can be applied to the calculated molecular descriptors, producing clear and reproducible reports with minimal effort.\n\n\n\n\n\n\n\n💻 Prefer the console? Build reproducible scripts\nEverything available in the graphical interface can also be run from the R console, allowing you to develop simple, reproducible scripts and generate your reports programmatically."
-  },
-  {
-    "objectID": "about.html#the-shiny-app-for-coders-and-non-coders",
-    "href": "about.html#the-shiny-app-for-coders-and-non-coders",
-    "title": "💊 About About ADMETShiny",
-    "section": "👥 The Shiny App for Coders and Non-Coders",
-    "text": "👥 The Shiny App for Coders and Non-Coders\n\n\n\n\n\n\nNoteBuilt for everyone\n\n\n\nADMETShiny offers an intuitive graphical interface that makes advanced cheminformatics analyses accessible without programming experience, while remaining fully integrated with the R ecosystem for users who require reproducible, customizable, and extensible workflows."
-  },
-  {
-    "objectID": "about.html#knowledge-structure-analysis",
-    "href": "about.html#knowledge-structure-analysis",
-    "title": "💊 About About ADMETShiny",
-    "section": "🧠 Knowledge Structure Analysis",
-    "text": "🧠 Knowledge Structure Analysis\nADMETShiny provides a comprehensive collection of interactive modules that streamline the early stages of drug discovery in a single, user-friendly environment:\n\n🔬 Molecular retrieval\n🧮 Descriptor calculation\n🧬 ADMET prediction\n🌌 Chemical space exploration\n🔗 Structural similarity analysis\n📑 Automated reporting\n\n\n\n\n\n\n\n\n\n\n\n\nImportantIn summary\n\n\n\nADMETShiny combines data retrieval, descriptor calculation, predictive modeling, interactive visualization, molecular prioritization, and automated reporting in a unified open-source platform, designed to accelerate computational drug discovery and medicinal chemistry research."
-  },
-  {
     "objectID": "author.html",
     "href": "author.html",
     "title": "👨 About the Author",
@@ -152,6 +124,34 @@
     "title": "👨 About the Author",
     "section": "📬 Get in Touch",
     "text": "📬 Get in Touch\nConnect through the links on this page, or contact him by e-mail."
+  },
+  {
+    "objectID": "about.html#principal-functions-of-admetshiny-in-r",
+    "href": "about.html#principal-functions-of-admetshiny-in-r",
+    "title": "💊 About About ADMETShiny",
+    "section": "⚙️ Principal Functions of ADMETShiny in R",
+    "text": "⚙️ Principal Functions of ADMETShiny in R\nWith ADMETShiny, say goodbye to manual ADMET analysis spread across multiple web servers. Manage all your physicochemical profiles in a single place.\n\n\n\n\n\nOnce your analysis is complete, you can generate a single consolidated report summarizing the main characteristics of each model.\n\n\n\n\n\n\nTip🔒 No external websites needed\n\n\n\nDon’t want to submit your compounds to external websites? Don’t worry. ADMETShiny includes a local web server built with the rCDK R package and the Java SE Development Kit (JDK), so your profiles can be estimated entirely on your own machine."
+  },
+  {
+    "objectID": "about.html#one-for-open-source-and-open-source-for-one",
+    "href": "about.html#one-for-open-source-and-open-source-for-one",
+    "title": "💊 About About ADMETShiny",
+    "section": "🌐 One for Open Source, and Open Source for One",
+    "text": "🌐 One for Open Source, and Open Source for One\nADMETShiny accepts input data from multiple sources:\n\n\n\n\n\n\n\nInput method\nDetails\n\n\n\n\n📄 Datasets\nUpload files in .csv format\n\n\n🔎 PubChem search\nBy CID, common name, InChIKey, or CAS number\n\n\n\n\n🧪 Calculate drug-likeness properties with CDK and webchem\nDataset management and filters can be applied to the calculated molecular descriptors, producing clear and reproducible reports with minimal effort.\n\n\n\n\n\n\n\n💻 Prefer the console? Build reproducible scripts\nEverything available in the graphical interface can also be run from the R console, allowing you to develop simple, reproducible scripts and generate your reports programmatically."
+  },
+  {
+    "objectID": "about.html#the-shiny-app-for-coders-and-non-coders",
+    "href": "about.html#the-shiny-app-for-coders-and-non-coders",
+    "title": "💊 About About ADMETShiny",
+    "section": "👥 The Shiny App for Coders and Non-Coders",
+    "text": "👥 The Shiny App for Coders and Non-Coders\n\n\n\n\n\n\nNoteBuilt for everyone\n\n\n\nADMETShiny offers an intuitive graphical interface that makes advanced cheminformatics analyses accessible without programming experience, while remaining fully integrated with the R ecosystem for users who require reproducible, customizable, and extensible workflows."
+  },
+  {
+    "objectID": "about.html#knowledge-structure-analysis",
+    "href": "about.html#knowledge-structure-analysis",
+    "title": "💊 About About ADMETShiny",
+    "section": "🧠 Knowledge Structure Analysis",
+    "text": "🧠 Knowledge Structure Analysis\nADMETShiny provides a comprehensive collection of interactive modules that streamline the early stages of drug discovery in a single, user-friendly environment:\n\n🔬 Molecular retrieval\n🧮 Descriptor calculation\n🧬 ADMET prediction\n🌌 Chemical space exploration\n🔗 Structural similarity analysis\n📑 Automated reporting\n\n\n\n\n\n\n\n\n\n\n\n\nImportantIn summary\n\n\n\nADMETShiny combines data retrieval, descriptor calculation, predictive modeling, interactive visualization, molecular prioritization, and automated reporting in a unified open-source platform, designed to accelerate computational drug discovery and medicinal chemistry research."
   },
   {
     "objectID": "feedback.html#how-to-report-bugs",

@@ -27,6 +27,8 @@ website:
         text: 🏠 Home
       - href: install.qmd
         text: 🧪 Installation Guide
+      - href: dashboard.qmd
+        text: 📊 Dashboard
       ##- href: publication.qmd
         
       - text: ℹ️ About
