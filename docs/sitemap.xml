@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://xavierclementegarcia.github.io/ADMETShiny/dashboard.html</loc>
+    <lastmod>2026-10-27T07:59:16.336Z</lastmod>
+  </url>
+  <url>
+    <loc>https://xavierclementegarcia.github.io/ADMETShiny/about.html</loc>
+    <lastmod>2026-10-15T07:11:50.304Z</lastmod>
+  </url>
+  <url>
     <loc>https://xavierclementegarcia.github.io/ADMETShiny/workflow.html</loc>
     <lastmod>2026-10-15T07:09:36.280Z</lastmod>
   </url>
   <url>
     <loc>https://xavierclementegarcia.github.io/ADMETShiny/pages/tutorials.html</loc>
     <lastmod>2026-10-15T07:29:10.694Z</lastmod>
-  </url>
-  <url>
-    <loc>https://xavierclementegarcia.github.io/ADMETShiny/index.html</loc>
-    <lastmod>2026-10-27T07:24:30.076Z</lastmod>
   </url>
   <url>
     <loc>https://xavierclementegarcia.github.io/ADMETShiny/espeletia.html</loc>
@@ -21,23 +25,19 @@
     <lastmod>2026-10-15T07:26:28.368Z</lastmod>
   </url>
   <url>
-    <loc>https://xavierclementegarcia.github.io/ADMETShiny/about.html</loc>
-    <lastmod>2026-10-15T07:11:50.304Z</lastmod>
-  </url>
-  <url>
-    <loc>https://xavierclementegarcia.github.io/ADMETShiny/dashboard.html</loc>
-    <lastmod>2026-10-27T07:59:16.336Z</lastmod>
+    <loc>https://xavierclementegarcia.github.io/ADMETShiny/index.html</loc>
+    <lastmod>2026-10-27T07:24:30.076Z</lastmod>
   </url>
   <url>
     <loc>https://xavierclementegarcia.github.io/ADMETShiny/feedback.html</loc>
     <lastmod>2026-10-15T07:21:37.331Z</lastmod>
   </url>
   <url>
-    <loc>https://xavierclementegarcia.github.io/ADMETShiny/install.html</loc>
-    <lastmod>2026-10-26T04:01:44.228Z</lastmod>
-  </url>
-  <url>
     <loc>https://xavierclementegarcia.github.io/ADMETShiny/publication.html</loc>
     <lastmod>2026-07-07T05:19:41.835Z</lastmod>
+  </url>
+  <url>
+    <loc>https://xavierclementegarcia.github.io/ADMETShiny/install.html</loc>
+    <lastmod>2026-10-26T04:01:44.228Z</lastmod>
   </url>
 </urlset>
