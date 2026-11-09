@@ -27,8 +27,13 @@ website:
         text: 🏠 Home
       - href: install.qmd
         text: 🧪 Installation Guide
-      - href: dashboard.qmd
-        text: 📊 Dashboard
+      - href: pages/learn.qmd
+        text: Guide to learn
+      - href: changelog.qmd
+        text: Changelog
+      - href: references.qmd
+        text: References
+      
       ##- href: publication.qmd
         
       - text: ℹ️ About
@@ -42,7 +47,8 @@ website:
         menu:
           - href: feedback.qmd
           - href: workflow.qmd
-          #- href: pages\tutorials.qmd
+          - href: pages\tutorials.qmd
+            text: Fundaments
 
 
     tools:

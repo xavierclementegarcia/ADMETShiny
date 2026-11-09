@@ -1,0 +1,88 @@
+---
+title: "References"
+format: html
+---
+
+All exported functions in the `admetshiny` package, organized by category.
+
+---
+
+## Application
+
+| Function | Description |
+|---|---|
+| `run_app()` | Launch the interactive Shiny application |
+
+---
+
+## Drug-Likeness Filters
+
+| Function | Description |
+|---|---|
+| `lipinskiFilter()` | Lipinski Rule-of-Five filter (MW, LogP, HBA, HBD) |
+| `ghoseFilter()` | Ghose qualifying range filter (MW, MR, LogP, atoms) |
+| `veberFilter()` | Veber oral bioavailability filter (RB, TPSA, HBA+HBD) |
+| `eganFilter()` | Egan PSA-LogP filter (TPSA, LogP) |
+| `mueggeFilter()` | Muegge pharmacophore filter (MW, LogP, TPSA, HBA, HBD, RB) |
+| `applyFilters()` | Apply multiple filters in sequence |
+| `computeViolationColumns()` | Compute or preserve violation columns from properties |
+
+---
+
+## Data Normalization & CDK
+
+| Function | Description |
+|---|---|
+| `mapADMETColumns()` | Map any user dataset to standard column schema |
+| `mapCDKDescriptors()` | Map CDK descriptor output to standard schema |
+| `calcCDKDescriptors()` | Calculate descriptors from SMILES via CDK (requires rcdk) |
+| `getSmilesFromIdentifiers()` | Retrieve SMILES from PubChem via names, CAS, or InChIKeys |
+| `computeADMETProperties()` | Compute BOILED-Egg ADMET classification (GI, BBB, Pgp) |
+
+---
+
+## Visualization
+
+| Function | Description |
+|---|---|
+| `plotBoiledEgg()` | BOILED-Egg model plot (HIA + BBB prediction) |
+| `plotMW()` | Molecular weight distribution histogram |
+| `plotTPSA()` | TPSA distribution histogram |
+| `plotLogP()` | LogP distribution histogram |
+| `plotCorrHeatmap()` | Correlation heatmap with Pearson/Spearman + significance |
+| `plotClusterHeatmap()` | Cluster heatmap with dendrogram (requires pheatmap) |
+| `plotHistogramCustom()` | Customizable histogram with auto test selection |
+| `plotViolin()` | Violin plot with auto Wilcoxon/Kruskal-Wallis |
+| `plotPCA()` | PCA chemical space with PERMANOVA + loading arrows |
+| `plotTSNE()` | t-SNE chemical space with PERMANOVA (requires Rtsne) |
+| `plotUMAP()` | UMAP chemical space with PERMANOVA (requires uwot) |
+| `plotParallel()` | Parallel coordinates with PERMANOVA (requires GGally) |
+| `plotRadar()` | Radar chart of physicochemical profile (requires fmsb) |
+| `plotTanimoto()` | Tanimoto/AGNES structural similarity dendrogram (requires rcdk) |
+
+---
+
+## Plot Customization
+
+| Function | Description |
+|---|---|
+| `palette_selector_ui()` | Shiny UI element for colour palette selection |
+| `apply_palette()` | Apply a colour palette to a ggplot2 object |
+
+---
+
+## Report Generation
+
+| Function | Description |
+|---|---|
+| `generateReport()` | Generate comprehensive report (HTML, PDF, Word) |
+
+---
+
+## Package Index
+
+```{r}
+#| eval: false
+library(admetshiny)
+help(package = "admetshiny")
+```

@@ -1,0 +1,120 @@
+---
+title: "Changelog"
+format: html
+---
+
+### v1.1.0 (Beta - Accessible via the remotes package)
+
+#### Cluster Heatmap (`plotClusterHeatmap`)
+
+- Replaced base R `heatmap()` with `pheatmap::pheatmap()` for publication-quality rendering.
+- 12 new parameters: `display_numbers`, `number_format`, `cutree_rows`, `cutree_cols`, `clustering_distance`, `border_color`, `na_col`, `show_rownames`, `show_colnames`, `angle_col`, `fontsize`, `annotation_row`.
+- Cophenetic correlation coefficient (Sokal & Rohlf, 1962) reported in the heatmap title for both rows and columns.
+- Distance metric selector: euclidean, correlation (1 - Pearson), manhattan, maximum, canberra, binary, minkowski.
+- Row annotation support: pass a column name or data.frame to colour-code compound groups.
+- Cell values can be displayed inside each cell with configurable format.
+- Dendrogram cutting: `cutree_rows` and `cutree_cols` draw coloured borders.
+- Added `"Dark2"` and `"Spectral"` palettes.
+- Duplicate compound names detected and reported via `message()`.
+- Shiny UI expanded with dedicated controls in both modules.
+
+#### Histogram Statistics (`plotHistogramCustom`)
+
+- Automatic test selection: 2 groups -> Wilcoxon rank-sum (Mann-Whitney U); >= 3 groups -> Kruskal-Wallis; ungrouped -> Shapiro-Wilk.
+- `n_groups` and Mean +/- SD shown in the subtitle.
+- `safe_shapiro()` helper handles edge cases (n < 3, n > 5000, constant data).
+
+#### Violin Plot Statistics (`plotViolin`)
+
+- Same Wilcoxon / Kruskal-Wallis / Shapiro-Wilk logic as the histogram.
+- Numeric coercion of the variable column.
+- Filtered data used for plotting.
+
+#### Correlation Heatmap (`plotCorrHeatmap`)
+
+- New `method` parameter: `"pearson"` (default) or `"spearman"`.
+- Significance testing via `cor.test()` for each pair of descriptors.
+- Significance asterisks in each cell.
+- Method name shown in the title; significance legend in the subtitle.
+- Shiny UI: correlation method selector in both modules.
+
+#### BOILED-Egg (`plotBoiledEgg`)
+
+- Y-axis label dynamically switches to `"WLOGP"` when WLOGP polygons are selected.
+
+#### PERMANOVA in PCA, t-SNE, UMAP and Parallel Coordinates
+
+- PERMANOVA (Anderson 2001) computed via `vegan::adonis2()` on the scaled descriptor distance matrix.
+- Results (R-squared, F, p-value) shown in the plot subtitle.
+- *Post-hoc* pairwise PERMANOVA with Holm correction when the main test is significant and >= 3 groups.
+
+#### Drug-likeness Filters: Violation Column Preservation
+
+- `computeViolationColumns()` preserves pre-existing violation columns from data sources.
+- Column mapping UI includes options for Lipinski, Ghose, Veber, Egan and Muegge Violations.
+
+#### Console Output (R console)
+
+- Statistical results printed to the R console with `cli` formatting.
+- Detailed output for: histogram, violin, correlation heatmap, BOILED-Egg, PCA, t-SNE, UMAP and parallel coordinates.
+- Each report includes: descriptive statistics, normality assessment, significance test with effect size, *post-hoc* comparisons, interpretation and bibliographic reference.
+
+
+#### Report Generation
+
+- New "Statistical Analysis" section in the generated report.
+- Includes group comparisons, *post-hoc*, correlation summary and PERMANOVA results.
+- Six new bibliographic references.
+
+#### Package Documentation
+
+- Hexagonal logo added to the package-level help page (`?admetshiny`).
+
+### Removed packages
+
+- Removed the base R `heatmap()`; `pheatmap` is now required.
+
+
+---
+
+### v1.0.1
+
+- Added PERMANOVA statistics (R2, F, p-value) to PCA, t-SNE and UMAP plots via vegan::adonis2(), computed on the original distance matrix.
+- Added cumUlative R2 to the PCA subtitle.
+- Added Shapiro-Wilk normality test and descriptive statistics (n, mean, SD, median, IQR) to plotMW, plotTPSA and plotLogP subtitles.
+- Added Kruskal-Wallis test to plotHistogramCustom and plotViolinsubtitles, Wilcoxon, test for the two-group colour support.
+- Improved the cluster heatmap with a labelled colour key (key.title, key.xlab), finer colour breaks, and NA colour support.
+- Fixed plotClusterHeatmap to handle NULL inputs from renderUI (method, palette, scale_data) with safe defaults.
+- Increased report figure resolution from 150 to 300 dpi.
+
+#### Dark mode 
+
+- Fixed the report preview container showing invisible text in dark mode (white background with light text).
+
+### PubChem / WebChem compatibility update
+
+- Updated pc_prop() property names for webchem 2.0: CanonicalSMILES is now ConnectivitySMILES. IsomericSMILES is now SMILES. Added column rename for backwards compatibility.
+
+### New dependencies 
+
+- Added vegan to Imports for PERMANOVA computation.
+
+- Added importFrom for stats::as.hclust, stats::cophenetic, stats::rect.hclust, stats::kruskal.test, stats::quantile, stats::shapiro.test, stats::wilcox.test.
+
+- Added importFrom for vegan::adonis2()
+
+
+---
+
+### v1.0.0
+
+- Initial CRAN release.
+- Interactive Shiny application with two complementary modules: CDK & webchem and ADMET Master Manager.
+- Drug-likeness filters: Lipinski, Veber, Ghose, Egan, Muegge.
+- BOILED-Egg model with dual WLOGP / ALogP polygon systems.
+- P-glycoprotein substrate prediction via an embedded Random Forest classifier.
+- PCA, t-SNE, UMAP, parallel coordinates, violin, radar, custom histogram, cluster heatmap and correlation heatmap visualizations.
+- Tanimoto / AGNES structural-similarity clustering.
+- Comprehensive HTML / PDF / Word report generation.
+- Dark mode, custom colour palettes and high-resolution figure export.
+- Codename: *Espeletia hartwegiana*.

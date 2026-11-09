@@ -52,5 +52,14 @@
   },
   "dashboard.qmd": {
     "dashboard.html": "27f7b442"
+  },
+  "pages/learn.qmd": {
+    "learn.html": "f458cc6f"
+  },
+  "changelog.qmd": {
+    "changelog.html": "dacf0800"
+  },
+  "references.qmd": {
+    "references.html": "f2f87d60"
   }
 }

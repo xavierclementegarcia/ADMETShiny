@@ -1,338 +1,412 @@
 ---
-title: "📖️ Documentation"
-bibliography: references.bib
+title: "Theoretical Foundations"
+format: html
 ---
 
-### Theory & Documentation
+This document describes the scientific basis and algorithms underlying the `admetshiny` package.
 
-Admetshiny is an R package that provides an interactive Shiny application and a toolbox of R functions for the management, calculation, filtering, visualization and exploratory analysis of molecular descriptors and ADMET (Absorption, Distribution, Metabolism, Excretion and Toxicity) properties of small molecules.
+------------------------------------------------------------------------
 
-The package structure is organized into 24 R source files. The NAMESPACE declare 31 exports, the description 10 hard imports and 16 suggest, but we've recommended install all the packages with the guide script in the website.
+## Drug-Likeness Filters
 
-### Two working modules
+### Lipinski Rule of Five (1997)
 
-- **CDK & Webchem:** a four step pipeline where: 1. obtain SMILES via PubChem identifiers, manual entry or CSV upload; 2. Calculate CDK descriptors; 3. apply drug-likeness filters; 4. visualize the results.
+**Reference:** Lipinski, C. A., Lombardo, F., Dominy, B. W., & Feeney, P. J. (1997). Experimental and computational approaches to estimate solubility and permeability in drug discovery and development settings. *Advanced Drug Delivery Reviews*, 23(1-3), 3-25.
 
-- **ADMET Master Manager:** a four step wizard: 1. Upload & Preview; 2. Map Columns; 3. Filter; 4. Plots
+**Criteria:**
 
-Both modules feed their final filtered dataset into the shared Report tab, which uses rmarkdown to render a comprehensive analysis document in HTML, PDF or Word format.
+| Parameter              | Threshold  |
+|------------------------|------------|
+| Molecular Weight (MW)  | \<= 500 Da |
+| LogP                   | \<= 5      |
+| H-bond Acceptors (HBA) | \<= 10     |
+| H-bond Donors (HBD)    | \<= 5      |
 
-### Data Standardization Schema
+**Implementation:** A compound violates if any criterion exceeds the threshold. Up to 1 violation is generally considered acceptable.
 
-The application uses a single canonical column schema regardless of the original data source.
+### Ghose Filter (1999)
 
-| Field code           | Standard column name  | Type          |
-|----------------------|-----------------------|---------------|
-| SMILES               | CanonicalSMILES       | `string`      |
-| Name                 | Name                  | `string`      |
-| LogP                 | LogP                  | `numeric`     |
-| WLOGP                | WLOGP                 | `numeric`     |
-| TPSA                 | TPSA                  | `numeric`     |
-| HBD                  | #H-bond donors        | `numeric`     |
-| HBA                  | #H bond acceptors     | `numeric`     |
-| Rotatable Bonds      | #Rotatable bonds      | `numeric`     |
-| Molar Refractivity   | MR                    | `numeric`     |
-| Heavy Atoms          | #Heavy atoms          | `numeric`     |
-| Aromatic Heavy Atoms | #Aromatic heavy atoms | `numeric`     |
-| GI Absorption        | GI absorption         | `categorical` |
-| Gi Absorption_num    | GI_absorption_num     | `numeric`     |
-| BBB Permeant         | BBB permeant          | `categorical` |
-| BBB Permeant_num     | BBB_num               | `numeric`     |
-| Pgp Substrate        | Pgp substrate         | `categorical` |
-| Pgp Substrate_num    | Pgp_num               | `numeric`     |
-| LogS                 | LogS                  | `numeric`     |
-| LogD                 | LogD                  | `numeric`     |
+**Reference:** Ghose, A. K., Viswanadhan, V. N., & Wendoloski, J. J. (1999). A knowledge-based approach in designing combinatorial or medicinal chemistry libraries for drug discovery. *Journal of Combinatorial Chemistry*, 1(1), 55-68.
 
-: The standardization column names
+**Criteria:**
 
-### The mapADMETColumns algorithm
+| Parameter               | Range        |
+|-------------------------|--------------|
+| Molecular Weight        | 160 - 480 Da |
+| Molar Refractivity (MR) | 40 - 130     |
+| LogP                    | -0.4 to 5.6  |
+| Total Atoms             | 20 - 70      |
 
-The function executes seven sequential steps:
+**Note:** The atom count refers to TOTAL atoms (heavy + hydrogens), consistent with the MW range. The filter prefers `"#Total atoms"` when available and falls back to `"#Heavy atoms"`.
 
-1.  **Rename columns:** For each user column pair in the mapping, the field code is looked up in code to standard. If a target name already exists and points to a different column, the old column is dropped first to prevent duplicated name confusion.
+### Veber Filter (2002)
 
-2.  **Numeric coercion:** The standard numeric columns (`MW, LogP, WLOGP, TPSA, HBD, HBA, RB, MR, heavy atoms, aromatics atoms, LogS, LogD, GI_absorption_num, BBB_num_Pgp_num`) are coerced with suppress warnings.
+**Reference:** Veber, D. F., Johnson, S. R., Cheng, H. Y., Smith, B. R., Ward, K. W., & Kopple, K. D. (2002). Molecular properties that influence the oral bioavailability of drug candidates. *Journal of Medicinal Chemistry*, 45(12), 2615-2623.
 
-3.  **ADMET numeric to categorical conversion:** If the user supplied a numeric column mapped to GI Absorption and another, the corresponding categorical column is derived using a threshold of 0.5
+**Criteria:**
 
-``` r
-if ("GI_absorption_num" %in% names(data)) {
- v <- data$GI_absorption_num
- data[["GI absorption"]] <- ifelse(
- is.na(v), NA,
- ifelse(v >= 0.5, "High", "Low"))
- data
-```
+| Parameter            | Threshold         |
+|----------------------|-------------------|
+| Rotatable Bonds (RB) | \<= 10            |
+| TPSA OR HBA + HBD    | \<= 140 OR \<= 12 |
 
-4.  **Optional CDK calculation for missing descriptors:** When the function `calculate_cdk = TRUE`, and a CanonicalSMILES column exists, the function computes the set of missing standard descriptors via `setdiff()`, MAPS each to its CDK short code. **For more information about to this function, you could read the technical documentation.**
-5.  **WLOGP/LogP precedence logic:** WLOGP is the BOILED-Egg's original calibration axis [@daina2016a]. When the user has explicitly mapped a column to WLOGP but has not mapped another column to LogP, the generic LogP column is silently set to the WLOGP values:
+**Note:** The two polarity conditions are alternatives (OR), not cumulative, following the original paper.
 
-``` r
-## ----- 5. If WLOGP present and LogP not mapped, set LogP = WLOGP -----
-## WLOGP is preferred for BOILED-Egg (official calibration), but only
-## if the user didn't explicitly map a different column to LogP.
-if ("WLOGP" %in% names(data) && !"LogP" %in% names(data)) {
- data$LogP <- data$WLOGP
-}
-History note. An earlier version of this step (Issue 7 in worklog.md) used the simpler condition "WLOGP"
-%in% names(data) and silently overwrote a user-mapped LogP column. The current guarded condition
-respects an explicit LogP mapping.
-```
+### Egan Filter (2000)
 
-6.  **Compute violation columns:** The standardized data is passed through `computeViolationColumns()` to add the five "#Violations" columns used by the filters.
-7.  Compute ADMET properties: If any of GI absorption, BBB permeant or Pgp substrate is missing, `computeADMETProperties()` is called. To honour user-provided categorical columns, the function temporarily stashes any pre-existing categorical ADMET column runs `computeADMETProperties()`, then restores the stashed values.
+**Reference:** Egan, W. J., Merz, K. M., & Baldwin, J. J. (2000). Prediction of drug absorption using multivariate statistics. *Journal of Medicinal Chemistry*, 43(21), 3867-3877.
 
-### Physicochemical Descriptors
+**Criteria:**
 
-#### Molecular Weight (MW)
+| Parameter | Threshold |
+|-----------|-----------|
+| TPSA      | \<= 131.6 |
+| LogP      | \<= 5.88  |
 
-The molecular weight is the sum of the atomic weights of every atom in the molecule, weighted by the count of each atom type:
+### Muegge Filter (2001)
 
-$$\mathrm{MW} \;=\; \sum_{i=1}^{N} A_i \times \mathrm{MW}_i,$$
+**Reference:** Muegge, I., Heald, S. L., & Brittelli, D. (2001). Simple selection criteria for drug-like chemical matter. *Journal of Medicinal Chemistry*, 44(12), 1841-1846.
 
-That's equation define the next functions, where **N** is the number of distinct atom types **Ai** is the count of atoms of type and **MWi** is the monoisotopic or average atomic weight of atom type taken from the IUPAC standard atomic weights [@roskoski2020].
+**Criteria:**
 
-#### LogP (Lipophilicity)
+| Parameter            | Range/Threshold |
+|----------------------|-----------------|
+| MW                   | 200 - 600       |
+| LogP                 | -2 to 5         |
+| HBA                  | \<= 10          |
+| HBD                  | \<= 5           |
+| Rotatable Bonds      | \<= 15          |
+| TPSA                 | \<= 150         |
+| Pharmacophore points | \>= 4           |
 
-The partition coefficient **LogP** between **n-octanol** and water is estimated by several independent methods. ADMETShiny exposes the two atomistic fragmental predictors **ALogP** and **WLOGP**, together with **Consensus LogP** that aggregates five distinct methods [@filimonov2014].
+**Note:** Pharmacophore points are approximated as HBA + HBD (rings and hydrophobic centers are not directly available from CDK descriptors).
 
-At the case to **ALogP** , is calculated with **Development Kit (CDK)**, that's implementation of uses an atomistic fragmental method: every atom is assigned to a typed fragment whose contribution has been regression fitted on a curated training set. The **LogP** is the sum of fragment contributions:
+------------------------------------------------------------------------
 
-$$ \mathrm{LogP} \;=\; \sum_{i=1}^{N} f_i \times n_i,$$
+## BOILED-Egg Model
 
-#### Topological Polar Surface Area (TPSA)
+### Original Publication
 
-The **TPSA** is computed by *Ertl's* fragment based method as the sum of polar atom type surface contributions over 43 predefined atom types:
+**Reference:** Daina, A., & Zoete, V. (2016). A boiled egg to predict gastrointestinal absorption and brain penetration of small molecules. *ChemMedChem*, 11(11), 1117-1121.
 
-$$\mathrm{WLOGP} \;=\; \sum_{i=1}^{N} f_i \times n_i,$$
+### WLOGP Polygons (Official)
 
-where the count of polar atom type is defined by elements, hybridization, and number of attached hydrogens.
+The original BOILED-Egg was calibrated with WLOGP (Wildman-Crippen LogP). The official polygon coordinates are from the supplementary data (Data S3) of Daina & Zoete (2016). These define two elliptical regions in the TPSA-LogP space:
 
-#### Molar Refractivity (MR)
+- **White region (yolk):** Compounds predicted to be absorbed by the GI tract (HIA+)
+- **Yellow region (white):** Compounds predicted to cross the blood-brain barrier (BBB+)
 
-Molar refractivity is related to the refractive index *n*, the molecular weight *MW*, and the density *d* of the pure compound by the Lorenz-Lorentz equation:
+### ALogP Polygons (Trained)
 
-$$\mathrm{MR} \;=\; \frac{n^2 - 1}{n^2 + 2} \times \frac{\mathrm{MW}}{d}$$
+When WLOGP is not available (e.g., CDK descriptors use ALogP), the package uses ALogP-trained polygons. These were trained using Monte Carlo optimization on experimental HIA and BBB data.
 
-Because the refractive index and density are not generally available for arbitrary molecules, ADMETShiny uses the Wildman-Crippen fragmental estimator:
+**Training data:** 659 HIA compounds and 256 BBB compounds from Daina & Zoete (2016).
 
-$$\mathrm{MR} \;=\; \sum_{i=1}^{N} r_i \times n_i,$$
+**Optimization method:** Monte Carlo + Metropolis algorithm.
 
-#### Hydrogen Bond Donors (HBD)
+### P-glycoprotein Substrate Prediction
 
-The HBD count is the number of N-H and O-H bonds in the molecule, that's the total number hydrogens bound to a nitrogen or oxygen atom.
+**Reference:** Seelig, A. (1998). A general pattern for substrate recognition by P-glycoprotein. *European Journal of Biochemistry*, 251(1-2), 252-261.
 
-$$\mathrm{HBD} \;=\; \sum_{i} (\text{atom}_i \in \{\mathrm{N}, \mathrm{O}\}) \times h_i,$$
+The package uses an embedded Random Forest classifier trained from experimental data.
 
-#### Hydrogen Bond Acceptors (HBA)
+### BOILED-Egg Training Section
 
-The HBA count is the number of nitrogen and oxygen atoms in the molecule with Lipinski's definition.
+<!-- TODO: Add training results here -->
 
-$$\mathrm{HBA} \;=\; \sum_{i} (\text{atom}_i \in \{\mathrm{N}, \mathrm{O}\}).$$
+<!-- The following sections should be filled with the actual training results: -->
 
-#### Rotatable Bonds (RB)
+<!-- ### HIA ALogP Training -->
 
-A rotatable bond is any single non-ring non-terminal bond between two non-hydrogen atoms:
+<!-- - Training data: N molecules -->
 
-$$\mathrm{RB} = \sum_{(i,j)\in E} \mathbb{I}(b_{ij} = 1) \cdot \mathbb{I}(\text{ring}_{ij} = 0) \cdot \mathbb{I}(\deg(i) > 1) \cdot \mathbb{I}(\deg(j) > 1)$$
+<!-- - Method: Monte Carlo + Metropolis -->
 
-#### Heavy Atoms and Aromatic Heavy Atoms
+<!-- - Iterations: 80,000 -->
 
-The heavy-atom count is the total number of non-hydrogen atoms:
+<!-- - Training MCC: -->
 
-$$\mathrm{HA} = \sum_{i} \mathbb{I}(\text{atom}_i \neq \mathrm{H})$$
+<!-- - Training Accuracy: -->
 
-The heavy-atom count is the total number of non-hydrogen atoms. The aromatic heavy-atom count is the subset of heavy atoms that belong to an aromatic ring:
+<!-- - 5-fold CV MCC: -->
 
-### Drug-Likeness Filters
+<!-- - 5-fold CV Accuracy: -->
 
-Each drug-likeness filter is formalized as an indicator function combination. For each rule we define a violation indicator. *V=0* denotes as compound that satisfies the rule, *V=1* a violation.
+<!-- - Normalization parameters: mu_TPSA, sd_TPSA, mu_ALogP, sd_ALogP -->
 
-#### Lipinski Rule of Five
+<!-- ### BBB ALogP Training -->
 
-The Lipinski violation count is the number of threshold superations over the four canonical physicochemical properties:
+<!-- - Training data: N molecules -->
 
-$$V_{\mathrm{Lipinski}} = \mathbb{I}(\mathrm{MW} > 500) + \mathbb{I}(\mathrm{LogP} > 5) + \mathbb{I}(\mathrm{HBA} > 10) + \mathbb{I}(\mathrm{HBD} > 5)$$
+<!-- - Method: Monte Carlo + Metropolis -->
 
-A compound is considered drug-like when Vlipinski = 0. A single violation (V=1) is still considered acceptable, following Lipinski's original "one violation allowed" convention.
+<!-- - Iterations: 80,000 -->
 
-#### Veber Filter
+<!-- - Training MCC: -->
 
-The Veber rule predicts good oral bioavailability from molecular flexibility and polarity. The original Veber criterion uses only RB \> 10 and TPSA \> 140 branches; ADMETShiny additionally requires the H-bond pair count to exceed 12 in the TPSA based branch, matching the form used by SwissADME [@daina2017].
+<!-- - Training Accuracy: -->
 
-$$V_{\mathrm{Veber}} = \Ind\Bigl(\mathrm{RB} > 10 \lor \bigl(\mathrm{TPSA} > 140 \land (\mathrm{HBA} + \mathrm{HBD}) > 12\bigr)\Bigr)$$
+<!-- - 5-fold CV MCC: -->
 
-#### Ghose Filter
+<!-- - 5-fold CV Accuracy: -->
 
-The Ghose filter defines a drug-like chemical space by four simultaneous range constraints:
+<!-- - Normalization parameters: mu_TPSA, sd_TPSA, mu_ALogP, sd_ALogP -->
 
-$$\begin{aligned}
-V_{\mathrm{Ghose}} = {} & \mathbf{1}(\mathrm{MW} < 160 \lor \mathrm{MW} > 480) \\
-                        & + \mathbf{1}(\mathrm{MR} < 40 \lor \mathrm{MR} > 130) \\
-                        & + \mathbf{1}(\mathrm{LogP} < -0.4 \lor \mathrm{LogP} > 5.6) \\
-                        & + \mathbf{1}(\mathrm{HA} < 20 \lor \mathrm{HA} > 70)
-\end{aligned}$$
+<!-- ### WLOGP Baseline Comparison -->
 
-Each of the four properties must lie inside its permissible range for a compound to satisfy the rule.
+<!-- - HIA WLOGP: ACC, MCC, Sens, Spec -->
 
-#### Egan Filter
+<!-- - BBB WLOGP: ACC, MCC, Sens, Spec -->
 
-The Egan filter predicts oral absorption from lipophilicity and polarity alone:
+------------------------------------------------------------------------
 
-$$V_{\mathrm{Egan}} = \mathbb{I}(\mathrm{TPSA} > 131.6) + \mathbb{I}(\mathrm{LogP} > 5.88)$$
+## P-glycoprotein Random Forest Model
 
-A compound satisfies the Egan rule when both indicators are zero.
+### Training Data
 
-#### Muegge Filter
+**Source:** Metrabase (J. Cheminformatics 2015, 7:21).
 
-The Muegge "Lead-like" filter adds a pharmacophore points constraint **PP = HBA + HBD.**
+**Compounds:** 882 experimental compounds with P-gp substrate labels.
 
-$$\def\Ind{\operatorname{Ind}}
-\begin{aligned}
-V_{\mathrm{Muegge}} = {} & \Ind(\mathrm{MW} < 200 \lor \mathrm{MW} > 600) \\
-                         & + \Ind(\mathrm{LogP} < -2 \lor \mathrm{LogP} > 5) \\
-                         & + \Ind(\mathrm{HBA} > 10) \\
-                         & + \Ind(\mathrm{HBD} > 5) \\
-                         & + \Ind(\mathrm{RB} > 15) \\
-                         & + \Ind(\mathrm{TPSA} > 150) \\
-                         & + \Ind(\mathrm{PP} < 4)
-\end{aligned}$$
+### Model Architecture
 
-The last term enforces the presence of at least four pharmacophore points H-bond donor or acceptor atoms, excluding molecules that lack the minimal polar functionality required for specific target recognition.
+| Parameter | Value             |
+|-----------|-------------------|
+| Algorithm | Random Forest     |
+| Trees     | 100               |
+| Max depth | 10                |
+| Features  | 9 CDK descriptors |
 
-### BOILED-Egg Model
+### Features
 
-The BOILED-Egg model classifies small molecules for two ADME endpoints human intestinal absorption (HIA) and blood-brain barrier (BBB) permeation from physicochemical descriptors only: $$TPSA$$ on the x-axis and $$LogP$$ on the y-axis.
+MW, LogP, TPSA, HBD, HBA, RB, HeavyAtoms, AromAtoms, MR
 
-A molecule whose point $$(x,y) = (TPSA, LogP) $$ lies inside the HIA ellipse is predicted to be passively absorbed by the gastrointestinal tract; a molecule inside the BBB ellipse "yolk" is predicted to cross the blood-brain barrier.
+### Performance
 
-#### Official WLOGP Polygons
+| Metric                   | Value |
+|--------------------------|-------|
+| Cross-validated accuracy | 69.4% |
+| MCC                      | 0.383 |
 
-Each ellipse is fully defined by scalar parameters: the two focus points $$ F_1 = (x_1,y_1)$$ and $$ F_2 = (x_2, y_2) $$ and the major axis length. A point $$ P= (x,y)$$ lies inside the ellipse if and only if the sum of its distances to the two points does not exceed d:
+<!-- TODO: Add detailed training results here -->
 
-$$d(P, F_1) + d(P, F_2) \;\leq\; d,$$
+<!-- ### Training Details -->
 
-where the Euclidean point to focus distances are:
+<!-- - Train/test split: -->
 
-$$\begin{aligned}
-d(P, F_1) &= \sqrt{(x - x_1)^2 + (y - y_1)^2} \\
-d(P, F_2) &= \sqrt{(x - x_2)^2 + (y - y_2)^2}
-\end{aligned}$$ {#eq-distancias}
+<!-- - Cross-validation: 5-fold -->
 
-The constants defining the official WLOGP ellipses for HIA+ and BBB+ are calibrated on the SwissADME training set [@daina2016; @daina2017]. We had use this when WLOGP are available for ADMETShiny.
+<!-- - Feature importance: -->
 
-#### Point in Polygon Test approximation
+<!-- - Confusion matrix: -->
 
-For runtime classification, the analytical ellipse is discrete into a closed polygon of *n* boundary points. The query point *P* is then decided by the ray-casting algorithm as a horizontal ray is cast from *P* in the +x direction axis, and the number of polygon edges crossed by the ray is counted. The parity of the count gives the classification:
+<!-- ### Comparison with Previous Heuristic -->
 
-$$\mathrm{inside}(P) = \left( \sum_{e \in E_{\mathrm{poly}}} \mathbb{I}(\text{ray crosses } e) \right) \bmod 2,$$
+<!-- - Previous accuracy: 55%, MCC: 0.145 -->
 
-That definition in the practice in ADMETShiny delegate this test to `sp::point.in.polygon()` when available, with the ray-casting formulation above as a pure R fallback.
+<!-- - RF accuracy: 69.4%, MCC: 0.383 -->
 
-#### LogP Source selection and trained ellipses
+<!-- - Improvement: +14.4% accuracy, +0.238 MCC -->
 
-Because the official ellipses were calibrated against WLOGP, their application to data produced with a different LogP estimator can produce systematic misclassification. ADMETShiny therefore selects the polygon set as a function of the user-supplied LogP source:
+------------------------------------------------------------------------
 
-$$\mathrm{polygons} =
-\begin{cases}
-\text{WLOGP official} & \text{if } \texttt{logp\_source} = \text{"WLOGP"}, \\
-\text{ALogP-trained}  & \text{otherwise}.
-\end{cases}$$ {#eq-be-sel}
+## Statistical Methods
 
-When the input data contain ALogP but no WLOGP, ADMETShiny uses ALogP trained polygons. These polygons are re-derived by ADMETShiny following the Monte-Carlo optimization protocol using a CDK training set of 439 molecules [@daina2016].
+### PERMANOVA (Anderson 2001)
 
-#### Monte-Carlo optimization
+**Reference:** Anderson, M. J. (2001). A new method for non-parametric multivariate analysis of variance. *Austral Ecology*, 26, 32-46.
 
-We have considered the Daina & Zoete methodology for this optimization. This is performed in the normalized *(TPSA, ALogP)* space. Normalization uses the empirical mean and standard deviation of the training set.
+**Implementation:** `vegan::adonis2()` on Euclidean distance of z-scored descriptors. 999 permutations.
 
-$$\begin{aligned}
-x' &= \frac{x - \mu_x}{\sigma_x} & y' &= \frac{y - \mu_y}{\sigma_y}
-\end{aligned}$$
+### Wilcoxon Rank-Sum Test (Mann-Whitney U)
 
-Each ellipse is parameterized by a five-dimensional vectors. The optimization maximizes a regularized with Matthews Correlation Coefficient:
+**Reference:** Mann, H. B., & Whitney, D. R. (1947). On a test of whether one of two random variables is stochastically larger than the other. *Annals of Mathematical Statistics*, 18(1), 50-60.
 
-$$\mathrm{Score} = \mathrm{MCC} - 0.05 \times S$$ The MCC itself is the standard balanced classification metric,
+**Use:** Comparing 2 groups (non-parametric alternative to t-test).
 
-$$\mathrm{MCC} = \frac{\mathrm{TP} \times \mathrm{TN} - \mathrm{FP} \times \mathrm{FN}}{\sqrt{(\mathrm{TP}+\mathrm{FP})(\mathrm{TP}+\mathrm{FN})(\mathrm{TN}+\mathrm{FP})(\mathrm{TN}+\mathrm{FN})}}$$ {#eq-mcc-definition}
+### Kruskal-Wallis Test
 
-#### Validation data and accuracy
+**Reference:** Kruskal, W. H., & Wallis, W. A. (1952). Use of ranks in one-criterion variance analysis. *Journal of the American Statistical Association*, 47(260), 583-621.
 
-The re-trained ALogP ellipses were validated against the CDK training set of 439 molecules. The classification performance is summarized in the next table:
+**Use:** Comparing \>= 3 groups (non-parametric alternative to ANOVA).
 
-| Model |  MCC  | Accuracy | TP  | FN  | FP  | TN  |
-|:-----:|:-----:|:--------:|:---:|:---:|:---:|:---:|
-|  HIA  | 0.986 |  99.5%   | 348 |  2  |  0  | 89  |
-|  BBB  | 0.977 |  98.9%   | 230 |  5  |  0  | 204 |
+**Effect size:** eta-squared = H / (N - 1).
 
-The HIA ellipse correctly classifies 348 of 350 absorbed molecules and all 89 non absorbed molecules. The BBB ellipse correctly classifies 230 of 235 permeant molecules and all 204 non permeant molecules. Both ellipses achieve zero false positives, which is desirable for a screening tool where over prediction of absorption & permeation would generate costly false leads.
+### Post-hoc: Pairwise Wilcoxon with Holm Correction
 
-### P-glycoprotein Substrate Prediction & Random Forest Architecture
+**Use:** After significant Kruskal-Wallis (p \< 0.05), identifies which specific pairs differ.
 
-P-glycoprotein (P-gp, ABCB1) substrate status is predicted by a Random Forest of *K= 100* binary decision trees. Each tree is trained independently on a bootstrap sample of the training set; at each internal node, the split is chosen over a random subset of features. Each leaf node stores the fraction of training set samples in that leaf that are P-gp substrates:
+**Correction:** Holm-Bonferroni method for multiple comparisons.
 
-$$P(\mathbf{x}) = \dfrac{\#\{\text{substrates in leaf reached by } \mathbf{x}\}}{\#\{\text{samples in leaf reached by } \mathbf{x}\}}$$ {#eq-leaf-probability-expanded}
+### Shapiro-Wilk Normality Test
 
-The final binary classification applies a threshold of 0.5 to the averaged probability:
+**Reference:** Shapiro, S. S., & Wilk, M. B. (1965). An analysis of variance test for normality. *Biometrika*, 52(3-4), 591-611.
 
-$$\text{P-gp substrate} =
-\begin{cases}
-\text{"Yes"} & \text{if } P(\text{substrate} \mid \mathbf{x}) \ge 0.5, \\
-\text{"No"}  & \text{otherwise}.
-\end{cases}$$ {#eq-pgp-classify}
+**Use:** Tests whether a variable follows a normal distribution.
 
-#### Training Data, methodology & model performance
+### Cophenetic Correlation
 
-The model was trained on 882 experimental P-gp (ABCB1) compounds extracted from Metrabase. The class distribution is 474 substrates (positive class) and 408 non-substrates (negative class). The nine physicochemical descriptors of equation are used as features. Their means and standard deviations in the training set are listed in the next table.
+**Reference:** Sokal, R. R., & Rohlf, F. J. (1962). The comparison of dendrograms by objective methods. *Taxon*, 11(2), 33-40.
 
-|   Descriptor   |  Mean  |   SD   |
-|:--------------:|:------:|:------:|
-|       MW       | 426.05 | 168.47 |
-|      LogP      |  3.28  |  2.22  |
-|      TPSA      | 89.63  | 59.68  |
-|      HBD       |  1.91  |  1.83  |
-|      HBA       |  5.71  |  3.65  |
-|       RB       |  5.72  |  4.54  |
-|  Heavy Atoms   | 30.28  | 12.06  |
-| Aromatic Atoms | 11.17  |  7.52  |
-|       MR       | 115.31 | 43.87  |
+**Use:** Measures how faithfully a dendrogram preserves the original pairwise distances. Values close to 1.0 indicate a good fit.
 
-The model performance was evaluated by five fold stratified cross validation.
+### Pearson Correlation
 
-| Metric      | Random Forest | SD    |
-|-------------|---------------|-------|
-| Accuracy    | 0.694         | 0.025 |
-| MCC         | 0.383         | 0.050 |
-| Sensitivity | 0.700         | \-    |
-| Specificity | 0.591         | \-    |
+**Reference:** Pearson, K. (1895). Notes on regression and inheritance in the case of two parents. *Proceedings of the Royal Society of London*, 58, 240-242.
 
-: P-gp substrate prediction: 5-fold stratified cross validation performance
+### Spearman Rank Correlation
 
-### Additional Metrics
+**Reference:** Spearman, C. (1904). The proof and measurement of association between two things. *American Journal of Psychology*, 15(1), 72-101.
 
-#### Composite Drug-Likeness Score
+------------------------------------------------------------------------
 
-ADMETShiny combines the available drug-likeness filters into a single composite score. For a compound evaluated against *n* rules, the score is the percentage of rules with zero violations:
+## Tanimoto Similarity
 
-$$\mathrm{Score} = \frac{1}{n_{\mathrm{rules}}} \sum_{i=1}^{n_{\mathrm{rules}}} \mathbf{1}(V_i = 0) \times 100$$ {#eq-compliance-score}
+**Reference:** Willett, P., Barnard, J. M., & Downs, G. M. (1998). Chemical similarity searching. *Journal of Chemical Information and Computer Sciences*, 38(6), 983-996.
 
-The score is discreted into three bands:
+**Implementation:** Extended fingerprints computed via `rcdk`, Tanimoto similarity matrix, AGNES hierarchical clustering.
 
-- **Excellent** — $\mathrm{Score} \ge 80$.
-- **Acceptable** — $60 \le \mathrm{Score} < 80$.
-- **Poor** — $\mathrm{Score} < 60$.
+### AGNES Linking Methods
 
-### Column Mapping System (ADMET Master Manager)
+| Method | Description |
+|------------------------------------|------------------------------------|
+| `average` (UPGMA) | Average distance between clusters; balanced |
+| `complete` | Maximum distance (furthest neighbour); tight clusters |
+| `single` | Minimum distance (nearest neighbour); chaining effect |
+| `ward` | Minimizes within-cluster variance; compact spherical clusters |
 
-The ADMET Master module accepts arbitrary CSV or Excel inputs whose columns names may differ from the canonical ADMETShiny schema. The function `mapADMETColumns` takes a user supplied mapping vector **m** that maps each canonical name to the corresponding source column name, and applies a deterministic column rename:
+------------------------------------------------------------------------
 
-$$\mathrm{data}_{\mathrm{standard}} = \operatorname{rename}(\mathrm{data}_{\mathrm{raw}}, \mathbf{m})$$ {#eq-data-normalization}
+## Additional Metrics
 
-After column mapping, ADMET Master converts numerical endpoint predictions into the categorical labels used by the visualization modules. For the HIA endpoint, the conversion is:
+### Pfizer 3/75 Rule
 
-$$\text{GI absorption} =
-\begin{cases}
-\text{"High"} & \text{if } p_{\mathrm{HIA}} \ge 0.5, \\
-\text{"Low"}  & \text{if } p_{\mathrm{HIA}} < 0.5.
-\end{cases}$$ {#eq-map-hia}
+**Reference:** Hughes, J. D., et al. (2008). Estimating the toxicity of compounds. *Bioorganic & Medicinal Chemistry Letters*, 18(17), 4872-4875.
 
-#### References
+**Criteria:** LogP \< 3 AND TPSA \> 75.
+
+### GSK 4/400 Rule
+
+**Reference:** Gleeson, M. P., et al. (2011). Drug-likeness. *Journal of Medicinal Chemistry*, 54(13), 4459-4468.
+
+**Criteria:** MW \<= 400 AND LogP \<= 4.
+
+### Golden Triangle
+
+**Reference:** Johnson, T. W., et al. (2009). Using the Golden Triangle. *Bioorganic & Medicinal Chemistry Letters*, 19(17), 4872-4875.
+
+**Criteria:** MW 200-450 AND LogP -2 to 4.5 (oral bioavailability zone).
+
+### Lead-Likeness
+
+**Reference:** Teague, S. J., et al. (1999). The design of leadlike combinatorial libraries. *Angewandte Chemie International Edition*, 38(24), 3743-3748.
+
+**Criteria:** MW \<= 450 AND LogP \<= 4.5 AND rotatable bonds \<= 10.
+
+------------------------------------------------------------------------
+
+## Model Training
+
+<!-- TODO: This section should be populated with the actual training results -->
+
+<!-- ### BOILED-Egg ALogP Ellipse Retraining -->
+
+<!-- **Script:** `retrain_alogp_ellipses.py` -->
+
+<!-- **Method:** -->
+
+<!-- 1. Load experimental HIA (659 molecules) and BBB (257 molecules) datasets from Daina & Zoete (2016) -->
+
+<!-- 2. Calculate TPSA and ALogP with RDKit -->
+
+<!-- 3. Normalize (mu, sigma per dataset) -->
+
+<!-- 4. Monte Carlo + Metropolis optimization (80,000 iterations, T=0.025) -->
+
+<!-- 5. Score = MCC - 0.05 x Area -->
+
+<!-- 6. Generate 100 boundary points per ellipse -->
+
+<!-- 7. Denormalize to (TPSA, ALogP) -->
+
+<!-- **HIA Results:** -->
+
+<!-- | Metric | Training | 5-fold CV | -->
+
+<!-- |---|---|---| -->
+
+<!-- | Accuracy | | | -->
+
+<!-- | MCC | | | -->
+
+<!-- | Sensitivity | | | -->
+
+<!-- | Specificity | | | -->
+
+<!-- **BBB Results:** -->
+
+<!-- | Metric | Training | 5-fold CV | -->
+
+<!-- |---|---|---| -->
+
+<!-- | Accuracy | | | -->
+
+<!-- | MCC | | | -->
+
+<!-- | Sensitivity | | | -->
+
+<!-- | Specificity | | | -->
+
+<!-- **Normalization parameters:** -->
+
+<!-- | Dataset | mu_TPSA | sd_TPSA | mu_ALogP | sd_ALogP | -->
+
+<!-- |---|---|---|---|---| -->
+
+<!-- | HIA | | | | | -->
+
+<!-- | BBB | | | | | -->
+
+<!-- ### P-gp Random Forest Training -->
+
+<!-- **Script:** `train_pgp.py` -->
+
+<!-- **Method:** -->
+
+<!-- 1. Load 882 P-gp substrate compounds from Metrabase -->
+
+<!-- 2. Calculate 9 CDK descriptors -->
+
+<!-- 3. Train Random Forest (100 trees, max depth 10) -->
+
+<!-- 4. 5-fold stratified cross-validation -->
+
+<!-- **Results:** -->
+
+<!-- | Metric | Value | -->
+
+<!-- |---|---| -->
+
+<!-- | CV Accuracy | 69.4% | -->
+
+<!-- | CV MCC | 0.383 | -->
+
+<!-- | Sensitivity | | -->
+
+<!-- | Specificity | | -->
+
+<!-- **Feature importance:** -->
+
+<!-- | Feature | Importance | -->
+
+<!-- |---|---| -->
+
+<!-- | MW | | -->
+
+<!-- | LogP | | -->
+
+<!-- | TPSA | | -->
+
+<!-- | ... | | -->
+
+<!-- **Model storage:** Pure R code (100 decision trees as parallel arrays in `pgp_model.R`). No Python or external ML packages required at runtime. -->

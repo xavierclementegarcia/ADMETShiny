@@ -1,43 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://xavierclementegarcia.github.io/ADMETShiny/dashboard.html</loc>
-    <lastmod>2026-10-27T07:59:16.336Z</lastmod>
-  </url>
-  <url>
-    <loc>https://xavierclementegarcia.github.io/ADMETShiny/about.html</loc>
-    <lastmod>2026-10-15T07:11:50.304Z</lastmod>
-  </url>
-  <url>
     <loc>https://xavierclementegarcia.github.io/ADMETShiny/workflow.html</loc>
-    <lastmod>2026-10-15T07:09:36.280Z</lastmod>
-  </url>
-  <url>
-    <loc>https://xavierclementegarcia.github.io/ADMETShiny/pages/tutorials.html</loc>
-    <lastmod>2026-10-15T07:29:10.694Z</lastmod>
-  </url>
-  <url>
-    <loc>https://xavierclementegarcia.github.io/ADMETShiny/espeletia.html</loc>
-    <lastmod>2026-10-15T07:25:33.164Z</lastmod>
-  </url>
-  <url>
-    <loc>https://xavierclementegarcia.github.io/ADMETShiny/author.html</loc>
-    <lastmod>2026-10-15T07:26:28.368Z</lastmod>
-  </url>
-  <url>
-    <loc>https://xavierclementegarcia.github.io/ADMETShiny/index.html</loc>
-    <lastmod>2026-10-27T07:24:30.076Z</lastmod>
-  </url>
-  <url>
-    <loc>https://xavierclementegarcia.github.io/ADMETShiny/feedback.html</loc>
-    <lastmod>2026-10-15T07:21:37.331Z</lastmod>
+    <lastmod>2026-10-15T07:09:36.000Z</lastmod>
   </url>
   <url>
     <loc>https://xavierclementegarcia.github.io/ADMETShiny/publication.html</loc>
-    <lastmod>2026-07-07T05:19:41.835Z</lastmod>
+    <lastmod>2026-07-07T05:19:41.000Z</lastmod>
+  </url>
+  <url>
+    <loc>https://xavierclementegarcia.github.io/ADMETShiny/pages/learn.html</loc>
+    <lastmod>2026-11-09T04:23:58.443Z</lastmod>
+  </url>
+  <url>
+    <loc>https://xavierclementegarcia.github.io/ADMETShiny/index.html</loc>
+    <lastmod>2026-10-27T07:24:30.000Z</lastmod>
+  </url>
+  <url>
+    <loc>https://xavierclementegarcia.github.io/ADMETShiny/espeletia.html</loc>
+    <lastmod>2026-10-15T07:25:33.000Z</lastmod>
+  </url>
+  <url>
+    <loc>https://xavierclementegarcia.github.io/ADMETShiny/author.html</loc>
+    <lastmod>2026-10-15T07:26:28.000Z</lastmod>
+  </url>
+  <url>
+    <loc>https://xavierclementegarcia.github.io/ADMETShiny/about.html</loc>
+    <lastmod>2026-10-15T07:11:50.000Z</lastmod>
+  </url>
+  <url>
+    <loc>https://xavierclementegarcia.github.io/ADMETShiny/changelog.html</loc>
+    <lastmod>2026-11-09T04:20:01.784Z</lastmod>
+  </url>
+  <url>
+    <loc>https://xavierclementegarcia.github.io/ADMETShiny/feedback.html</loc>
+    <lastmod>2026-10-15T07:21:37.000Z</lastmod>
   </url>
   <url>
     <loc>https://xavierclementegarcia.github.io/ADMETShiny/install.html</loc>
-    <lastmod>2026-10-28T08:28:44.869Z</lastmod>
+    <lastmod>2026-10-28T08:28:44.000Z</lastmod>
+  </url>
+  <url>
+    <loc>https://xavierclementegarcia.github.io/ADMETShiny/pages/tutorials.html</loc>
+    <lastmod>2026-11-09T04:18:56.347Z</lastmod>
+  </url>
+  <url>
+    <loc>https://xavierclementegarcia.github.io/ADMETShiny/references.html</loc>
+    <lastmod>2026-11-09T04:20:31.286Z</lastmod>
   </url>
 </urlset>

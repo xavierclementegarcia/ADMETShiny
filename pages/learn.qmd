@@ -1,0 +1,540 @@
+---
+title: "Learning Guide"
+format: html
+---
+
+
+This document provides detailed tutorials for every function in the `admetshiny` package.
+
+## Installation
+
+```{r}
+#| eval: false
+# From CRAN (when available)
+install.packages("admetshiny")
+
+# From GitHub
+# devtools::install_github("xavierclementegarcia/admetshiny")
+```
+
+## Launching the Shiny App
+
+```{r}
+#| eval: false
+library(admetshiny)
+run_app()
+```
+
+---
+
+## Drug-Likeness Filters
+
+### `lipinskiFilter()`
+
+Filters compounds according to the Rule of Five (Lipinski et al., 1997):
+MW <= 500, LogP <= 5, HBA <= 10, HBD <= 5.
+
+```{r}
+#| eval: false
+d <- data.frame(
+  MW = c(300, 600, 450),
+  LogP = c(2, 7, 4),
+  `#H-bond acceptors` = c(4, 12, 6),
+  `#H-bond donors` = c(2, 5, 3),
+  `Lipinski #violations` = c(0, 3, 0),
+  check.names = FALSE)
+
+lipinskiFilter(d)
+lipinskiFilter(d, mw = 450, logp = 4)  # Custom thresholds
+```
+
+### `ghoseFilter()`
+
+Filters according to the Ghose qualifying range (1999):
+MW 160-480, MR 40-130, LogP -0.4 to 5.6, total atoms 20-70.
+
+```{r}
+#| eval: false
+d <- data.frame(
+  MW = c(300, 600), MR = c(90, 150), LogP = c(2, 7),
+  `#Total atoms` = c(30, 80),
+  `Ghose #violations` = c(0, 4),
+  check.names = FALSE)
+
+ghoseFilter(d)
+```
+
+### `veberFilter()`
+
+Filters according to Veber (2002):
+RB <= 10 AND (TPSA <= 140 OR HBA+HBD <= 12).
+
+```{r}
+#| eval: false
+d <- data.frame(
+  TPSA = c(80, 160), `#Rotatable bonds` = c(3, 14),
+  `#H-bond acceptors` = c(4, 12), `#H-bond donors` = c(2, 5),
+  `Veber #violations` = c(0, 1),
+  check.names = FALSE)
+
+veberFilter(d)
+```
+
+### `eganFilter()`
+
+Filters according to Egan (2000): TPSA <= 131.6, LogP <= 5.88.
+
+```{r}
+#| eval: false
+d <- data.frame(
+  TPSA = c(80, 160), LogP = c(2, 7),
+  `Egan #violations` = c(0, 2),
+  check.names = FALSE)
+
+eganFilter(d)
+```
+
+### `mueggeFilter()`
+
+Filters according to Muegge (2001): MW 200-600, LogP -2 to 5, HBA <= 10, HBD <= 5, RB <= 15, TPSA <= 150, pharmacophore points >= 4.
+
+```{r}
+#| eval: false
+d <- data.frame(
+  MW = c(300, 700), LogP = c(2, 7), TPSA = c(80, 160),
+  `#H-bond acceptors` = c(4, 12), `#H-bond donors` = c(2, 5),
+  `#Rotatable bonds` = c(3, 14),
+  `Muegge #violations` = c(0, 5),
+  check.names = FALSE)
+
+mueggeFilter(d)
+```
+
+### `applyFilters()`
+
+Apply multiple filters in sequence.
+
+```{r}
+#| eval: false
+d <- data.frame(
+  MW = c(300, 600, 450), LogP = c(2, 7, 4), TPSA = c(80, 160, 100),
+  MR = c(90, 150, 100),
+  `#H-bond acceptors` = c(4, 12, 6),
+  `#H-bond donors` = c(2, 5, 3),
+  `#Rotatable bonds` = c(3, 14, 5),
+  `#Heavy atoms` = c(22, 80, 30),
+  `Lipinski #violations` = c(0, 3, 0),
+  `Ghose #violations` = c(0, 4, 0),
+  `Veber #violations` = c(0, 1, 0),
+  `Egan #violations` = c(0, 2, 0),
+  `Muegge #violations` = c(0, 5, 0),
+  check.names = FALSE)
+
+applyFilters(d, filters = c("Lipinski", "Veber", "Egan"))
+```
+
+### `computeViolationColumns()`
+
+Computes violation columns from physicochemical properties. Preserves pre-existing violation columns.
+
+```{r}
+#| eval: false
+d <- data.frame(
+  MW = c(300, 600), LogP = c(2, 7), TPSA = c(80, 160),
+  MR = c(90, 150),
+  `#H-bond acceptors` = c(4, 12), `#H-bond donors` = c(2, 5),
+  `#Rotatable bonds` = c(3, 14), `#Heavy atoms` = c(22, 80),
+  check.names = FALSE)
+
+d <- computeViolationColumns(d)
+names(d)
+```
+
+---
+
+## Data Normalization
+
+### `mapADMETColumns()`
+
+Maps any user dataset to the standard schema.
+
+```{r}
+#| eval: false
+d <- data.frame(
+  smiles = c("CCO", "CC(=O)O"),
+  mol_weight = c(46, 60),
+  logp = c(-0.3, -0.2))
+
+mapping <- c(
+  "smiles" = "SMILES",
+  "mol_weight" = "MW",
+  "logp" = "LogP")
+
+d_std <- mapADMETColumns(d, mapping)
+```
+
+### `mapCDKDescriptors()`
+
+Maps CDK descriptor output to standard schema.
+
+### `calcCDKDescriptors()`
+
+Calculates descriptors from SMILES using the Chemistry Development Kit.
+
+```{r}
+#| eval: false
+smiles <- c("CCO", "CC(=O)Oc1ccccc1C(=O)O")
+desc <- calcCDKDescriptors(smiles, which = c("mw", "logp", "tpsa"))
+```
+
+### `getSmilesFromIdentifiers()`
+
+Retrieves SMILES from PubChem via compound names, CAS numbers, or InChIKeys.
+
+```{r}
+#| eval: false
+result <- getSmilesFromIdentifiers(c("aspirin", "caffeine"))
+```
+
+---
+
+## Plots
+
+### `plotBoiledEgg()`
+
+BOILED-Egg model for GI absorption and BBB permeability prediction.
+
+```{r}
+#| eval: false
+# Basic usage
+d <- data.frame(LogP = c(2, 5), TPSA = c(50, 150))
+plotBoiledEgg(d)
+
+# With WLOGP (uses official polygons, axis = "WLOGP")
+d2 <- data.frame(
+  LogP = c(1.5, 3.0, 4.5),
+  WLOGP = c(1.8, 2.8, 4.2),
+  TPSA = c(40, 80, 120))
+plotBoiledEgg(d2)
+
+# With P-gp substrate
+d3 <- data.frame(
+  LogP = c(1.5, 3.0, 4.5),
+  TPSA = c(40, 80, 120),
+  `Pgp substrate` = c("Yes", "No", "Yes"),
+  check.names = FALSE)
+plotBoiledEgg(d3)
+
+# Suppress console statistics
+plotBoiledEgg(d, console_stats = FALSE)
+```
+
+### `plotMW()`, `plotTPSA()`, `plotLogP()`
+
+Simple distribution histograms.
+
+```{r}
+#| eval: false
+d <- data.frame(
+  MW = c(300, 350, 400, 450, 500, 320, 380, 420),
+  TPSA = c(40, 60, 80, 100, 120, 50, 70, 90),
+  LogP = c(1, 2, 3, 4, 5, 1.5, 2.5, 3.5))
+
+plotMW(d)
+plotTPSA(d)
+plotLogP(d)
+```
+
+### `plotCorrHeatmap()`
+
+Correlation heatmap with Pearson or Spearman method and significance asterisks.
+
+```{r}
+#| eval: false
+d <- data.frame(
+  MW = c(300, 400, 500, 350, 450),
+  LogP = c(2, 3, 4, 2.5, 3.5),
+  TPSA = c(60, 80, 100, 70, 90),
+  MR = c(70, 90, 110, 80, 100))
+
+# Pearson (default)
+plotCorrHeatmap(d)
+
+# Spearman
+plotCorrHeatmap(d, method = "spearman")
+
+# Custom properties
+plotCorrHeatmap(d, props = c("MW", "LogP", "TPSA"))
+
+# Suppress console
+plotCorrHeatmap(d, console_stats = FALSE)
+```
+
+### `plotHistogramCustom()`
+
+Customizable histogram with automatic statistical test selection.
+
+```{r}
+#| eval: false
+# Ungrouped: Shapiro-Wilk
+d1 <- data.frame(MW = c(300, 350, 400, 320, 380, 360, 340, 370))
+plotHistogramCustom(d1, variable = "MW")
+
+# 2 groups: Wilcoxon
+d2 <- data.frame(
+  MW = c(300, 320, 350, 380, 400, 500, 520, 550, 580, 600),
+  GI = c("High", "High", "High", "High", "High",
+         "Low", "Low", "Low", "Low", "Low"))
+plotHistogramCustom(d2, variable = "MW", group_by = "GI")
+
+# 4 groups: Kruskal-Wallis + post-hoc
+d3 <- data.frame(
+  MW = c(300, 320, 350, 600, 620, 650, 400, 420, 450, 480, 500, 520),
+  Class = rep(c("A", "B", "C", "D"), each = 3))
+plotHistogramCustom(d3, variable = "MW", group_by = "Class")
+
+# Suppress console
+plotHistogramCustom(d2, variable = "MW", group_by = "GI",
+                    console_stats = FALSE)
+```
+
+### `plotViolin()`
+
+Violin plot with automatic Wilcoxon / Kruskal-Wallis selection.
+
+```{r}
+#| eval: false
+# 2 groups: Wilcoxon
+d2 <- data.frame(
+  MW = c(300, 320, 350, 380, 400, 500, 520, 550, 580, 600),
+  GI = c("High", "High", "High", "High", "High",
+         "Low", "Low", "Low", "Low", "Low"))
+plotViolin(d2, variable = "MW", group_by = "GI")
+
+# 4 groups: Kruskal-Wallis + post-hoc
+d4 <- data.frame(
+  MW = c(300, 320, 350, 600, 620, 650, 400, 420, 450, 480, 500, 520),
+  Class = rep(c("A", "B", "C", "D"), each = 3))
+plotViolin(d4, variable = "MW", group_by = "Class",
+           show_box = TRUE, show_points = TRUE)
+```
+
+### `plotPCA()`
+
+PCA chemical space plot with PERMANOVA and loading arrows.
+
+```{r}
+#| eval: false
+d <- data.frame(
+  MW = c(300, 400, 500, 350, 450, 380, 320, 420, 480, 360),
+  LogP = c(2, 3, 4, 2.5, 3.5, 2.8, 2.2, 3.2, 3.8, 2.6),
+  TPSA = c(60, 80, 100, 70, 90, 65, 55, 75, 95, 68),
+  group = rep(c("A", "B"), each = 5))
+
+plotPCA(d, variables = c("MW", "LogP", "TPSA"), color_by = "group")
+plotPCA(d, variables = c("MW", "LogP", "TPSA"),
+        color_by = "group", scale_data = FALSE)
+plotPCA(d, variables = c("MW", "LogP", "TPSA"),
+        color_by = "group", console_stats = FALSE)
+```
+
+### `plotTSNE()`
+
+t-SNE chemical space with PERMANOVA.
+
+```{r}
+#| eval: false
+set.seed(42)
+d <- data.frame(
+  MW = c(rnorm(25, 350, 50), rnorm(25, 500, 50)),
+  LogP = c(rnorm(25, 2.5, 1), rnorm(25, 4.5, 1)),
+  TPSA = c(rnorm(25, 70, 20), rnorm(25, 100, 20)),
+  group = rep(c("A", "B"), each = 25))
+
+plotTSNE(d, variables = c("MW", "LogP", "TPSA"),
+         color_by = "group", perplexity = 5)
+```
+
+### `plotUMAP()`
+
+UMAP chemical space with PERMANOVA.
+
+```{r}
+#| eval: false
+set.seed(42)
+d <- data.frame(
+  MW = c(rnorm(25, 350, 50), rnorm(25, 500, 50)),
+  LogP = c(rnorm(25, 2.5, 1), rnorm(25, 4.5, 1)),
+  TPSA = c(rnorm(25, 70, 20), rnorm(25, 100, 20)),
+  group = rep(c("A", "B"), each = 25))
+
+plotUMAP(d, variables = c("MW", "LogP", "TPSA"),
+         color_by = "group", n_neighbors = 10)
+```
+
+### `plotParallel()`
+
+Parallel coordinates plot with PERMANOVA.
+
+```{r}
+#| eval: false
+d <- data.frame(
+  MW = c(300, 400, 500, 350, 450, 380),
+  LogP = c(2, 3, 4, 2.5, 3.5, 2.8),
+  TPSA = c(60, 80, 100, 70, 90, 65),
+  group = c("A", "A", "A", "B", "B", "B"))
+
+plotParallel(d, variables = c("MW", "LogP", "TPSA"), color_by = "group")
+plotParallel(d, variables = c("MW", "LogP", "TPSA"),
+             color_by = "group", scale_data = FALSE)
+```
+
+### `plotRadar()`
+
+Radar chart comparing up to 5 molecules.
+
+```{r}
+#| eval: false
+d <- data.frame(
+  Name = c("Aspirin", "Ibuprofen", "Caffeine"),
+  MW = c(180, 206, 194),
+  LogP = c(1.2, 3.5, 0.1),
+  TPSA = c(63, 37, 62),
+  `#H-bond acceptors` = c(4, 1, 6),
+  `#H-bond donors` = c(1, 0, 0),
+  `#Rotatable bonds` = c(3, 4, 0),
+  check.names = FALSE)
+
+plotRadar(d, id_col = "Name",
+          ids = c("Aspirin", "Ibuprofen", "Caffeine"))
+```
+
+### `plotTanimoto()`
+
+Tanimoto similarity / AGNES clustering dendrogram.
+
+```{r}
+#| eval: false
+d <- data.frame(
+  Name = c("ethanol", "aspirin", "benzene", "toluene", "phenol"),
+  SMILES = c("CCO", "CC(=O)Oc1ccccc1C(=O)O", "c1ccccc1",
+            "Cc1ccccc1", "Oc1ccccc1"),
+  stringsAsFactors = FALSE)
+
+# Different linkage methods
+plotTanimoto(d, smiles_col = "SMILES", label_col = "Name",
+             method = "average")
+plotTanimoto(d, smiles_col = "SMILES", label_col = "Name",
+             method = "complete")
+plotTanimoto(d, smiles_col = "SMILES", label_col = "Name",
+             method = "single")
+plotTanimoto(d, smiles_col = "SMILES", label_col = "Name",
+             method = "ward")
+```
+
+### `plotClusterHeatmap()`
+
+Cluster heatmap with dendrogram using pheatmap.
+
+```{r}
+#| eval: false
+d <- data.frame(
+  Name = c("Drug A", "Drug B", "Drug C", "Drug D", "Drug E",
+           "Drug F", "Drug G", "Drug H"),
+  MW = c(300, 350, 600, 320, 450, 380, 500, 410),
+  LogP = c(2, 3, 5, 1, 4, 2.5, 4.5, 3.5),
+  TPSA = c(50, 60, 120, 40, 90, 70, 100, 80),
+  MR = c(70, 85, 130, 65, 100, 80, 110, 95),
+  check.names = FALSE)
+
+# Basic
+plotClusterHeatmap(d, id_col = "Name")
+
+# With cell values and cutting
+plotClusterHeatmap(d, id_col = "Name", display_numbers = TRUE,
+                   cutree_rows = 2, palette = "viridis")
+
+# With correlation distance
+plotClusterHeatmap(d, id_col = "Name",
+                   clustering_distance = "correlation",
+                   method = "average")
+
+# With annotation
+d$Class <- c("A", "A", "B", "A", "B", "A", "B", "B")
+plotClusterHeatmap(d, id_col = "Name",
+                   annotation_row = "Class", cutree_rows = 2)
+```
+
+---
+
+## Plot Customization
+
+### `palette_selector_ui()` and `apply_palette()`
+
+Shared colour palette selector and ggplot2 palette applicator.
+
+```{r}
+#| eval: false
+# In Shiny UI:
+# palette_selector_ui("my_palette")
+
+# In Shiny server:
+# p <- apply_palette(p, input$my_palette, data, color_col)
+```
+
+---
+
+## ADMET Properties
+
+### `computeADMETProperties()`
+
+Computes BOILED-Egg ADMET classification (GI absorption, BBB permeant, Pgp substrate).
+
+```{r}
+#| eval: false
+d <- data.frame(LogP = c(2, 5), TPSA = c(50, 150), MW = c(300, 500),
+                `#H-bond donors` = c(2, 5),
+                `#H-bond acceptors` = c(4, 10),
+                check.names = FALSE)
+d <- computeADMETProperties(d)
+```
+
+---
+
+## Report Generation
+
+### `generateReport()`
+
+Generates a comprehensive report (HTML, PDF, or Word) from one or more datasets.
+
+```{r}
+#| eval: false
+d <- data.frame(
+  Name = c("druglike", "violator"),
+  SMILES = c("CCO", "CCCCCCCCCCCCCCCCCCCCCCCCCC"),
+  MW = c(300, 650), LogP = c(2, 7), TPSA = c(40, 160),
+  MR = c(70, 150),
+  `#H-bond acceptors` = c(4, 12), `#H-bond donors` = c(2, 7),
+  `#Rotatable bonds` = c(3, 14), `#Heavy atoms` = c(20, 80),
+  `#Aromatic heavy atoms` = c(6, 9),
+  check.names = FALSE)
+d <- computeViolationColumns(d)
+
+# HTML report
+generateReport(d, filters = c("Lipinski", "Veber"),
+               format = "html", source_name = "Example")
+```
+
+---
+
+## Running the App
+
+### `run_app()`
+
+Launches the interactive Shiny application.
+
+```{r}
+#| eval: false
+library(admetshiny)
+run_app()
+```
